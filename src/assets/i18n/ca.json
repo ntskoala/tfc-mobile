@@ -1,0 +1,63 @@
+{
+    "home" : "Inici",
+    "tutorial" : "Tutorial",
+     "menu": {    
+        "home": "Inici",
+        "controles": "Controls",
+        "checklist": "Checklist",
+        "sync": "sincronització",
+        "login": "Login",
+        "config": "Configuració"
+    },
+    "alertas": {
+        "error": "Error",
+        "maluser": "Usuari o password incorrecte, torni a provar",
+         "errorvalor": "El valor ha de ser numéric y no pot estar buit",
+         "nohayemail": "No es pot enviar el email automátic",
+         "rangoerror": "El parametre està fora del interval permés",
+        "valorminimo": "Alerta, valor per sota del mínim",
+        "valormaximo": "Alerta, superat el valor màxim",
+        "tolerancia": "Alerta, superat el valor tolerancia",
+        "critico": "Alerta, superat el valor critic",
+        "conexion": "No hi ha conexió"
+    },
+    "email":{
+        "subject":"INCIDÈNCIA: LÍMIT CRÍTIC O TOLERÀNCIA SUPERATS",
+        "body":"<h1>Proacciona -> parámetre fora del rang permés</h1><p>Proacciona l'informa que un dels parametres està fora del rang permés, a continuació es mostre el valor del error y els límits establerts:</p>",
+        "pie": "<p>MESURES CORRECTORES:<BR>-Clor lliure fora de rang: avisar la companyia d'aigües per escrit y per telèfon. No usar aigua de xarxa.<BR>-Temperatura de cambra supera límit crític o tolerància: tancar portes de cambra y controlas la temperatura del producte cada 30 minuts. Avisar empresa de manteniment.<BR>Amb aquest avís. la incidència ha quedat oberta i s'ha de tancar el més aviat possible.</p>"
+    },
+    "intro":{
+        "titulo1":"Login",
+        "slide1": "Introdueix el teu nom d'usuari y password per accedir",
+        "titulo2":"Menú",
+        "slide2":"Selecciona si vols omplir un control o un checklist",
+        "titulo3": "llistat de controls",
+        "slide3": "lleistat de controls o checklist disponibles per tu",
+        "titulo4": "Checklist",
+        "slide4": "Als checklists pots fer swipe , desplazar el dit a esquerra o dreta, o bé fer click per insertar un comentari",
+        "titulo5": "Comença",
+        "slide5": "Polsa el botó login per començar, marca la casilla de no mostrar mes per que aquest tutorial no es mostri la próxima vegada que entris en la aplicació"
+    },
+    "config":{
+        "idioma" : "idioma",
+        "email": "Direcció de email on s'enviaràn les alertes",
+        "ok": "accepta"
+    },
+    "asistencia": "Asistencia",
+    "control": "control",
+    "checklist": "checklist",
+    "valor": "valor",
+    "valorc": "valor capturat: ",
+    "minimo": "mínim: ",
+    "maximo": "màxim: ",
+    "tolerancia": "tolerancia: ",
+    "critico":"critic: ",
+    "foto": "foto",
+   "terminar": "enviar",
+    "correcto": "correcte",
+    "incorrecto": "incorrecte",
+    "no aplica":"no aplica",
+    "descripcion":"Descripció",
+    "cancel": "Cancelar"
+
+}

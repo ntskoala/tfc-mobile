@@ -1,0 +1,71 @@
+{
+    "home" : "Home",
+    "tutorial" : "Tutorial",
+     "menu": {    
+        "home": "Home",
+        "controles": "Controles",
+        "checklist": "Checklist",
+        "sync": "sincronización",
+        "login": "Login",
+        "config": "Configuración"
+    },
+    "alertas": {
+        "error": "Error",
+        "maluser": "Usuario o password incorrecto, vuelva a intentarlo",
+         "errorvalor": "El valor tiene que se numérico y no puede estar vacío",
+         "nohayemail": "No se puede enviar el email automático",
+         "rangoerror": "El parametro está fuera del intervalo permitido",
+        "valorminimo": "Alerta, valor por debajo del mínimo",
+        "valormaximo": "Alerta, superado el valor máximo",
+        "tolerancia": "Alerta, superado el valor tolerancia",
+        "critico": "Alerta, superado el valor crítico",
+        "conexion": "No hay conexión"
+    },
+    "email":{
+        "subject":"INCIDENCIA: LÍMITE CRÍTICO O TOLERANCIA SUPERADOS",
+        "body":"<h1>Proacciona -> parámetro fuera del rango permitido</h1><p>Proacciona le informa que uno de los parametros está fuera del rango permitido, a continuación se muestra el valor del error y los límites establecidos:</p>",
+        "pie": "<p>MEDIDAS CORRECTORAS:<BR>-Cloro libre fuera de rango: avisar a la compañía de aguas por escrito y por teléfono. No usar agua de red.<BR>-Temperatura de cámara supera límite crítico: cerrar puertas y controlar la temperatura del producto cada 30 minutos. Avisar a la empresa de mantenimiento.<BR>Mediante este aviso, la incidencia ha sido abierta y debe cerrarse a la mayor brevedad posible.</p>"
+    },
+    "intro":{
+        "titulo1":"Login",
+        "slide1": "Introduce tu nombre de usuario y password para acceder",
+        "titulo2":"Menú",
+        "slide2":"Selecciona si quieres rellenar un control o un checklist",
+        "titulo3": "Lista de controles",
+        "slide3": "listado de controles o checklist disponibles para ti",
+        "titulo4": "Checklist",
+        "slide4": "En los checklist puedes hacer swipe, deslizar el dedo a izquierda o derecha, para insertar un comentario",
+        "titulo5": "Comienza ya",
+        "slide5": "Pulsa el botón login para comenzar, marca la casilla de no mostrar más para que este tutorial no se muestre la próxima vez que entres en la aplicación"
+    },
+    "config":{
+        "idioma" : "idioma",
+        "email": "Dirección de email donde se enviarán las alertas",
+        "ok": "ok"
+    },
+    "empresa":{
+        "titulo": "Empresa",
+        "texto": "Introduce el código de empresa para comenzar a usar la app",
+        "codigo": "Código",
+        "cancel": "Cancelar",
+        "ok":"Aceptar",
+        "errorcodigo": "Error en el código!"
+    },
+    "asistencia": "Asistencia",
+    "control": "control",
+    "checklist": "checklist",
+    "valor": "valor",
+    "valorc": "valor capturado: ",
+    "minimo": "mínimo: ",
+    "maximo": "máximo: ",
+    "tolerancia": "tolerancia: ",
+    "critico":"critico: ",
+    "foto": "foto",
+    "terminar": "enviar",
+    "correcto": "correcto",
+    "incorrecto": "incorrecto",
+    "no aplica":"no aplica",
+    "descripcion":"Descripción",
+    "cancel": "Cancelar"
+
+}

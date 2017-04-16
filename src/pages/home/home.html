@@ -1,14 +1,54 @@
 <ion-header>
+  
   <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name='menu'></ion-icon>
+</button>
+
     <ion-title>
-      Ionic Blank
+      {{"home" | translate }}
+      <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
     </ion-title>
+        
   </ion-navbar>
 </ion-header>
-
+ 
 <ion-content padding>
-  The world is your oyster.
+<ion-row>
+<ion-col>
+<!--<img src="assets/img/logoempresa.jpg" class="center"/>-->
+<img [src]="logoempresa" *ngIf="empresa" class="center logo"/>
+</ion-col>
+</ion-row>
+  
   <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
   </p>
+
+   <ion-card>
+     <ion-card-title>Total Food Control
+     </ion-card-title>
+    <ion-card-content>
+<ion-list *ngFor="let control of controlesList">
+<ion-item (click)="takeControl(control)">
+      <ion-avatar item-left>
+      <img src="assets/img/temp.png">
+    </ion-avatar>
+         <h2>{{control.nombre}} {{control.pla}}</h2>  
+</ion-item>
+</ion-list>
+  
+<ion-list *ngFor="let checklist of checklistList">
+<ion-item (click)="takeChecklist(checklist)">
+      <ion-avatar item-left>
+      <img src="assets/img/checks.jpg">
+    </ion-avatar>
+         <h2>{{checklist.nombrechecklist}}</h2>  
+</ion-item>
+</ion-list>   
+    
+    </ion-card-content>
+   </ion-card>
+
+
+
 </ion-content>

@@ -1,0 +1,48 @@
+<!--
+  Generated template for the Config page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name='menu'></ion-icon>
+</button>
+
+    <ion-title>
+      {{"menu.config" | translate }}
+      <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
+    </ion-title>
+        
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+<ion-list radio-group [(ngModel)]="lang" (ionChange)="selectlang()">
+
+  <ion-list-header>
+   {{"config.idioma" | translate }}
+  </ion-list-header>
+
+  <ion-item>
+    <ion-label>Català</ion-label>
+    <ion-radio value="ca"></ion-radio>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Español</ion-label>
+    <ion-radio value="es"></ion-radio>
+  </ion-item>
+</ion-list>
+<hr>
+<!--{{"config.email" | translate }}-->
+  <!--<ion-item>
+    <ion-label color="primary" floating>e-mail</ion-label>
+    <ion-input [(ngModel)]="email"></ion-input>
+  </ion-item>-->
+<!--<button ion-button (click)="setmail()" value="email">{{"config.ok" | translate}}</button>-->
+
+</ion-content>

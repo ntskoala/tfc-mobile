@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-navbar>
+
+
+    <ion-title>
+      {{"login" | translate }}
+      <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
+      </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-row>
+<ion-col>
+<img [src]="logoempresa" *ngIf="empresa" class="center logo"/>
+</ion-col>
+</ion-row>
+  
+  <p>
+  </p>
+      <ion-list>
+ 
+      <ion-item>
+        <ion-label floating>{{"nombre" | translate}}</ion-label>
+        <ion-input type="text" [(ngModel)]="nombre"></ion-input>
+      </ion-item>
+ 
+      <ion-item>
+        <ion-label floating>{{"password" | translate}}</ion-label>
+        <ion-input type="password" [(ngModel)]="password"></ion-input>
+      </ion-item>
+    </ion-list>
+
+
+
+    <button ion-button (click)="login()" twitter style="width: 100%;">Login</button> 
+
+
+</ion-content>
