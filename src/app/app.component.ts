@@ -18,7 +18,7 @@ export class MyApp {
   @ViewChild(Nav) nav: Nav;
   rootPage = HomePage;
 pages: Array<{title: string, component: any}>;
-public badge: number =0;
+//public badge: number =0;
 
 
 
@@ -44,7 +44,7 @@ public badge: number =0;
      modal.present();
       //this.setEmpresa();
     }
-        this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+       // this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
 
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
@@ -66,6 +66,7 @@ public badge: number =0;
 openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
+    console.log(page.component);
     this.nav.setRoot(page.component);
 }  
 

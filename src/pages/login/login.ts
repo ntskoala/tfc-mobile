@@ -43,19 +43,20 @@ export class LoginPage {
     this.logoempresa = "http://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
   }
 
+
+
 login(){
   if (this.nombre == "koala"){
     //sessionStorage.setItem("idusuario","koala");
+
     this.navCtrl.push(Empresa);
   }
   else{
   let mensaje: string;
   this.data.getLogin(this.nombre,this.password).then((data) => { 
-//  setTimeout (() => {
       console.log("getlogin:" + data);
       if (!isNaN(this.data.logged)){
           sessionStorage.setItem("idusuario",this.data.logged.toString());
-          //this.accesomenu.enable(true);
           this.navCtrl.setRoot(HomePage);
           }
         else{
@@ -63,12 +64,13 @@ login(){
             alert (mensaje);
         }
     },
-    (error)=> {console.log ("error: " + error)}
+    (error)=> {
+            this.translate.get("alertas.maluser").subscribe(resultado => { mensaje = resultado});
+            alert (mensaje);
+      console.log ("error: " + error)}
     );
   }
- //   },500);
-  //alert (this.miDistancia);
-  //this.navCtrl.push(ControlesPage);
+
   }
 
 onconect(){

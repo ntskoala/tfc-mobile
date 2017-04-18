@@ -37,6 +37,7 @@ export class checklistList {
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
+
 })
 export class HomePage {
 miscontroles: any;
@@ -59,10 +60,10 @@ public checklistList: checklistList[] = [];
    //         console.log("ERROR al abrir la bd: ", error);
    //     });
 
-  
+   console.log("constructor homePage_data.logged:",this.data.logged);
          
         let login = this.data.logged;
-        console.log("login =" + login);
+        console.log("login =", login);
         if ((login === undefined || login == null)) {
           if (!localStorage.getItem("intro")) {
             if (!sessionStorage.getItem("introvista"))

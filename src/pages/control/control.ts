@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import {TranslateService} from 'ng2-translate';
 import {SyncPage} from '../sync/sync';
+import { Initdb } from '../../providers/initdb';
+
 //import {TranslatePipe} from 'ng2-translate';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Camera } from '@ionic-native/camera';
@@ -28,8 +30,8 @@ public idcontrol: number;
 public valor: number;
 public control: any;
 public desactivado: boolean;
-public myapp: MyApp;
-  constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, public sync: SyncPage,public db :SQLite, public camera: Camera,public network:Network,public socialsharing: SocialSharing) {
+//public myapp: MyApp;
+  constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, public initdb: Initdb, public sync: SyncPage,public db :SQLite, public camera: Camera,public network:Network,public socialsharing: SocialSharing) {
     this.control = this.navParams.get('control');
     this.nombre = this.navParams.get('control').nombre;
     this.pla = this.navParams.get('control').pla;
@@ -78,7 +80,7 @@ terminar(idcontrol){
                   //let db= new SQLite();
                   this.db.create({name: 'data.db',location: 'default'})
                   .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO resultadoscontrol (idcontrol, resultado, foto, idusuario) VALUES (?,?,?,?)',[idcontrol,this.valor,this.base64Image,sessionStorage.getItem("idusuario")]).then(
-  (Resultado) => { console.log(Resultado);
+  (Resultado) => { console.log("insert_ok:",Resultado);
                    
                           if (this.network.type != 'none') {
                               console.log("conected");
@@ -89,7 +91,8 @@ terminar(idcontrol){
                           {
                             console.log ("suma:" + localStorage.getItem("synccontrol"));
                               localStorage.setItem("synccontrol",(parseInt(localStorage.getItem("synccontrol"))+1).toString());
-                              this.myapp.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+                              console.log("this.myapp.badge",this.initdb.badge);
+                              this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
                           }
 
                   this.navCtrl.pop();

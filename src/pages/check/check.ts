@@ -6,6 +6,8 @@ import {TranslateService} from 'ng2-translate';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Camera } from '@ionic-native/camera';
 import {SyncPage} from '../sync/sync';
+import { Initdb } from '../../providers/initdb';
+
 import { Network } from '@ionic-native/network';
 import { MyApp } from '../../app/app.component';
 
@@ -42,10 +44,10 @@ public nombrechecklist: string;
 public base64Image;
 public checkvalue:string;
 public selectedValue:string;
-public myapp: MyApp;
+//public myapp: MyApp;
 //public db: SQLite;
 //public fotositems: string[] =[];
-  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController, public sync: SyncPage, private translate: TranslateService,public db :SQLite, public camera: Camera,public network:Network) {
+  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController, public initdb: Initdb, public sync: SyncPage, private translate: TranslateService,public db :SQLite, public camera: Camera,public network:Network) {
 
         this.idchecklist =  this.params.get('checklist').idchecklist;
         this.nombrechecklist = this.params.get('checklist').nombrechecklist;
@@ -120,7 +122,7 @@ terminar(){
           }
           else {
             localStorage.setItem("syncchecklist", (parseInt(localStorage.getItem("syncchecklist")) + 1).toString());
-            this.myapp.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
           }
   
 },

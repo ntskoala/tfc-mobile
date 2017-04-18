@@ -4,6 +4,8 @@ import {TranslateService} from 'ng2-translate';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Network } from '@ionic-native/network';
 import { Sync } from '../../providers/sync';
+import { Initdb } from '../../providers/initdb';
+
 import { MyApp } from '../../app/app.component';
 
 
@@ -17,8 +19,8 @@ public users: any;
 //public db2: SQLite;
 public conexion: boolean = false;
 public badge: number;
-public myapp:MyApp;
-  constructor(public navCtrl: NavController, public sync: Sync, public translate: TranslateService,public db :SQLite,public network:Network) {
+//public myapp:MyApp;
+  constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync, public translate: TranslateService,public db :SQLite,public network:Network) {
         if (this.network.type != 'none') {
           console.log("conected");
       }
@@ -67,7 +69,7 @@ sync_data_control(){
                   this.sync.setResultados(JSON.stringify(arrayfila),"resultadoscontrol")
                   .subscribe(data => {console.log("control5")
                                       localStorage.setItem("synccontrol","0");
-                                      this.myapp.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+                                      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
                                       this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
                                       },
                               error => console.log("control6" + error),
@@ -105,7 +107,7 @@ sync_data_checklist(){
                         console.log ("returned" + idrespuesta);
                         }
                         localStorage.setItem("syncchecklist","0");
-                        this.myapp.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+                        this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
                         this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
                 }
               }, (error) => {

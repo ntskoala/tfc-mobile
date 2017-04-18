@@ -17,6 +17,8 @@ public users: any;
 public gerentes: any;
 //private storage;
 public logged: number;
+public badge: number;
+
 //public db: SQLite;
 
   constructor(public http: Http, public sync: Sync,public db :SQLite) {
@@ -79,7 +81,7 @@ public logged: number;
 
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
-
+this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
 
 //db.close();
   //this.sync.sincronizate();
@@ -159,25 +161,34 @@ if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncc
 }
 
 public getLogin(nombre: string, password:string): any{
+    return new Promise((resolve,reject)=>{
+    console.log('getlogin...')
     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+        console.log('abierta',db2.databaseFeatures);
     return db2.executeSql('select * from logins WHERE user = ? AND password = ?',[nombre,password]).then((data) => {
+        console.log('registros',data.rows)
         if (data.rows.length >0){
             //alert ("id" + data.rows.item(0).id);
             this.logged = data.rows.item(0).id;
-           // alert ("logged" + this.logged);
+           console.log ("logged", this.logged);
             sessionStorage.setItem("login",data.rows.item(0).id);
             //localStorage.setItem("idempresa",data.rows.item(0).idempresa);
-            return true;
+            //return new Promise ((resolve,reject) => {resolve(true)});
+            return resolve('ok')
             }
         else{
+            console.log('undefined...')
             this.logged = undefined;
-            return false;
+
+            return reject('no hay registros');
         }
     }, (error) => {
                 alert("ERROR executing -> " + JSON.stringify(error));
-                return false;
+                //return false;
+                return reject('error en la consulta')
             });
     });
-    }
+    });
+}
 
 }

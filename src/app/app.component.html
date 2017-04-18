@@ -8,7 +8,7 @@
     <ion-list>
       <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">
         {{p.title | translate}}
-        <ion-badge item-right *ngIf="p.title == 'menu.sync'">{{badge}}</ion-badge>
+        <ion-badge item-right *ngIf="p.title == 'menu.sync'">{{initdb.badge}}</ion-badge>
       </button>
     </ion-list>
   </ion-content>
