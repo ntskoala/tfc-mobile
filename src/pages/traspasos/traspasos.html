@@ -1,0 +1,181 @@
+<!--
+  Generated template for the Traspasos page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name='menu'></ion-icon>
+</button>
+
+    <ion-title>
+      {{"menu.config" | translate }}
+      <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
+    </ion-title>
+        
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+
+
+
+<!--<button md-raised-button (click)="traspaso = !traspaso">{{'produccion.traspaso' | translate}}</button>-->
+
+<!--<div *ngIf="traspaso">-->
+  <div>
+<ion-toolbar color="accent">{{'produccion.traspaso' | translate}}</ion-toolbar>
+<div id="traspasoComponent">
+<div id="origen">
+
+   <!--<md-slide-toggle [(ngModel)]="proveedor" (change)="cambioOrigen()">proveedor</md-slide-toggle>-->
+<div id="select_proveedor">
+    <select class="smallselect"  name="proveedor" (change)="getProductos($event.target.value)">
+      <option *ngFor="let prov of proveedores; let i = index" [value]="prov.id">
+        {{prov.nombre}}
+      </option>
+    </select>
+</div>
+
+  <form *ngIf="!proveedor">
+     Tanque Origen
+    <select (change)="seleccionarOrigen('interno',$event.target.value)">
+      <option *ngFor="let almacenOrigen of almacenesOrigen; let i = index" [value]="i">
+        {{almacenOrigen.nombre}}
+      </option>
+    </select>
+  </form>
+<!--********************** ^POR PROVEEDOR  ***************-->
+    <div id="porProveedor"  *ngIf="proveedor">
+
+
+    <select class="smallselect"  name="producto" (change)="getEntradasProducto($event.target.value)">
+      <option *ngFor="let prod of productos; let i = index" [value]="prod.id">
+        {{prod.nombre}}
+      </option>
+    </select>
+    <BR>    
+
+
+    <select class="smallselect"  name="idmateriaprima" (change)="seleccionarOrigen('proveedor',$event.target.value)">
+      <option *ngFor="let lote of entrada_productos; let i = index" [value]="i">
+        {{lote.numlote_proveedor}}
+      </option>
+    </select>
+    </div>     
+<!--********************** FIN POR PROVEEDOR  ***************-->
+
+
+
+  <ion-card *ngIf="almacenOrigenSelected">
+      <ion-card-header>
+          {{'Tanque Origen' | translate}}: {{almacenOrigenSelected.nombre}}
+      </ion-card-header>
+        {{'Capacidad' | translate}}: {{almacenOrigenSelected.capacidad}}<br>
+        {{'Uso' | translate}}: {{almacenOrigenSelected.estado}}<br>
+        {{'Lote actual' | translate}}: {{almacenOrigenSelected.idproduccionordenactual}}<br>
+        <span *ngIf="ordenOrigen">
+          {{'Num_Lote' | translate}}: {{ordenOrigen.numlote}}<br>
+        {{'Fecha Inicio Lote' | translate}}: {{ordenOrigen.fecha_inicio | date:'dd/MM/yy'}}<br>
+        {{'Fecha Fin Lote' | translate}}: {{ordenOrigen.fecha_fin | date:'dd/MM/yy'}}<br>
+        <span *ngIf="ordenOrigen.fecha_caducidad != 'Invalid Date'">
+        {{'Fecha caducidad' | translate}}: {{ordenOrigen.fecha_caducidad | date:'dd/MM/yy'}}<br>
+        </span>
+        </span>
+  </ion-card>
+  <ion-card *ngIf="loteSelected">
+      <ion-card-header>
+         {{'Num_Lote' | translate}}: {{loteSelected.numlote_proveedor}}
+      </ion-card-header>
+        {{'Cantidad Inicial' | translate}}: {{loteSelected.cantidad_inicial}}<br>
+        {{'Cantidad Disponible' | translate}}: {{loteSelected.cantidad_remanente}}<br>
+        {{'Fecha Entrada' | translate}}: {{loteSelected.fecha_entrada | date:'dd/MM/yy'}}<br>
+        <span *ngIf="loteSelected.fecha_caducidad != 'Invalid Date'">
+        {{'Fecha caducidad' | translate}}: {{loteSelected.fecha_caducidad | date:'dd/MM/yy'}}<br>
+         </span>
+  </ion-card>
+
+</div>
+<div id="traspaso">
+<ion-item>
+  <ion-input type="number"  placeholder="cantidad traspaso" [(ngModel)]="cantidadTraspaso">
+    </ion-input>
+</ion-item>
+<button ion-button (click)="traspasar()">{{'traspasar' | translate}}</button>
+<div *ngIf="alerts.length >0" class="modal">
+  <div class="modal-window">
+<ion-list>
+  <ion-item *ngFor="let alert of alerts">{{alert}}</ion-item>
+</ion-list>
+<button ion-button (click)="cierraMessage()">{{'entendido' | translate}}</button>
+  </div>
+  </div>
+</div>
+
+<div id="destino">
+
+<div id="select_cliente">
+    <select class="smallselect"  name="cliente" (change)="setCliente($event.target.value)">
+      <option *ngFor="let cliente of clientes; let i = index" [value]="cliente.id">
+        {{cliente.nombre}}
+      </option>
+    </select>
+</div>
+Destino
+  <div *ngIf="clienteSelected">
+  <ion-card>
+      <ion-card-header>
+          {{'Cliente Destino' | translate}}: {{clienteSelected.nombre}}
+      </ion-card-header>
+        {{'clientes.contacto' | translate}}: {{clienteSelected.contacto}}<br>
+        {{'clientes.telf' | translate}}: {{clienteSelected.telf}}<br>
+        {{'clientes.email' | translate}}: {{clienteSelected.email}}<br>
+        <span *ngIf="distribucion">
+          {{'Num_Lote' | translate}}: {{distribucion.numlote}}<br>
+          {{'Cantidad' | translate}}: {{distribucion.cantidad}}<br>
+          <span *ngIf="distribucion.fecha != 'Invalid Date'">{{'Fecha' | translate}}: {{distribucion.fecha | date:'dd/MM/yy'}}<br></span>
+        <span *ngIf="distribucion.fecha_caducidad != 'Invalid Date'">{{'Fecha caducidad' | translate}}: {{distribucion.fecha_caducidad | date:'dd/MM/yy'}}<br></span>
+
+        </span>
+  </ion-card>
+  </div>
+
+  <div *ngIf="!clienteSelected">
+  <form>  
+    <select (change)="seleccionarDestino($event.target.value)">
+      <option *ngFor="let almacenDestino of almacenesDestino; let i = index" [value]="i">
+        {{almacenDestino.nombre}}
+      </option>
+    </select>
+  </form>
+  <ion-card *ngIf="almacenDestinoSelected">
+      <ion-card-header>
+          {{'Tanque Destino' | translate}}: {{almacenDestinoSelected.nombre}}
+      </ion-card-header>
+        {{'Capacidad' | translate}}: {{almacenDestinoSelected.capacidad}}<br>
+        {{'Disponible' | translate}}: {{almacenDestinoSelected.capacidad - almacenDestinoSelected.estado}}<br>
+        {{'Lote actual' | translate}}: {{almacenDestinoSelected.idproduccionordenactual}}<br>
+                <span *ngIf="ordenDestino">
+                 {{'Num_Lote' | translate}}: {{ordenDestino.numlote}}<br>
+        {{'Fecha Inicio Lote' | translate}}: {{ordenDestino.fecha_inicio  | date:'dd/MM/yy'}}<br>
+        {{'Fecha Fin Lote' | translate}}: {{ordenDestino.fecha_fin  | date:'dd/MM/yy'}}<br>
+         <span *ngIf="ordenDestino.fecha_caducidad != 'Invalid Date'">
+        {{'Fecha caducidad' | translate}}: {{ordenDestino.fecha_caducidad | date:'dd/MM/yy'}}<br>
+         </span>
+        </span>
+  </ion-card>
+  </div>
+
+</div>
+</div>
+</div>
+
+
+
+
+</ion-content>

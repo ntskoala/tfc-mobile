@@ -57,7 +57,9 @@ pages: Array<{title: string, component: any}>;
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },
       ];
-
+      if (localStorage.getItem("idempresa") == "2"){
+        this.pages.push({title:'traspasos',component:"TraspasosPage"})
+      }
       
 
       statusBar.styleDefault();
