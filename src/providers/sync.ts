@@ -19,8 +19,8 @@ private posturl: string;
 
 public idchecklist;
 
-//public baseurl: string = "http://tfc.proacciona.es/api";
- public baseurl: string = "http://tfc.ntskoala.com/api";
+ public baseurl: string = "http://tfc.proacciona.es/api";
+// public baseurl: string = "http://tfc.ntskoala.com/api";
  public idempresa= localStorage.getItem("idempresa");
  public loader:any;
 createAuthorizationHeader(headers:Headers) {

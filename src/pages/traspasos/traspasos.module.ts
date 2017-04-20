@@ -7,7 +7,8 @@ import {HttpModule,Http} from '@angular/http';
 import {TranslateModule,TranslateLoader, TranslateStaticLoader } from 'ng2-translate/ng2-translate';
 
 export function createTranslateLoader(http: Http) {
-    return new TranslateStaticLoader(http, '../../assets/i18n', '.json');
+    //return new TranslateStaticLoader(http, '../../assets/i18n', '.json');
+    return new TranslateStaticLoader(http, './assets/i18n', '.json');
 }
 
 

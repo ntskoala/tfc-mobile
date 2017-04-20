@@ -56,6 +56,8 @@ login(){
   this.data.getLogin(this.nombre,this.password).then((data) => { 
       console.log("getlogin:" + data);
       if (!isNaN(this.data.logged)){
+        sessionStorage.setItem("nombre",this.nombre);
+        sessionStorage.setItem("password",this.password);
           sessionStorage.setItem("idusuario",this.data.logged.toString());
           this.navCtrl.setRoot(HomePage);
           }

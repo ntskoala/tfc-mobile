@@ -1,3 +1,14 @@
 page-traspasos {
-
+.modal {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+.hr{
+  color: blue;
+}
 }

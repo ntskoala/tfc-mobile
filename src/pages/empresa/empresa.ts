@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, ViewController } from 'ionic-angular';
 import { Initdb } from '../../providers/initdb';
 import {TranslateService} from 'ng2-translate';
 import {Sync} from '../../providers/sync'
@@ -19,7 +19,7 @@ export class Empresa {
 public empresa:number;
 public koala: boolean=false;
 public debug: boolean = false;
-  constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync,public translate: TranslateService) {}
+  constructor(public navCtrl: NavController,public viewCtrl: ViewController, public initdb: Initdb, public sync: Sync,public translate: TranslateService) {}
 
   ionViewDidLoad() {
     console.log('Hello Empresa Page');
@@ -27,7 +27,7 @@ public debug: boolean = false;
     console.log("koala",this.koala);
   }
 setEmpresa(){
-  console.log(this.debug);
+  console.log("es debug",this.debug);
 if (this.debug) {
  // this.sync.baseurl = 'http://tfc.ntskoala.com/api';
  // localStorage.setItem("modo","debug");
@@ -47,7 +47,9 @@ if (!isNaN(this.empresa)){
       localStorage.setItem("idempresa",codigo);
       this.initdb.sincronizate();
      
-      this.navCtrl.pop();
+     // this.navCtrl.pop();
+      //this.viewCtrl.dismiss(codigo);
+      this.dismiss();
     }
     else //CODIGO ERRONEO
     {
@@ -60,5 +62,9 @@ if (!isNaN(this.empresa)){
     this.translate.get("alertas.errorvalor")
     .subscribe(resultado => { alert(resultado);});
    } 
+}
+dismiss(){
+this.navCtrl.pop();
+//this.viewCtrl.dismiss()
 }
 }

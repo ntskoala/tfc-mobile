@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import {Servidor} from '../../providers/servidor';
+import { HomePage } from '../home/home'
 import { TranslateService } from 'ng2-translate';
 import * as moment from 'moment/moment';
 /**
@@ -10,8 +11,8 @@ import * as moment from 'moment/moment';
  * on Ionic pages and navigation.
  */
 
-//let server = 'http://tfc.proacciona.es/'; //prod
-let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+let server = 'http://tfc.proacciona.es/'; //prod
+//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
@@ -127,9 +128,9 @@ export class ProveedorLoteProducto {
 
 @IonicPage()
 @Component({
-  selector: 'traspasos',
+  selector: 'page-traspasos',
   templateUrl: 'traspasos.html',
-  providers: [Servidor]
+  providers: [Servidor],
 })
 export class TraspasosPage {
 //*** STANDARD VAR
@@ -169,23 +170,35 @@ public max_cantidad:number=70;
 public contador:number;
 public alerts:string[]=[];
 
+//***** */
+public numTanque:number;
+public ok:boolean=true;
+public ok2:boolean=false;
+public translateTanque:string="Tanque";
+public translateCliente:string="Cliente";
+//***** */
 public idempresa= localStorage.getItem("idempresa");
-public userId= localStorage.getItem("login");
+public userId= sessionStorage.getItem("login");
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public servidor: Servidor, private translate: TranslateService) {
-  }
+            this.translate.use(localStorage.getItem("lang"));
+          this.translate.setDefaultLang(localStorage.getItem("lang"));
+}
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad Traspasos');
   }
   ngOnInit() {
-  let param = '?user=demo' + ''+ '&password=demo' +''; 
+       this.translate.get('traspasos.Tanque').subscribe((valor) => this.translateTanque=valor);
+        this.translate.get('traspasos.Cliente').subscribe((valor) => this.translateCliente=valor);
+  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");; 
     this.servidor.login(URLS.LOGIN, param).subscribe(
       response => {
         if (response.success == 'true') {
           // Guarda token en sessionStorage
           sessionStorage.setItem('token', response.token);
+          if(!this.userId) this.userId = '1';
       this.getAlmacenes();
       this.getProveedores();
       this.getClientes();
@@ -226,7 +239,7 @@ getAlmacenes() {
             //this.itemActivo = 0;
             // Vaciar la lista actual
             this.almacenesOrigen = [];
-            this.almacenesOrigen.push(new Almacen(0,0,'Selecciona',0,0,0));
+           // this.almacenesOrigen.push(new Almacen(0,0,'Selecciona',0,0,0));
             if (response.success == 'true' && response.data) {
               for (let element of response.data) {
                 this.almacenesOrigen.push(new Almacen(element.id,element.idempresa,element.nombre,element.capacidad,element.estado,element.idproduccionordenactual,element.level));
@@ -238,11 +251,12 @@ getAlmacenes() {
 
    getClientes() {
     let parametros = '&idempresa=' + this.idempresa+"&entidad=clientes";
-
+    let tanque;
+        
         this.servidor.getObjects(URLS.STD_ITEM, parametros).subscribe(
           response => {
             this.clientes = [];
-            this.clientes.push(new Cliente("Tanque",0,'','','',0));
+            this.clientes.push(new Cliente(this.translateTanque,0,'','','',0));
             if (response.success == 'true' && response.data) {
               for (let element of response.data) {
                 this.clientes.push(new Cliente(element.nombre,element.idempresa,element.contacto,element.telf,element.email,element.id));
@@ -270,8 +284,8 @@ getProveedores(){
         this.servidor.getObjects(URLS.STD_ITEM, parametros).subscribe(
           response => {
             this.proveedores = [];
-            this.proveedores.push({"id":0,"nombre":"selecciona"});
-            this.proveedores.push({"id":0,"nombre":"Tanque"});
+            //this.proveedores.push({"id":0,"nombre":"selecciona"});
+            this.proveedores.push({"id":0,"nombre":this.translateTanque});
             if (response.success && response.data) {
               for (let element of response.data) { 
                   this.proveedores.push({"id":element.id,"nombre":element.nombre});
@@ -284,6 +298,8 @@ getProveedores(){
 }
 
 getProductos(idProveedor:number){
+    console.log("id",idProveedor);
+
     (idProveedor >0)? this.proveedor = true: this.proveedor=false;
     this.cambioOrigen();
     this.idProveedorActual = idProveedor;
@@ -291,7 +307,7 @@ getProductos(idProveedor:number){
         this.servidor.getObjects(URLS.STD_SUBITEM, parametros).subscribe(
           response => {
             this.productos = [];
-            this.productos.push({"id":0,"nombre":'selecciona',"familia":0});
+           // this.productos.push({"id":0,"nombre":'selecciona',"familia":0});
             if (response.success && response.data) {
               for (let element of response.data) { 
                   this.productos.push({"id":element.id,"nombre":element.nombre,"familia":element.idfamilia});
@@ -314,7 +330,7 @@ getEntradasProducto(idProducto){
         this.servidor.getObjects(URLS.STD_SUBITEM, parametros).subscribe(
           response => {
             this.entrada_productos = [];
-            this.entrada_productos.push(new ProveedorLoteProducto('selecciona',new Date(),new Date(),0,'',0,'',0,0,0,0));
+            //this.entrada_productos.push(new ProveedorLoteProducto('selecciona',new Date(),new Date(),0,'',0,'',0,0,0,0));
             if (response.success && response.data) {
               for (let element of response.data) { 
                   this.entrada_productos.push(new ProveedorLoteProducto(element.numlote_proveedor,element.fecha_entrada,element.fecha_caducidad,element.cantidad_inicial,element.tipo_medida,element.cantidad_remanente,element.doc,element.idproducto,element.idproveedor,element.idempresa,element.id));
@@ -327,6 +343,7 @@ getEntradasProducto(idProducto){
 }
 
 seleccionarOrigen(origen: string,valor: number){
+
     if (origen=="interno"){
   this.level = this.almacenesOrigen[valor].level;
   this.almacenesDestino = this.almacenesOrigen.filter((almacen) => (almacen.level >= this.level));
@@ -358,7 +375,7 @@ seleccionarOrigen(origen: string,valor: number){
          this.loteSelected = this.entrada_productos[valor];
     }
     //console.log(this.ordenOrigen)
-    this.almacenesDestino.splice(0,0,new Almacen(0,0,'Selecciona',0,0,0));
+    //this.almacenesDestino.splice(0,0,new Almacen(0,0,'Selecciona',0,0,0));
 }
 
 seleccionarDestino(valor:number){
@@ -373,7 +390,7 @@ seleccionarDestino(valor:number){
 }
 
 traspasar(){
-
+this.ok=false;
     //console.log(this.controlarOrigen() , this.controlarDestino());
     if (this.controlarOrigen() && this.controlarDestino()){
 
@@ -392,6 +409,7 @@ traspasar(){
         this.setNewOrdenProduccion();
     }
 }
+
 }
 
 //crear Nueva Orden de Producción ojo (si loteSelected or si almacenOrigenSelected)
@@ -449,7 +467,10 @@ this.nuevaOrden.tipo_medida = "l.";
                 }
             }
         },
-        (error)=>console.log(error),
+    error =>{
+        console.log(error);
+        this.errorEn('Calculando num lote');
+        },
         ()=>{
             if (this.clienteSelected){
             this.nuevaOrden.numlote = "F"+fecha.getDate() + "/"+ (+fecha.getMonth() + +1)+"/"+fecha.getFullYear()+"-"+contadorF;
@@ -473,7 +494,13 @@ let param = "&entidad=produccion_orden";
           this.prepareNewOrdenProduccionDetalle(response.id);
           this.nuevaOrden = new ProduccionOrden(0,0,'',new Date(),new Date());
         }
-    });
+    },
+    error =>{
+        console.log(error);
+        this.errorEn('setNewOrdenProduccionDetalle');
+    },
+    ()=>{}    
+    );
     });
 }
 ///De lote o Orden en Origen
@@ -529,7 +556,10 @@ setNewOrdenProduccionDetalle(idOrden:number, detalleOrden: ProduccionDetalle,fue
             }
         }
     },
-    error =>console.log(error),
+    error =>{
+        console.log(error);
+        this.errorEn('setNewOrdenProduccionDetalle ' + fuente);
+        },
     () =>{}   
     );
 }
@@ -558,6 +588,9 @@ prepareAlmacenes(newOrden: number){
         //Origen = entrada Proveedor, actualizamos md-card desde this.loteSelected
         this.loteSelected.cantidad_remanente = this.loteSelected.cantidad_remanente -this.cantidadTraspaso;
     }
+    this.cantidadTraspaso = null;
+    this.ok=true;
+    this.ok2=true;
 }
 
 setAlmacen(almacen: Almacen){
@@ -569,7 +602,10 @@ setAlmacen(almacen: Almacen){
           //this.setRemanente(this.passItem);
         }
     },
-    error =>console.log(error),
+    error =>{
+        console.log(error);
+        this.errorEn('setAlmacen ' +almacen.nombre);
+        },
     () =>{}   
     );
 }
@@ -586,7 +622,10 @@ setRemanente(detalleProduccion: ProduccionDetalle){
               console.log('updated');
              }
         },
-        error=>console.log(error),
+    error =>{
+        console.log(error);
+        this.errorEn('setRemanente Materia Prima');
+        },
         ()=>{}
         ); 
   }else{
@@ -602,7 +641,10 @@ setNewClienteDistribucion(distribucion: Distribucion ){
         if (response.success) {
         }
     },
-    error =>console.log(error),
+    error =>{
+        console.log(error);
+        this.errorEn('setNewClienteDistribucion');
+        },
     () =>{}   
     );
 }
@@ -680,9 +722,12 @@ controlarDestino(){
 }
 cierraMessage(){
     this.alerts=[];
+    this.cantidadTraspaso=null;
+    this.ok=true;
 }
 
 setCliente(id:number){
+    console.log ("idcli",id)
 //si es 0 es Tanque, si es mayor es el id de cliente seleccionado
 if (id>0){
     let i = this.clientes.findIndex((cli)=>cli.id==id);
@@ -692,5 +737,12 @@ if (id>0){
     this.clienteSelected = null;
 }
 
+}
+errorEn(motivo:string){
+alert ("Se ha producido iun corte en el proceso en: " + motivo);
+this.ok=true;
+}
+setok(){
+    this.navCtrl.setRoot(HomePage);
 }
 }

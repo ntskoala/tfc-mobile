@@ -17,8 +17,8 @@ templateUrl: 'app.component.html',
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
   rootPage = HomePage;
+  //rootPage = "TraspasosPage";
 pages: Array<{title: string, component: any}>;
-//public badge: number =0;
 
 
 
@@ -40,38 +40,56 @@ pages: Array<{title: string, component: any}>;
       }
       console.log(localStorage.getItem("idempresa"));
     if (localStorage.getItem("idempresa") === null || localStorage.getItem("idempresa") == 'undefined'){
-      let modal = this.modalCtrl.create(Empresa);
-     modal.present();
-      //this.setEmpresa();
-    }
-       // this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+      console.log('dentro')
+      let opciones =  {showBackdrop: true,enableBackdropDismiss:true}
+      let modalEmpresa = this.modalCtrl.create(Empresa,opciones)
 
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
+      modalEmpresa.onDidDismiss((data) => {
+     console.log("dismissed",data);
+     console.log(data,localStorage.getItem("idempresa"),this.existe)
+      if (localStorage.getItem("idempresa") == "26" && !this.existe()){
+        this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
+      }
+
+   });
+      modalEmpresa.present();
+  //  this.nav.push(Empresa,null,null,()=>this.existe())
+    }
+ 
 
        this.pages = [
+         { title: 'menu.home' , component: HomePage },
       { title: 'menu.home' , component: HomePage },
-      // { title: 'menu.controles' , component: ControlesPage },
-      // { title: 'menu.checklist' , component: ChecklistPage },
       { title: 'menu.sync' , component: SyncPage },
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },
       ];
-      if (localStorage.getItem("idempresa") == "2"){
-        this.pages.push({title:'traspasos',component:"TraspasosPage"})
+      if (localStorage.getItem("idempresa") == "26"){
+        this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
       }
       
 
       statusBar.styleDefault();
     });
   }
+
+ionViewDidEnter(){
+  console.log("didenter");
+  this.existe();
+}
+
 openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
     console.log(page.component);
     this.nav.setRoot(page.component);
 }  
-
+existe(){
+  let resultado;
+let indice = this.pages.findIndex((page)=>page.component=="TraspasosPage");
+(indice < 0)? resultado = false: resultado = true;
+return resultado;
+}
 sincrosired(){
 // let connectSubscription = Network.onConnect().subscribe(() => {
 //   alert (Network.connection);
