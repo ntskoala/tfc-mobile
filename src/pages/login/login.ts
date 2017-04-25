@@ -18,8 +18,8 @@ import { Initdb } from '../../providers/initdb'
   providers: [SyncPage]
 })
 export class LoginPage {
-  public nombre: string;
-  public password: string;
+  public nombre: string="vaqueria";
+  public password: string="123";
   public miDistancia: any;
   public logged;
   public accesomenu: any;

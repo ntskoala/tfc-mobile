@@ -45,8 +45,6 @@ pages: Array<{title: string, component: any}>;
       let modalEmpresa = this.modalCtrl.create(Empresa,opciones)
 
       modalEmpresa.onDidDismiss((data) => {
-     console.log("dismissed",data);
-     console.log(data,localStorage.getItem("idempresa"),this.existe)
       if (localStorage.getItem("idempresa") == "26" && !this.existe()){
         this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
       }
@@ -64,7 +62,8 @@ pages: Array<{title: string, component: any}>;
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },
       ];
-      if (localStorage.getItem("idempresa") == "26"){
+      //if (localStorage.getItem("idempresa") == "26"){
+        if (localStorage.getItem("idempresa") == "77"){
         this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
       }
       
@@ -73,10 +72,6 @@ pages: Array<{title: string, component: any}>;
     });
   }
 
-ionViewDidEnter(){
-  console.log("didenter");
-  this.existe();
-}
 
 openPage(page) {
     // Reset the content nav to have just this page

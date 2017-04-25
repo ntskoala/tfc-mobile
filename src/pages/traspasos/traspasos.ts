@@ -11,8 +11,8 @@ import * as moment from 'moment/moment';
  * on Ionic pages and navigation.
  */
 
-let server = 'http://tfc.proacciona.es/'; //prod
-//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+//let server = 'http://tfc.proacciona.es/'; //prod
+let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
@@ -330,6 +330,7 @@ getEntradasProducto(idProducto){
         this.servidor.getObjects(URLS.STD_SUBITEM, parametros).subscribe(
           response => {
             this.entrada_productos = [];
+            this.entrada_productos.push(new ProveedorLoteProducto('nueva entrada',new Date(),new Date(),0,'l.',0,'',idProducto,this.idProveedorActual,parseInt(localStorage.getItem("idempresa"))));
             //this.entrada_productos.push(new ProveedorLoteProducto('selecciona',new Date(),new Date(),0,'',0,'',0,0,0,0));
             if (response.success && response.data) {
               for (let element of response.data) { 
@@ -364,15 +365,13 @@ seleccionarOrigen(origen: string,valor: number){
         }else{
         this.level = this.familias[indiceFamilia].nivel_destino;
         }
-        // if (this.productos[indiceProducto].familia ==1){//Leche Normal
-        //     this.level=1;
-        // }
-        // else{//Leche Pasteurizada o otras Leches
-        //     this.level=3;
-        // }
          this.almacenesDestino = this.almacenesOrigen.filter((almacen) => (almacen.level >= this.level));
          this.almacenesDestino = this.almacenesDestino.filter((almacen) => (almacen.level <= this.level));
+         //if (indiceProducto== 0){ //Nueva entrada de producto
+         //   this.loteSelected = this.entrada_productos[valor];
+         //}else{ //entrada de producto normal
          this.loteSelected = this.entrada_productos[valor];
+         //}
     }
     //console.log(this.ordenOrigen)
     //this.almacenesDestino.splice(0,0,new Almacen(0,0,'Selecciona',0,0,0));
@@ -386,7 +385,6 @@ seleccionarDestino(valor:number){
     }else{
         this.ordenDestino = null;
     }
-    
 }
 
 traspasar(){
@@ -406,10 +404,51 @@ this.ok=false;
 //    console.log('si destino == tanque p, poner fecha caducidad = fecha_inicio(del lote nuevo) + 7 días');
     }
     else if (this.loteSelected){
+        if (this.loteSelected.numlote_proveedor == 'nueva entrada'){
+            this.setNuevaEntradaProveedor();
+        }else{
         this.setNewOrdenProduccion();
+        }
     }
 }
 
+}
+setNuevaEntradaProveedor(){
+    let contadorP=0;
+//let nuevoItem: ProveedorLoteProducto = new ProveedorLoteProducto('',new Date(),new Date(),null,'',0,'',null,0,0,0);
+    let parametros = '&idempresa=' + this.idempresa+"&entidad=proveedores_entradas_producto"+"&field=idproveedor&idItem="+this.loteSelected.idproveedor+"&WHERE=fecha_entrada=curdate()%2B&valor=";
+        this.servidor.getObjects(URLS.STD_SUBITEM, parametros).subscribe(
+          response => {
+            if (response.success == 'true' && response.data) {
+              for (let element of response.data) {
+                      contadorP++;
+                }
+            }
+        },
+    error =>{
+        console.log(error);
+        this.errorEn('Calculando num lote');
+        },
+        ()=>{
+let param = "&entidad=proveedores_entradas_producto"+"&field=idproveedor&idItem="+this.loteSelected.idproveedor;
+   let fecha = new Date();
+    this.loteSelected.numlote_proveedor = "P"+fecha.getDate() + "/"+ (+fecha.getMonth() + +1)+"/"+fecha.getFullYear()+"-"+contadorP;
+    this.loteSelected.cantidad_inicial =  this.cantidadTraspaso;
+    this.loteSelected.cantidad_remanente = this.cantidadTraspaso;
+    
+    this.servidor.postObject(URLS.STD_ITEM, this.loteSelected,param).subscribe(
+      response => {
+        if (response.success) {
+          //this.items.push(this.nuevoItem);
+          //this.items[this.items.length-1].id= response.id;
+          this.loteSelected.id = response.id;
+          this.setNewOrdenProduccion();
+        }
+    },
+    error =>console.log("Error en nueva entrada producto",error),
+    () =>console.log('entrada producto ok')
+    );
+        });
 }
 
 //crear Nueva Orden de Producción ojo (si loteSelected or si almacenOrigenSelected)
@@ -521,7 +560,7 @@ prepareNewOrdenProduccionDetalle(idOrden: number){
      this.nuevoDetalleOrden_Origen.idloteinterno = this.ordenOrigen.id;
     this.nuevoDetalleOrden_Origen.idmateriaprima = 0;
     this.nuevoDetalleOrden_Origen.proveedor = 'interno';
-    this.nuevoDetalleOrden_Origen.producto = 'lote interno';
+    this.nuevoDetalleOrden_Origen.producto = 'lote int ' + this.ordenOrigen.numlote;
     }
     console.log('origen');
     this.setNewOrdenProduccionDetalle(idOrden,this.nuevoDetalleOrden_Origen,'origen');
@@ -676,7 +715,7 @@ controlarOrigen(){
 
     if (this.proveedor){
        console.log (this.cantidadTraspaso,+this.loteSelected.cantidad_remanente,typeof this.cantidadTraspaso, typeof +this.loteSelected.cantidad_remanente, +this.cantidadTraspaso <= +this.loteSelected.cantidad_remanente);
-       if( +this.cantidadTraspaso <= +this.loteSelected.cantidad_remanente){
+       if( +this.cantidadTraspaso <= +this.loteSelected.cantidad_remanente || this.loteSelected.numlote_proveedor =="nueva entrada"){
            return true;
        }else{
          this.translate.get('produccion.alert_cantidad_menor_disponible_origen').subscribe(
