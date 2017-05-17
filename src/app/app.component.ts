@@ -62,8 +62,8 @@ pages: Array<{title: string, component: any}>;
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },
       ];
-      //if (localStorage.getItem("idempresa") == "26"){
-        if (localStorage.getItem("idempresa") == "77"){
+      if (localStorage.getItem("idempresa") == "26"){//Entorno produccion
+      //  if (localStorage.getItem("idempresa") == "77"){//Entorno Desarrollo
         this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
       }
       

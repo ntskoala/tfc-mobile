@@ -16,6 +16,7 @@ import{CheckPage} from '../pages/check/check';
 import { SyncPage } from '../pages/sync/sync';
 import { Config } from '../pages/config/config';
 import { Empresa } from '../pages/empresa/empresa';
+//import { Tanques } from '../pages/tanques/tanques';
 //import { TraspasosPage } from '../pages/traspasos/traspasos';
 import { Initdb } from '../providers/initdb';
 import { Sync } from '../providers/sync';

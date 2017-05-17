@@ -1,6 +1,5 @@
 <!--
   Generated template for the Traspasos page.
-
   See http://ionicframework.com/docs/components/#navigation for more info on
   Ionic pages and navigation.
 -->
@@ -12,9 +11,11 @@
 
     <ion-title>
       {{"menu.traspaso" | translate }}
+
       <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
+
     </ion-title>
-        
+   
   </ion-navbar>
 
 </ion-header>
@@ -22,7 +23,11 @@
 
 <ion-content padding>
 
-
+      <ion-fab  bottom right>
+  <button (click)="verTanques(almacenes)" ion-fab color="primary" mini>
+    <ion-icon name='md-beaker'></ion-icon>
+  </button>
+</ion-fab>
 
 
 <!--<button md-raised-button (click)="traspaso = !traspaso">{{'produccion.traspaso' | translate}}</button>-->

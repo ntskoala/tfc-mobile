@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { PopoverController } from 'ionic-angular';
 import {Servidor} from '../../providers/servidor';
 import { HomePage } from '../home/home'
+import { Config } from '../config/config'
+import { TanquesPage } from '../tanques/tanques'
 import { TranslateService } from 'ng2-translate';
 import * as moment from 'moment/moment';
 /**
@@ -11,120 +14,9 @@ import * as moment from 'moment/moment';
  * on Ionic pages and navigation.
  */
 
-//let server = 'http://tfc.proacciona.es/'; //prod
-let server = 'http://tfc.ntskoala.com/';//DESARROLLO
-let base = server + 'api/';
-
-export const URLS = {
-  LOGIN: base + 'actions/login.php',
-  UPLOAD_DOCS: base + 'uploads.php',
-  STD_ITEM: base + 'std_item.php',
-  STD_SUBITEM: base + 'std_subitem.php',
-  //**********TRAZABILIDAD */
-  TRAZA_ORDENES:  base + 'traza_ordenes.php',
-  UPDATE_REMANENTE: base+ 'update_remanente.php',
-
-  UPLOAD_LOGO: base + 'logoempresa.php',
-  FOTOS: server +'controles/',
-  LOGOS: server + 'logos/',
-  DOCS: server + 'docs/'
-}
+import { URLS, Almacen, ProduccionDetalle, ProduccionOrden, ProveedorLoteProducto, FamiliasProducto, Cliente, Distribucion } from '../../models/models'
 
 
-export class Almacen {
-  constructor(
-    public id: number,
-    public idempresa:number,
-    public nombre:string,
-    public capacidad: number,
-    public estado: number,
-    public idproduccionordenactual: number,
-    public level?: number
-  ) {}
-}
-export class ProduccionDetalle {
-  constructor(
-    public id: number,  
-    public idorden: number,
-    public proveedor:string,
-    public producto:string,
-    public numlote_proveedor:string,
-    public idmateriaprima: number,
-    public idloteinterno: number,
-    public cantidad: number,
-    public tipo_medida: string,
-){}
-}
-export class ProduccionOrden {
-  constructor(
-    public id: number,  
-    public 	idempresa: number,
-    public numlote: string,
-    public fecha_inicio: Date,
-    public fecha_fin: Date,
-    public fecha_caducidad?: Date,
-    public responsable?: string,
-    public cantidad?: number,
-    public remanente?: number,
-    public tipo_medida?: string,
-    public idproductopropio?: number,
-    public nombre?: string,
-    public familia?: string,
-    public estado?: string,
-    public idalmacen?: number,
-    public idcliente?: number
-){}
-}
-export class Cliente {
-  constructor(
-    public nombre: string,
-    public idEmpresa: number,
-    public contacto?: string,
-    public telf?: string,
-    public email?: string,
-    public id?: number
-  ) {}
-}
-export class Distribucion {
-  constructor(
-    public id: number,
-    public idempresa: number,   
-    public idcliente: number,
-    public idproductopropio: number,
-    public idordenproduccion: number,
-    public numlote: string,
-    public fecha:Date,
-    public fecha_caducidad:Date,
-    public responsable: string,
-    public cantidad: number,
-    public tipo_medida: string,
-    public alergenos: string
-  ) {}
-}
-export class FamiliasProducto {
-  constructor(
-    public nombre: string,
-    public idempresa: number,
-    public nivel_destino?: number,
-    public id?: number,
-
-  ) {}
-}
-export class ProveedorLoteProducto {
-  constructor(
-    public numlote_proveedor: string,
-    public fecha_entrada: Date,
-    public fecha_caducidad: Date,
-    public cantidad_inicial: number,
-    public tipo_medida:string,
-    public cantidad_remanente:number,
-    public doc: string,
-    public idproducto: number,
-    public idproveedor: number,
-    public idempresa: number,
-    public id?: number
-  ) {}
-}
 
 @IonicPage()
 @Component({
@@ -148,6 +40,7 @@ public passItem: ProduccionDetalle;
 public estado:string='abierto';
 //*** ESPECIFIC VAR */
 public traspaso:boolean=false;
+public almacenes: any;
 private almacenesOrigen: Almacen[];
 private almacenOrigenSelected: Almacen;
 private almacenesDestino: Almacen[];
@@ -181,7 +74,7 @@ public idempresa= localStorage.getItem("idempresa");
 public userId= sessionStorage.getItem("login");
 
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public servidor: Servidor, private translate: TranslateService) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public servidor: Servidor, private translate: TranslateService, public popoverCtrl: PopoverController) {
             this.translate.use(localStorage.getItem("lang"));
           this.translate.setDefaultLang(localStorage.getItem("lang"));
 }
@@ -246,6 +139,10 @@ getAlmacenes() {
               }
              // this.listaZonas.emit(this.limpiezas);
             }
+        },
+        (error)=>console.log(error),
+        ()=>{
+            this.almacenes = this.almacenesOrigen;
         });
    }
 
@@ -364,12 +261,13 @@ seleccionarOrigen(origen: string,valor: number){
             this.level = 1;
         }else{
         this.level = this.familias[indiceFamilia].nivel_destino;
-        }
+    }
+        if (this.level<3){
          this.almacenesDestino = this.almacenesOrigen.filter((almacen) => (almacen.level >= this.level));
          this.almacenesDestino = this.almacenesDestino.filter((almacen) => (almacen.level <= this.level));
-         //if (indiceProducto== 0){ //Nueva entrada de producto
-         //   this.loteSelected = this.entrada_productos[valor];
-         //}else{ //entrada de producto normal
+        }else{
+         this.almacenesDestino = this.almacenesOrigen;
+        }    
          this.loteSelected = this.entrada_productos[valor];
          //}
     }
@@ -416,7 +314,7 @@ this.ok=false;
 setNuevaEntradaProveedor(){
     let contadorP=0;
 //let nuevoItem: ProveedorLoteProducto = new ProveedorLoteProducto('',new Date(),new Date(),null,'',0,'',null,0,0,0);
-    let parametros = '&idempresa=' + this.idempresa+"&entidad=proveedores_entradas_producto"+"&field=idproveedor&idItem="+this.loteSelected.idproveedor+"&WHERE=fecha_entrada=curdate()%2B&valor=";
+    let parametros = '&idempresa=' + this.idempresa+"&entidad=proveedores_entradas_producto"+"&field=idproveedor&idItem="+this.loteSelected.idproveedor+"&WHERE=fecha_entrada=curdate()";
         this.servidor.getObjects(URLS.STD_SUBITEM, parametros).subscribe(
           response => {
             if (response.success == 'true' && response.data) {
@@ -764,7 +662,7 @@ cierraMessage(){
     this.cantidadTraspaso=null;
     this.ok=true;
 }
-
+ 
 setCliente(id:number){
     console.log ("idcli",id)
 //si es 0 es Tanque, si es mayor es el id de cliente seleccionado
@@ -784,4 +682,22 @@ this.ok=true;
 setok(){
     this.navCtrl.setRoot(HomePage);
 }
+
+verTanques(almacenes) {
+
+    //let popover = this.popoverCtrl.create("TanquesPage");
+    //popover.present();
+    //this.navCtrl.push("TanquesPage",this.almacenesOrigen)
+      this.navCtrl.push("TanquesPage", {almacenes: almacenes}).then(
+      response => {
+        console.log('Response ' + response);
+      },
+      error => {
+        console.log('Error: ' + error);
+      }
+    ).catch(exception => {
+      console.log('Exception ' + exception);
+    });
+ 
+  }
 }

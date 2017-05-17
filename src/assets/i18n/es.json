@@ -98,6 +98,7 @@
     "Tanque Origen":"Tanque Origen",
     "Tanque Destino":"Tanque Destino",
     "Tanque":"Tanque",
+    "Tanques":"Tanques",
     "Cliente":"Cliente",
     "Origen":"Origen",
     "Destino":"Destino",
@@ -121,7 +122,8 @@
     "traspasar":"Confirmar traspaso",
     "contacto":"contacto",
     "telf":"telf",
-    "email":"email"
+    "email":"email",
+    "nombre":"Nombre"
   },
     "asistencia": "Asistencia",
     "control": "control",

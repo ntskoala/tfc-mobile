@@ -7,6 +7,7 @@ import {Observable} from 'rxjs/Observable';
 //import { Config } from '../config/config';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { LoadingController } from 'ionic-angular';
+import { URLS } from '../models/models'
 /*
   Generated class for the Sync provider.
 
@@ -19,8 +20,9 @@ private posturl: string;
 
 public idchecklist;
 
- //public baseurl: string = "http://tfc.proacciona.es/api";
-public baseurl: string = "http://tfc.ntskoala.com/api";
+ //public baseurl: string = "https://tfc.proacciona.es/api";
+//public baseurl: string = "http://tfc.ntskoala.com/api";
+public baseurl: string = URLS.BASE;
  public idempresa= localStorage.getItem("idempresa");
  public loader:any;
 createAuthorizationHeader(headers:Headers) {

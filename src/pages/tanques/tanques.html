@@ -1,0 +1,49 @@
+<!--
+  Generated template for the Tanques page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{'traspasos.Tanques' | translate }}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+ <ion-grid>
+  <ion-row class="cabecera">
+    <ion-col align-self-center>
+      {{'traspasos.nombre' | translate }}
+    </ion-col>
+    <ion-col align-self-center>
+      {{'traspasos.Capacidad' | translate }}
+    </ion-col>
+    <ion-col align-self-center>
+      {{'traspasos.Uso' | translate }}
+    </ion-col>
+    <ion-col align-self-center>
+      {{'traspasos.Disponible' | translate }}
+    </ion-col>
+  </ion-row>
+
+  <ion-row class="linea" *ngFor="let almacen of almacenes">
+    <ion-col align-self-center>
+      {{almacen.nombre}}
+    </ion-col>
+    <ion-col align-self-center>
+       {{almacen.capacidad}}
+    </ion-col>
+    <ion-col align-self-center>
+       {{almacen.estado}}
+    </ion-col>
+      <ion-col align-self-center>
+       {{almacen.capacidad - almacen.estado}}
+    </ion-col>
+  </ion-row>
+ </ion-grid>
+</ion-content>
