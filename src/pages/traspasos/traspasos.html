@@ -113,8 +113,9 @@
         {{'traspasos.Fecha caducidad' | translate}}: {{loteSelected.fecha_caducidad | date:'dd/MM/yy'}}<br>
          </span>
   </ion-card>
-
 </div>
+
+<!--********************** CANTIDAD TRASPASO  ***************-->
 <div id="traspaso">
 
 <ion-item>
@@ -125,6 +126,10 @@
 
 </div>
 
+<!--********************** FIN CANTIDAD TRASPASO  ***************-->
+
+
+<!--********************** INICIO DESTINO  ***************-->
 <div id="destino">
 <div id="select_cliente">
   <ion-item>
@@ -156,7 +161,6 @@
   </div>
 
   <div *ngIf="!clienteSelected && almacenesDestino">
- 
       <ion-item>
     <ion-label>{{'traspasos.Tanque' | translate}}</ion-label>
     <ion-select [(ngModel)]="valorAlmacenDestinoId" (ionChange)="seleccionarDestino(valorAlmacenDestinoId)">
@@ -177,7 +181,7 @@
                  {{'traspasos.Num_Lote' | translate}}: {{ordenDestino.numlote}}<br>
         {{'traspasos.Fecha Inicio Lote' | translate}}: {{ordenDestino.fecha_inicio  | date:'dd/MM/yy'}}<br>
         {{'traspasos.Fecha Fin Lote' | translate}}: {{ordenDestino.fecha_fin  | date:'dd/MM/yy'}}<br>
-         <span *ngIf="ordenDestino.fecha_caducidad != 'Invalid Date'">
+         <span *ngIf="ordenDestino.fecha_caducidad != 'Invalid Date'  && ordenDestino.fecha_caducidad != null">
         {{'traspasos.Fecha caducidad' | translate}}: {{ordenDestino.fecha_caducidad | date:'dd/MM/yy'}}<br>
          </span>
         </span>
@@ -187,7 +191,7 @@
 </div>
 </div>
 </div>
-
+<!--********************** FIN DESTINO  ***************-->
 
 <button ion-button [disabled]="!ok" (click)="traspasar()">{{'traspasos.traspasar' | translate}}</button>
 <button ion-button *ngIf="ok2" (click)="setok()">ok</button>

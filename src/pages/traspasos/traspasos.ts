@@ -94,7 +94,7 @@ public userId= sessionStorage.getItem("login");
           if(!this.userId) this.userId = '1';
       this.getAlmacenes();
       this.getProveedores();
-      this.getClientes();
+      //this.getClientes();
       this.getFamilias();
             }
             });
@@ -149,7 +149,6 @@ getAlmacenes() {
    getClientes() {
     let parametros = '&idempresa=' + this.idempresa+"&entidad=clientes";
     let tanque;
-        
         this.servidor.getObjects(URLS.STD_ITEM, parametros).subscribe(
           response => {
             this.clientes = [];
@@ -241,9 +240,11 @@ getEntradasProducto(idProducto){
 }
 
 seleccionarOrigen(origen: string,valor: number){
-
+        this.clientes = [];
+        this.clientes.push(new Cliente(this.translateTanque,0,'','','',0));
     if (origen=="interno"){
   this.level = this.almacenesOrigen[valor].level;
+  if (this.level >= 2) this.getClientes();
   this.almacenesDestino = this.almacenesOrigen.filter((almacen) => (almacen.level >= this.level));
   this.level++;
   this.almacenesDestino = this.almacenesDestino.filter((almacen) => (almacen.level <= this.level));
@@ -363,13 +364,21 @@ setNewOrdenProduccion(ordenFuente?: ProduccionOrden){
             if (this.almacenOrigenSelected.level<=1){
                 this.nuevaOrden.fecha_caducidad = moment().add(7,'days').toDate();
             }else{
-                 let caducidad = (moment(this.ordenOrigen.fecha_caducidad)<moment(this.ordenDestino.fecha_caducidad))?this.ordenOrigen.fecha_caducidad:this.ordenDestino.fecha_caducidad;
+                console.log('Almacen destino > 1 y almacen origen level >1 = '+this.almacenOrigenSelected.level+' y ...');
+                let caducidad;
+                if (this.ordenDestino){
+                 caducidad = (moment(this.ordenOrigen.fecha_caducidad)<moment(this.ordenDestino.fecha_caducidad))?this.ordenOrigen.fecha_caducidad:this.ordenDestino.fecha_caducidad;
+                }else{
+                     caducidad = this.ordenOrigen.fecha_caducidad;
+                }        
+                    console.log(caducidad);
                     this.nuevaOrden.fecha_caducidad = caducidad;
             }
             }else if (this.loteSelected){
                 if (this.ordenDestino)
                 {
                 let caducidad = (moment(this.loteSelected.fecha_caducidad)<moment(this.ordenDestino.fecha_caducidad))?this.loteSelected.fecha_caducidad:this.ordenDestino.fecha_caducidad;
+                    console.log(caducidad);
                     this.nuevaOrden.fecha_caducidad = caducidad;
                 }else{
                     this.nuevaOrden.fecha_caducidad = moment().add(7,'days').toDate();
@@ -419,6 +428,7 @@ this.nuevaOrden.tipo_medida = "l.";
             }else{
             this.nuevaOrden.numlote = fecha.getDate() + "/"+ (+fecha.getMonth() + +1)+"/"+fecha.getFullYear()+"-"+this.contador;
             this.nuevaOrden.estado = 'cerrado';
+            //if (this.nuevaOrden.fecha_caducidad === null) this.nuevaOrden.fecha_caducidad = this.ordenOrigen.fecha_caducidad;
             }
 
 this.nuevaOrden.nombre = this.nuevaOrden.numlote;
