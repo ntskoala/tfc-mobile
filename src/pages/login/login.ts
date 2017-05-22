@@ -40,7 +40,7 @@ export class LoginPage {
   ionViewDidLoad() {
     console.log('Hello Login Page');
     this.empresa = parseInt(localStorage.getItem("idempresa"));
-    this.logoempresa = "http://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
+    this.logoempresa = "https://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
   }
 
 
@@ -84,5 +84,15 @@ onconect(){
     }
 });
 }
+
+
+  doRefresh(refresher) {
+    console.log('Begin async operation', refresher);
+    this.data.sincronizate();
+    setTimeout(() => {
+      console.log('Async operation has ended');
+      refresher.complete();
+    }, 2000);
+  }
 
 }

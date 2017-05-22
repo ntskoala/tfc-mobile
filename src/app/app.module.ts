@@ -20,7 +20,7 @@ import { Empresa } from '../pages/empresa/empresa';
 //import { TraspasosPage } from '../pages/traspasos/traspasos';
 import { Initdb } from '../providers/initdb';
 import { Sync } from '../providers/sync';
-
+import { Servidor } from '../providers/servidor';
 
 import {BrowserModule} from "@angular/platform-browser";
 import {HttpModule,Http} from '@angular/http';
@@ -72,6 +72,7 @@ export function createTranslateLoader(http: Http) {
     StatusBar,
     Initdb,
     Sync,
+    Servidor
   ]
   
 })

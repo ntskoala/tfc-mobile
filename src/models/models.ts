@@ -1,4 +1,4 @@
-let server = 'http://tfc.proacciona.es/'; //prod
+let server = 'https://tfc.proacciona.es/'; //prod
 //let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
@@ -8,6 +8,7 @@ export const URLS = {
   UPLOAD_DOCS: base + 'uploads.php',
   STD_ITEM: base + 'std_item.php',
   STD_SUBITEM: base + 'std_subitem.php',
+  VERSION_USERS: base + 'actions/version_users.php',
   //**********TRAZABILIDAD */
   TRAZA_ORDENES:  base + 'traza_ordenes.php',
   UPDATE_REMANENTE: base+ 'update_remanente.php',
@@ -111,5 +112,33 @@ export class ProveedorLoteProducto {
     public idproveedor: number,
     public idempresa: number,
     public id?: number
+  ) {}
+}
+export class ResultadoControl {
+  constructor(
+    public idcontrol: number,
+    public resultado: number, 
+    public fecha: string,  
+    public foto: string,
+    public idusuario: number,
+  ) {}
+}
+export class ResultadoCechklist {
+  constructor(
+    public idlocal: number,
+    public idchecklist: number,
+    public fecha: string,
+    public foto: string,
+    public idusuario: number,
+
+  ) {}
+}
+export class ResultadosControlesChecklist {
+  constructor(
+    public idcontrolchecklist: number,
+    public idresultadochecklist: number, 
+    public resultado: string,  
+    public descripcion: string,
+    public fotocontrol: string,
   ) {}
 }

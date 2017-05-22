@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
 
 import { NavController, MenuController } from 'ionic-angular';
+import { Network } from '@ionic-native/network';
 
 import {LoginPage} from '../login/login';
 import {ControlPage} from '../control/control';
 import { CheckPage } from '../check/check';
 import {Empresa} from '../empresa/empresa';
 import { Sync } from '../../providers/sync';
+import { Servidor } from '../../providers/servidor';
 import { Initdb } from '../../providers/initdb'
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+import { URLS } from '../../models/models'
 
 
 export class controlesList {
@@ -50,15 +53,29 @@ public controlesList: controlesList[] =[];
 public checklistList: checklistList[] = [];
 
 
-  constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,public db :SQLite) {
-   //     this.db.create({name: "data.db", location: "default"}).then(() => {
+  constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,private servidor: Servidor, public db :SQLite,public network:Network) {
+  
+       if (localStorage.getItem("inicializado") === null){
+          if (this.network.type != 'none') {
+          localStorage.getItem("idempresa") === null ? console.log("no hay idempresa"): this.sincronizate();
+          }else{
+            alert ('No hay conexión, para sincronizar los datos');
+          }
+      } else{
+          this.hayUpdates().then(
+            (versionActual)=>{
+           console.log("versionActual Controles",versionActual);
+          if (versionActual > parseInt(localStorage.getItem("versioncontrols"))){ 
+            this.sincronizate(versionActual.toString());
+          }else{
+            this.getControles();
+            this.getChecklists();
+          }
+            });
+      }
             
-            localStorage.getItem("idempresa") === null ? console.log("no hay idempresa"): this.sincronizate();
             
-   //         console.log("base de datos abierta");
-   //     }, (error) => {
-   //         console.log("ERROR al abrir la bd: ", error);
-   //     });
+
 
    console.log("constructor homePage_data.logged:",this.data.logged);
          
@@ -79,6 +96,32 @@ public checklistList: checklistList[] = [];
         this.refreshlogo();
 }
 
+
+hayUpdates() {
+    let updates:number = -1;
+    let parametros = '&idempresa=' + localStorage.getItem("idempresa")+"&entidad=empresas";
+    return new Promise(resolve => {
+        this.servidor.getObjects(URLS.VERSION_USERS, parametros).subscribe(
+          response => {
+
+            if (response.success == 'true' && response.data) {
+              for (let element of response.data) {
+                updates = element.updatecontrols;
+              }
+            }
+        },
+        (error)=>{
+          console.log(error)
+          resolve(updates);
+      },
+        ()=>{
+            resolve(updates);
+        });
+    });
+        //return updates;
+   }
+
+
 ionViewDidLoad(){
   this.cambio=0;
 }
@@ -86,9 +129,9 @@ ionViewDidLoad(){
 
 refreshlogo(){
   this.empresa = parseInt(localStorage.getItem("idempresa"));
-this.logoempresa = "http://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
+this.logoempresa = "https://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
 }
-sincronizate(){
+sincronizate(version? : string){
   console.log("sincronizando...");
  //CONTROLES
    //CONTROLES
@@ -106,12 +149,13 @@ sincronizate(){
                 this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   db2.executeSql("delete from controles",[]).then((data) => {
                       console.log(JSON.stringify(data.res));
+                      this.miscontroles.forEach (control => this.saveControl(control));
                       }, (error) => {
                       console.log("ERROR -> " + JSON.stringify(error));
                       //alert("Error 1");
                     } );
                 });
-               this.miscontroles.forEach (control => this.saveControl(control));
+               //this.miscontroles.forEach (control => this.saveControl(control));
               }
             },
             err => console.error(err),
@@ -137,19 +181,22 @@ sincronizate(){
                     console.log("mischecklists: " + this.mischecks);
                    this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     db2.executeSql("delete from checklist",[]).then((data) => {
+                      this.mischecks.forEach (checklist => this.saveChecklist(checklist));
                       console.log(JSON.stringify(data.res));
                       }, (error) => {
                       console.log("ERROR -> " + JSON.stringify(error));
                       //alert("Error 2");
                     } );
                 });
-                      this.mischecks.forEach (checklist => this.saveChecklist(checklist));
+                      //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
                   }
               },
             err => console.error(err),
-            () => this.getChecklists()
+            () => {
+              if (version) localStorage.setItem("versioncontrols",version);
+              this.getChecklists();
+            }
         );  
-
         //CHECKLISTS
         //CHECKLISTS
 
@@ -268,4 +315,13 @@ takeChecklist(checklist){
 this.navCtrl.push(CheckPage,{checklist});
 }
 
+
+  doRefresh(refresher) {
+    console.log('Begin async operation', refresher);
+    this.sincronizate();
+    setTimeout(() => {
+      console.log('Async operation has ended');
+      refresher.complete();
+    }, 2000);
+  }
 }

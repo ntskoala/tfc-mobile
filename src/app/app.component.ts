@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Platform, Nav, AlertController,ModalController } from 'ionic-angular';
+import { Network } from '@ionic-native/network';
 import { StatusBar } from '@ionic-native/status-bar';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import { HomePage } from '../pages/home/home';
@@ -8,7 +9,8 @@ import { LoginPage } from '../pages/login/login';
 import { Config } from '../pages/config/config';
 import { SyncPage } from '../pages/sync/sync';
 import { Empresa } from '../pages/empresa/empresa';
-
+import { Servidor } from '../providers/servidor';
+import { URLS } from '../models/models'
 
 @Component({
 templateUrl: 'app.component.html',
@@ -22,11 +24,31 @@ pages: Array<{title: string, component: any}>;
 
 
 
-  constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
-
-    
+  constructor(platform: Platform, public initdb: Initdb,private servidor: Servidor, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar,public network:Network) {
+//constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
+ console.log("before platform ready, check init");
     platform.ready().then(() => {
-      this.initdb.inicializa();
+      console.log("platform ready, check init");
+        if (localStorage.getItem("inicializado") === null){
+          console.log("iniciar");
+          if (this.network.type != 'none') {
+            console.log("hay red,--> inicializa()");
+          this.initdb.inicializa();
+          }else{
+            alert ('No hay conexión, para sincronizar los datos');
+          }
+      } else{
+            this.hayUpdates().then(
+            (versionActual)=>{
+              if (versionActual == -1){
+                console.log('ha habido un error');
+              }else{
+          console.log("versionActual Usuarios",versionActual);
+          if (versionActual > parseInt(localStorage.getItem("versionusers"))) this.initdb.sincronizate(versionActual.toString());
+              }
+          });
+    }
+
       if (localStorage.getItem("lang") === null){
         localStorage.setItem("lang",'es');
       }
@@ -71,7 +93,28 @@ pages: Array<{title: string, component: any}>;
       statusBar.styleDefault();
     });
   }
-
+hayUpdates() {
+    let updates:number = -1;
+    let parametros = '&idempresa=' + localStorage.getItem("idempresa")+"&entidad=empresas";
+    return new Promise(resolve => {
+        this.servidor.getObjects(URLS.VERSION_USERS, parametros).subscribe(
+          response => {
+            if (response.success == 'true' && response.data) {
+              for (let element of response.data) {
+                updates = element.updateusers;
+              }
+            }
+        },
+        (error)=>{
+          console.log(error)
+          resolve(updates);
+      },
+        ()=>{
+            resolve(updates);
+        });
+    });
+        //return updates;
+    }
 
 openPage(page) {
     // Reset the content nav to have just this page

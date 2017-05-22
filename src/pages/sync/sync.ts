@@ -7,7 +7,7 @@ import { Sync } from '../../providers/sync';
 import { Initdb } from '../../providers/initdb';
 
 import { MyApp } from '../../app/app.component';
-
+import { ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist } from '../../models/models';
 
 @Component({
   selector: 'page-sync',
@@ -61,9 +61,11 @@ sync_data_control(){
                         let arrayfila =[];
                         for (let fila = 0; fila < data.rows.length;fila++)
                         {
+
                               console.log (data.rows.item(fila));
-                              
-                              arrayfila.push(data.rows.item(fila))
+                              //let checklist = new ResultadoCechklist ()
+                              //arrayfila.push(data.rows.item(fila))
+                              arrayfila.push(new ResultadoControl(data.rows.item(fila).idcontrol,data.rows.item(fila).resultado,data.rows.item(fila).fecha,data.rows.item(fila).foto,data.rows.item(fila).idusuario));
                         }
 
                   this.sync.setResultados(JSON.stringify(arrayfila),"resultadoscontrol")
@@ -98,9 +100,11 @@ sync_data_checklist(){
                    
                     for (let fila = 0; fila < data.rows.length;fila++)
                         {
+                          let resultadoChecklist = new ResultadoCechklist (data.rows.item(fila).idlocal,data.rows.item(fila).idchecklist,data.rows.item(fila).fecha,data.rows.item(fila).foto,data.rows.item(fila).idlocalidusuario)
                           console.log (data.rows.item(fila));
                           let idlocal = data.rows.item(fila).idlocal;
-                          let arrayfila =[data.rows.item(fila)];
+                          //let arrayfila =[data.rows.item(fila)];
+                          let arrayfila = [resultadoChecklist];
                           arrayfila.push()
                         let idrespuesta = this.sync.setResultados(JSON.stringify(arrayfila),"resultadoschecklist")
                         .subscribe(data => this.sync_checklistcontroles(data.id, idlocal ));
@@ -118,8 +122,6 @@ sync_data_checklist(){
           }, (error) => {
       console.log("ERROR al abrir la bd: ", error);
   });
-
-
 }
 
 sync_checklistcontroles(id, idlocal){
@@ -135,7 +137,8 @@ sync_checklistcontroles(id, idlocal){
                         {
                               console.log (data.rows.item(fila));
                               
-                              arrayfila.push(data.rows.item(fila))
+                              //arrayfila.push(data.rows.item(fila))
+                              arrayfila.push(new ResultadosControlesChecklist(data.rows.item(fila).idcontrolchecklist,data.rows.item(fila).idresultadochecklist,data.rows.item(fila).resultado,data.rows.item(fila).descripcion,data.rows.item(fila).fotocontrol))
                         } 
                   this.sync.setResultados(JSON.stringify(arrayfila),"resultadoscontroleschecklist")
                     .subscribe(data => {console.log("control3")},
@@ -151,7 +154,6 @@ sync_checklistcontroles(id, idlocal){
   });
 
 }
-
 
 
 }

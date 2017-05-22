@@ -78,29 +78,19 @@ public badge: number;
             console.log("ERROR -> " + JSON.stringify(error));
   });
         });
-
+localStorage.setItem("inicializado","true")
+if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
+if (localStorage.getItem("versioncontrols") === null) {localStorage.setItem("versioncontrols","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
 
-//db.close();
-  //this.sync.sincronizate();
- //  this.logins.forEach (user => this.save(user));
- //  this.getData();
  }
 
 
-//   getData() {
-//    // return this.storage.get('todo');  
-//                   let db= new SQLite();
-//                   db.openDatabase({name: 'data.db',location: 'default'})
-//                   .then(() => { db.executeSql('select * from logins',[]).then((response) => {
-// alert(response);
-// }); });
 
 
-
-  sincronizate(){
+  sincronizate(version?:string){
      
       console.log("llamada sincronizando");
    //USUARIOS
@@ -114,15 +104,19 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                             db2.executeSql("delete from logins",[]).then((data) => {
                             console.log("delete from logins->" + JSON.stringify(data));
+                            this.users.forEach (user => this.save(user));
                             }, (error) => {
                             console.log("ERROR -> " + JSON.stringify(error.err));
-                            } );
+                            });
                     });
-                    this.users.forEach (user => this.save(user));
+                    //this.users.forEach (user => this.save(user));
                         }
         },
             err => console.error(err),
-            () => console.log('getUsuarios completed')
+            () => {console.log('getUsuarios completed');
+                if (version) localStorage.setItem("versionusers",version);
+                //return new Promise(resolve => {resolve('ok')});
+                }
         );  
 
         //USUARIOS
