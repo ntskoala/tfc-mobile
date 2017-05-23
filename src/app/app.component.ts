@@ -14,6 +14,7 @@ import { URLS } from '../models/models'
 
 @Component({
 templateUrl: 'app.component.html',
+//styleUrls: ['./app.scss']
 //  template: `<ion-nav [root]="rootPage"></ion-nav>`
 })
 export class MyApp {
@@ -78,7 +79,7 @@ pages: Array<{title: string, component: any}>;
  
 
        this.pages = [
-         { title: 'menu.home' , component: HomePage },
+        // { title: 'menu.home' , component: HomePage },
       { title: 'menu.home' , component: HomePage },
       { title: 'menu.sync' , component: SyncPage },
       { title: 'menu.login' , component: LoginPage },

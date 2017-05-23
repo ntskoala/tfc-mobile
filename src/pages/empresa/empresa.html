@@ -23,9 +23,9 @@
       {{"empresa.texto" | translate}}
            <ion-item> <!--pattern="[0-9\-]*"-->
         <ion-label floating>{{"empresa.codigo" | translate}}</ion-label>
-        <ion-input type="number" [(ngModel)]="empresa"></ion-input>
+        <ion-input name="empresa" type="number" [(ngModel)]="empresa"></ion-input>
       </ion-item>
-      <button ion-button (click)="setEmpresa()" twitter>{{"empresa.ok" | translate}}</button> 
+      <button ion-button name="setEmpresaButton" (click)="setEmpresa()" twitter>{{"empresa.ok" | translate}}</button> 
     </ion-card-content>
   </ion-card>
   </div>

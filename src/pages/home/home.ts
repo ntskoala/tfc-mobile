@@ -240,6 +240,7 @@ sincronizate(version? : string){
 
 
     getControles() {
+      this.controlesList=[];
       this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   db2.executeSql("SELECT * FROM controles WHERE idusuario = ?",[sessionStorage.getItem("idusuario")]).then((data) => {
                   for(let i = 0; i < data.rows.length; i++) {
@@ -283,6 +284,7 @@ takeControl(control)
 
 
 getChecklists(){
+  this.checklistList =[];
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   db2.executeSql("Select * FROM checklist WHERE idusuario = ? GROUP BY idchecklist", [sessionStorage.getItem("idusuario")]).then((data) => {
                   //this.checklistList = data.rows;
@@ -322,6 +324,8 @@ this.navCtrl.push(CheckPage,{checklist});
     setTimeout(() => {
       console.log('Async operation has ended');
       refresher.complete();
+      this.getControles();
+      this.getChecklists();
     }, 2000);
   }
 }
