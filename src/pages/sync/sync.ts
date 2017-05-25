@@ -100,7 +100,7 @@ sync_data_checklist(){
                    
                     for (let fila = 0; fila < data.rows.length;fila++)
                         {
-                          let resultadoChecklist = new ResultadoCechklist (data.rows.item(fila).idlocal,data.rows.item(fila).idchecklist,data.rows.item(fila).fecha,data.rows.item(fila).foto,data.rows.item(fila).idlocalidusuario)
+                          let resultadoChecklist = new ResultadoCechklist (data.rows.item(fila).idlocal,data.rows.item(fila).idchecklist,data.rows.item(fila).fecha,data.rows.item(fila).foto,data.rows.item(fila).idusuario)
                           console.log (data.rows.item(fila));
                           let idlocal = data.rows.item(fila).idlocal;
                           //let arrayfila =[data.rows.item(fila)];

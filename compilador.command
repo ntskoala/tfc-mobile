@@ -4,7 +4,7 @@ echo Inicio
 
 #creamos el build
 
-ionic build android --release
+ionic cordova build android --release
 
 
 
@@ -19,6 +19,6 @@ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore /Users/jorged/k
 
 cd ./platforms/android/build/outputs/apk/
 
-zipalign -v 4 android-release-unsigned.apk tfc_v12.apk
+zipalign -v 4 android-release-unsigned.apk tfc_v14.apk
 
 echo FIN DEL PROCESO
