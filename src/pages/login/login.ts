@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, MenuController } from 'ionic-angular';
+import { LoadingController } from 'ionic-angular';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import { Network } from '@ionic-native/network';
 import { HomePage } from '../home/home';
@@ -18,8 +19,8 @@ import { Initdb } from '../../providers/initdb'
   providers: [SyncPage]
 })
 export class LoginPage {
-  public nombre: string;//="vaqueria";
-  public password: string;//="123";
+  public nombre: string="demo";
+  public password: string="demo";
   public miDistancia: any;
   public logged;
   public accesomenu: any;
@@ -28,7 +29,8 @@ export class LoginPage {
   public introvista;
   public logoempresa;
   public empresa = 0;
-  constructor(public navCtrl: NavController, menu: MenuController, public data: Initdb,public translate: TranslateService, public sync: SyncPage,public network:Network) {
+  public loader:any;
+  constructor(public navCtrl: NavController, menu: MenuController, public data: Initdb,public translate: TranslateService, public sync: SyncPage,public network:Network,public loadingCtrl: LoadingController) {
   //  translate.use('es');
    if (this.network.type != 'none') {
   if (parseInt(localStorage.getItem("synccontrol")) > 0) { this.sync.sync_data_control();}
@@ -88,11 +90,23 @@ onconect(){
 
   doRefresh(refresher) {
     console.log('Begin async operation', refresher);
-    this.data.sincronizate();
-    setTimeout(() => {
+    this.presentLoading();
+    this.data.sincronizate().then(
+    (response)=>{this.loader.dismiss();
+          setTimeout(() => {
       console.log('Async operation has ended');
       refresher.complete();
     }, 2000);
+  });
+
   }
 
+  presentLoading() {
+    this.loader = this.loadingCtrl.create({
+      content: "Actualizando...",
+     // duration: 3000
+    });
+    this.loader.present();
+    //loader.dismiss();
+  }
 }

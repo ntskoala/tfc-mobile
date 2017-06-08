@@ -30,7 +30,9 @@ pages: Array<{title: string, component: any}>;
  console.log("before platform ready, check init");
     platform.ready().then(() => {
       console.log("platform ready, check init");
-        if (localStorage.getItem("inicializado") === null){
+      //localStorage.setItem("inicializado","1");
+        if (localStorage.getItem("inicializado") === null) localStorage.setItem("inicializado","1");
+          if (parseInt(localStorage.getItem("inicializado")) < 3){
           console.log("iniciar");
           if (this.network.type != 'none') {
             console.log("hay red,--> inicializa()");

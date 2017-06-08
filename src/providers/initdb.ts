@@ -57,28 +57,40 @@ public badge: number;
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error.err));
   });
+  db2.executeSql('DROP TABLE IF EXISTS checklimpieza',[]);
+       db2.executeSql('CREATE TABLE IF NOT EXISTS checklimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezazona INTEGER, idusuario INTEGER, nombrelimpieza TEXT, idelemento INT, nombreelementol TEXT, fecha DATETIME, tipo TEXT, periodicidad TEXT, productos TEXT, protocolo TEXT, responsable TEXT)',[]).then((data) => {
+            console.log("TABLE CREATED CHECKLIMPIEZA-> " + JSON.stringify(data));
+        }, (error) => {
+            console.log("ERROR -> NO SE CREÓ CHECKLIMPIEZA: ",error);
+  });
   //this.db.executeSql('DROP TABLE IF EXISTS resultadoscontrol',[]);
   //*** ATENCION fecha DATETIME DEFAULT CURRENT_TIMESTAMP ES UTC, una hora menos que en españa. se compensa en los informes de backoffice
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoscontrol (id INTEGER PRIMARY KEY AUTOINCREMENT, idcontrol INTEGER, resultado INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, foto BLOB, idusuario INTEGER)',[]).then((data) => {
-            console.log("TABLE CREATED CONTROLES-> " + JSON.stringify(data));
+            console.log("TABLE CREATED resultadoscontrol-> " + JSON.stringify(data));
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error));
   });
   //this.db.executeSql('DROP TABLE IF EXISTS resultadoschecklist',[]);
   //*** ATENCION fecha DATETIME DEFAULT CURRENT_TIMESTAMP ES UTC, una hora menos que en españa. se compensa en los informes de backoffice
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoschecklist (idlocal INTEGER PRIMARY KEY AUTOINCREMENT, idchecklist INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, foto BLOB, idusuario INTEGER)',[]).then((data) => {
-            console.log("TABLE CREATED CONTROLES-> " + JSON.stringify(data));
+            console.log("TABLE CREATED resultadoschecklist-> " + JSON.stringify(data));
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error));
   });
   //this.db.executeSql('DROP TABLE IF EXISTS resultadoscontroleschecklist',[]);
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoscontroleschecklist (id INTEGER PRIMARY KEY AUTOINCREMENT, idcontrolchecklist INTEGER, idchecklist INTEGER, resultado TEXT, descripcion TEXT, fotocontrol BLOB, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, idresultadochecklist INTEGER)',[]).then((data) => {
-            console.log("TABLE CREATED CONTROLES-> " + JSON.stringify(data));
+            console.log("TABLE CREATED resultadoscontroleschecklist-> " + JSON.stringify(data));
+        }, (error) => {
+            console.log("ERROR -> " + JSON.stringify(error));
+  });
+    //this.db.executeSql('DROP TABLE IF EXISTS resultadosLimpieza',[]);
+     db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoslimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idelemento INTEGER, idempresa INTEGER, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, nombre TEXT, descripcion TEXT, tipo TEXT, idusuario INTEGER, responsable TEXT,  idlimpiezazona INTEGER)',[]).then((data) => {
+            console.log("TABLE CREATED RESULTADOSLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error));
   });
         });
-localStorage.setItem("inicializado","true")
+localStorage.setItem("inicializado","3")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("versioncontrols") === null) {localStorage.setItem("versioncontrols","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
@@ -96,6 +108,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
    //USUARIOS
    //USUARIOS
    // DESCARGA USUARIOS ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
+   return new Promise((resolve,reject)=>{
             this.sync.getMisUsers().subscribe(
             data => {
                this.users = JSON.parse(data.json());
@@ -114,6 +127,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
         },
             err => console.error(err),
             () => {console.log('getUsuarios completed');
+                resolve('ok1');
                 if (version) localStorage.setItem("versionusers",version);
                 //return new Promise(resolve => {resolve('ok')});
                 }
@@ -138,8 +152,10 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                         }
         },
             err => console.error(err),
-            () => console.log('getGerentes completed')
+            () => {console.log('getGerentes completed')
+            resolve('ok2');}
         );  
+        });
   }
 
 

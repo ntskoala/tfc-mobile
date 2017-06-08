@@ -11,7 +11,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class Servidor {
 public idempresa= localStorage.getItem("idempresa");
-public userId= localStorage.getItem("login");
+public userId= sessionStorage.getItem("login");
   constructor(public llamada: Http) {
     console.log('Hello Servidor Provider');
   }

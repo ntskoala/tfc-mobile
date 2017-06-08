@@ -16,6 +16,7 @@ import{CheckPage} from '../pages/check/check';
 import { SyncPage } from '../pages/sync/sync';
 import { Config } from '../pages/config/config';
 import { Empresa } from '../pages/empresa/empresa';
+import { CheckLimpiezaPage } from '../pages/check-limpieza/check-limpieza'
 //import { Tanques } from '../pages/tanques/tanques';
 //import { TraspasosPage } from '../pages/traspasos/traspasos';
 import { Initdb } from '../providers/initdb';
@@ -37,6 +38,7 @@ export function createTranslateLoader(http: Http) {
     LoginPage,
     ControlPage,
     CheckPage,
+    CheckLimpiezaPage,
     SyncPage,
     Config,
     Empresa
@@ -60,6 +62,7 @@ export function createTranslateLoader(http: Http) {
     LoginPage,
     ControlPage,
     CheckPage,
+    CheckLimpiezaPage,
     SyncPage,
     Config,
     Empresa

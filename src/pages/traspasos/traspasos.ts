@@ -85,7 +85,8 @@ public userId= sessionStorage.getItem("login");
   ngOnInit() {
        this.translate.get('traspasos.Tanque').subscribe((valor) => this.translateTanque=valor);
         this.translate.get('traspasos.Cliente').subscribe((valor) => this.translateCliente=valor);
-  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");; 
+
+  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
     this.servidor.login(URLS.LOGIN, param).subscribe(
       response => {
         if (response.success == 'true') {

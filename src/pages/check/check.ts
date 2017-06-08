@@ -48,7 +48,7 @@ public selectedValue:string;
 //public db: SQLite;
 //public fotositems: string[] =[];
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController, public initdb: Initdb, public sync: SyncPage, private translate: TranslateService,public db :SQLite, public camera: Camera,public network:Network) {
-
+    
         this.idchecklist =  this.params.get('checklist').idchecklist;
         this.nombrechecklist = this.params.get('checklist').nombrechecklist;
         

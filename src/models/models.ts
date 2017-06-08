@@ -1,5 +1,5 @@
-let server = 'https://tfc.proacciona.es/'; //prod
-//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+//let server = 'https://tfc.proacciona.es/', //prod
+let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
@@ -114,6 +114,8 @@ export class ProveedorLoteProducto {
     public id?: number
   ) {}
 }
+
+
 export class ResultadoControl {
   constructor(
     public idcontrol: number,
@@ -141,4 +143,65 @@ export class ResultadosControlesChecklist {
     public descripcion: string,
     public fotocontrol: string,
   ) {}
+}
+
+export class controlesList {
+  constructor(
+  id: number,
+  nombre: string,
+  pla: string,
+  minimo: number,
+  maximo: number,
+  tolerancia: number,
+  critico: number,
+  ){}
+}
+
+export class checklistList {
+  constructor(
+  id: number,
+  idchecklist: number,
+  nombrechecklist: string,
+  idcontrol:number,
+  nombrecontrol:string,
+  checked:boolean,
+  idusuario: string,
+  descripcion: string,
+  ){}
+}
+
+export class checkLimpieza {
+  constructor(
+  public id: number,
+  public idLimpieza: number,
+  public nombreLimpieza: string,
+  public idElementoLimpieza:number,
+  public nombreElementoLimpieza:string,
+  public fecha_prevista: Date,
+  public tipo: string,
+  public periodicidad: string,
+  public productos: string,
+  public protocolo: string,
+ public  checked:boolean,
+  public idusuario: number,
+  public responsable:string,
+  public descripcion: string,
+  public isondate?: boolean
+  ){}
+}
+
+export class limpiezaRealizada {
+  constructor(
+  public id: number,
+  public idelemento: number,
+  public idempresa: number,
+  public fecha_prevista:Date,
+  public fecha:Date,
+  public nombre:string,
+  public descripcion: string,
+  public tipo: string,
+  public idusuario: number,
+  public responsable: string,
+  public idlimpiezazona:number,
+  ){}
 }

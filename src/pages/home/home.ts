@@ -6,34 +6,17 @@ import { Network } from '@ionic-native/network';
 import {LoginPage} from '../login/login';
 import {ControlPage} from '../control/control';
 import { CheckPage } from '../check/check';
+import { CheckLimpiezaPage } from '../check-limpieza/check-limpieza';
 import {Empresa} from '../empresa/empresa';
 import { Sync } from '../../providers/sync';
 import { Servidor } from '../../providers/servidor';
 import { Initdb } from '../../providers/initdb'
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-import { URLS } from '../../models/models'
+import { URLS, controlesList, checklistList, checkLimpieza } from '../../models/models'
+import * as moment from 'moment';
 
 
-export class controlesList {
-  id: number;
-  nombre: string;
-  pla: string;
-  minimo: number;
-  maximo: number;
-  tolerancia: number;
-  critico: number;
-}
-export class checklistList {
-  id: number;
-  idchecklist: number;
-  nombrechecklist: string;
-  idcontrol:number;
-  nombrecontrol:string;
-  checked:boolean;
-  idusuario: string;
-  descripcion: string;
-}
 
 
 
@@ -45,13 +28,14 @@ export class checklistList {
 export class HomePage {
 miscontroles: any;
 mischecks: any;
+mischeckslimpiezas: any;
 public cambio: number;
 accesomenu: any;
 public logoempresa;
 public empresa =0;
 public controlesList: controlesList[] =[];
 public checklistList: checklistList[] = [];
-
+public checkLimpiezas: checkLimpieza[] = [];
 
   constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,private servidor: Servidor, public db :SQLite,public network:Network) {
   
@@ -70,10 +54,10 @@ public checklistList: checklistList[] = [];
           }else{
             this.getControles();
             this.getChecklists();
+            this.getLimpiezas();
           }
             });
       }
-            
             
 
 
@@ -200,6 +184,41 @@ sincronizate(version? : string){
         //CHECKLISTS
         //CHECKLISTS
 
+
+ //LIMPIEZAS
+   //LIMPIEZAS
+   // DESCARGA LIMPIEZAS ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
+            
+            this.sync.getMisLimpiezas(this.data.logged).map(res => res.json()).subscribe(
+            data => {
+               this.mischeckslimpiezas = JSON.parse(data);
+                    console.log('resultado checklimpieza: ' + this.mischeckslimpiezas.success);
+                //    console.log('success check: ' +this.mischecks.data[0].nombre);
+                if (this.mischeckslimpiezas.success){
+                  console.log ("if");
+                  //test
+                    this.mischeckslimpiezas = this.mischeckslimpiezas.data;
+                    console.log("mischecklistslimpiezaas: " + this.mischeckslimpiezas);
+                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                    db2.executeSql("delete from checklimpieza",[]).then((data) => {
+                      this.mischeckslimpiezas.forEach (checklimpieza => this.saveChecklimpieza(checklimpieza));
+                      console.log(JSON.stringify('deleted limpiezas: ',data.res));
+                      }, (error) => {
+                      console.log("ERROR home. 211 delete mislimpiezas-> " + JSON.stringify(error));
+                      //alert("Error 2");
+                    } );
+                });
+                      //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
+                  }
+              },
+            err => console.error(err),
+            () => {
+              if (version) localStorage.setItem("versioncontrols",version);
+              this.getChecklists();
+            }
+        );  
+        //LIMPIEZAS
+        //LIMPIEZAS
 }
 
   saveControl(control){
@@ -222,21 +241,22 @@ sincronizate(version? : string){
         });
 }
 
-
-
-
-// cambioempresa()
-// {
-//   this.cambio +=1;
-//   console.log(this.cambio);
-//   if (this.cambio >=10){
-//     this.navCtrl.setRoot(Empresa);
-//   }
-// }
-
-
-
-
+  saveChecklimpieza(checklimpieza){
+        this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {            
+                  db2.executeSql("INSERT INTO checklimpieza ( idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)",[checklimpieza.idlimpiezazona,checklimpieza.usuario,checklimpieza.nombrelimpieza,checklimpieza.id,checklimpieza.nombre,checklimpieza.fecha,checklimpieza.tipo,checklimpieza.periodicidad,checklimpieza.productos,checklimpieza.protocolo,checklimpieza.responsable]).then((data) => {
+                  console.log("INSERT CHECKLIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
+              }, (error) => {
+                  console.log("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
+              });
+//****EXCEPTION */
+                  db2.executeSql("DELETE from resultadoslimpieza WHERE id > 0",[]).then((data) => {
+                  console.log("BORRANDO RESULTADOS LIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
+              }, (error) => {
+                  console.log("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
+              });
+//****EXCEPTION */
+        });
+}
 
 
     getControles() {
@@ -256,7 +276,7 @@ sincronizate(version? : string){
                     }
                   }, (error) => {
                   console.log("ERROR -> " + JSON.stringify(error.err));
-                  alert("error " + JSON.stringify(error.err));
+                  alert("error home 276" + JSON.stringify(error.err));
                 });  
       });   
     }
@@ -275,10 +295,6 @@ takeControl(control)
     ).catch(exception => {
       console.log('Exception ' + exception);
     });
- 
- 
- 
- // });
 }
 
 
@@ -286,7 +302,9 @@ takeControl(control)
 getChecklists(){
   this.checklistList =[];
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-                  db2.executeSql("Select * FROM checklist WHERE idusuario = ? GROUP BY idchecklist", [sessionStorage.getItem("idusuario")]).then((data) => {
+                  //db2.executeSql("Select * FROM checklist WHERE idusuario = ? GROUP BY idlimpiezazona", [sessionStorage.getItem("idusuario")]).then((data) => {
+                  db2.executeSql("Select * FROM checklist WHERE idusuario = ? GROUP BY idchecklist", [sessionStorage.getItem("idusuario")]).then((data) => {                  
+                                    
                   //this.checklistList = data.rows;
                   console.log(data.rows.length);
                       for (var index=0;index < data.rows.length;index++){
@@ -305,10 +323,30 @@ getChecklists(){
                       // });
                       //alert (data.res.rows[index].nombrechecklist);
                     }
-                  console.log ("checklist:" + this.checklistList);
+                  console.log ("checklist:", this.checklistList);
               }, (error) => {
                   console.log("ERROR -> " + JSON.stringify(error.err));
-                  alert("error " + JSON.stringify(error.err));
+                  alert("error home 325 " + JSON.stringify(error.err));
+              }); 
+                  });
+}
+
+getLimpiezas(){
+  this.checkLimpiezas =[];
+                  let fecha = moment(new Date()).format('YYYY-MM-DD');
+                  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                  //this.checklistList = data.rows;
+                  db2.executeSql("Select * FROM checklimpieza WHERE idusuario = ? and fecha <= ? GROUP BY idlimpiezazona", [0,fecha]).then((data) => {
+                  
+                  console.log(data.rows.length);
+                      for (var index=0;index < data.rows.length;index++){
+                     //   this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idLimpieza,))
+                        this.checkLimpiezas.push(data.rows.item(index));
+                    }
+                  console.log ("checkLimpiezas:", this.checkLimpiezas);
+              }, (error) => {
+                  console.log("ERROR home. 342-> " + JSON.stringify(error.err));
+                  alert("error home. 342" + JSON.stringify(error.err));
               }); 
                   });
 }
@@ -317,6 +355,10 @@ takeChecklist(checklist){
 this.navCtrl.push(CheckPage,{checklist});
 }
 
+takeLimpieza(limpieza){
+  console.log('home',limpieza);
+this.navCtrl.push(CheckLimpiezaPage,{limpieza});
+}
 
   doRefresh(refresher) {
     console.log('Begin async operation', refresher);
@@ -326,6 +368,7 @@ this.navCtrl.push(CheckPage,{checklist});
       refresher.complete();
       this.getControles();
       this.getChecklists();
+      this.getLimpiezas();
     }, 2000);
   }
 }

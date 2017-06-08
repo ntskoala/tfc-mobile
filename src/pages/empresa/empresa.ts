@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, ViewController } from 'ionic-angular';
+import { LoadingController } from 'ionic-angular';
 import { Initdb } from '../../providers/initdb';
 import {TranslateService} from 'ng2-translate';
 import {Sync} from '../../providers/sync'
@@ -19,7 +20,8 @@ export class Empresa {
 public empresa:number;
 public koala: boolean=false;
 public debug: boolean = false;
-  constructor(public navCtrl: NavController,public viewCtrl: ViewController, public initdb: Initdb, public sync: Sync,public translate: TranslateService) {}
+public loader: any;
+  constructor(public navCtrl: NavController,public viewCtrl: ViewController, public initdb: Initdb, public sync: Sync,public translate: TranslateService,public loadingCtrl: LoadingController) {}
 
   ionViewDidLoad() {
     console.log('Hello Empresa Page');
@@ -45,7 +47,12 @@ if (!isNaN(this.empresa)){
     if (control1 == '24' && control2 == '53'){
       let codigo = id.substring(2,id.length -2);
       localStorage.setItem("idempresa",codigo);
-      this.initdb.sincronizate();
+      this.presentLoading();
+      this.initdb.sincronizate().then(
+        (data)=>{
+          this.closeLoading();
+        }
+      );
      
      // this.navCtrl.pop();
       //this.viewCtrl.dismiss(codigo);
@@ -67,4 +74,20 @@ dismiss(){
 this.navCtrl.pop();
 //this.viewCtrl.dismiss()
 }
+
+ presentLoading() {
+    this.loader = this.loadingCtrl.create({
+      content: "Actualizando...",
+     // duration: 3000
+    });
+    this.loader.present();
+    //loader.dismiss();
+  }
+  closeLoading(){
+   setTimeout(() => {
+      console.log('Async operation has ended');
+      this.loader.dismiss()
+    }, 1000);
+  }
+
 }

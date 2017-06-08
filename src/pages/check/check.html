@@ -21,17 +21,9 @@
 
 <ion-content padding>
 <ion-item *ngFor="let control of checklistcontroles">
-  <ion-icon *ngIf="control.foto" name="camera" item-left></ion-icon><ion-icon *ngIf="control.descripcion" name="clipboard" item-left></ion-icon><ion-label (click)="opciones(control)">{{control.nombrecontrol}}</ion-label>
-  <!--<ion-toggle [(ngModel)]="control.checked" ></ion-toggle>-->
-  <!--<ion-item>
-   <ion-select class="select" placeholder=""  name="checked{{i}}"  [(ngModel)]="control.checked" (change)="changeSelected()">
-    <ion-option  value="true">{{"correcto" | translate}}</ion-option>
-    <ion-option  value="false">{{"incorrecto" | translate}}</ion-option>
-    <ion-option  value="na">{{"no aplica" | translate}}</ion-option>
-    <ion-option  value="valor">{{"Valor" | translate}}</ion-option>
-  </ion-select>
-  </ion-item>-->
-  <!--<ion-input required class="valor" pattern="[0-9]*" name="valor{{i}}"  color="accent" [(ngModel)]="control.valor" (change)="changeValor(control)"  *ngIf="control.checked !== 'true' && control.checked !== 'false'  && control.checked !== 'na'"></ion-input>-->
+  <ion-icon *ngIf="control.foto" name="camera" item-left></ion-icon><ion-icon *ngIf="control.descripcion" name="clipboard" item-left></ion-icon>
+  <ion-label (click)="opciones(control)">{{control.nombrecontrol}}</ion-label>
+
   <ion-label *ngIf="control.valor">valor:{{control.valor}}</ion-label>
   <ion-icon (click)="opciones(control)" *ngIf="control.checked=='true'" name="checkmark-circle" item-right></ion-icon>
   <ion-icon (click)="opciones(control)" *ngIf="control.checked=='false'" name="close-circle" item-right></ion-icon>
