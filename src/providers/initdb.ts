@@ -40,7 +40,7 @@ public badge: number;
     db2.executeSql('CREATE TABLE IF NOT EXISTS logins (id INTEGER PRIMARY KEY, user TEXT, password TEXT, tipouser TEXT, nombre TEXT)',[]).then((data) => {
             console.log("TABLE CREATED  LOGINS-> " + JSON.stringify(data));
             //this.sincronizate();
-            localStorage.getItem("idempresa") === null ? console.log("no hay idempresa"): this.sincronizate();
+            //localStorage.getItem("idempresa") === null ? console.log("no hay idempresa"): this.sincronizate();
           //  alert ('creada logins');
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error.err));
@@ -57,7 +57,7 @@ public badge: number;
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error.err));
   });
-  db2.executeSql('DROP TABLE IF EXISTS checklimpieza',[]);
+  //db2.executeSql('DROP TABLE IF EXISTS checklimpieza',[]);
        db2.executeSql('CREATE TABLE IF NOT EXISTS checklimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezazona INTEGER, idusuario INTEGER, nombrelimpieza TEXT, idelemento INT, nombreelementol TEXT, fecha DATETIME, tipo TEXT, periodicidad TEXT, productos TEXT, protocolo TEXT, responsable TEXT)',[]).then((data) => {
             console.log("TABLE CREATED CHECKLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
@@ -92,7 +92,7 @@ public badge: number;
         });
 localStorage.setItem("inicializado","3")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
-if (localStorage.getItem("versioncontrols") === null) {localStorage.setItem("versioncontrols","0")}
+//if (localStorage.getItem("versioncontrols") === null) {localStorage.setItem("versioncontrols","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
@@ -125,7 +125,10 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                     //this.users.forEach (user => this.save(user));
                         }
         },
-            err => console.error(err),
+            err => {
+                console.error(err);
+                reject('error, getting users. initdb#130');
+                },
             () => {console.log('getUsuarios completed');
                 resolve('ok1');
                 if (version) localStorage.setItem("versionusers",version);
@@ -153,7 +156,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
         },
             err => console.error(err),
             () => {console.log('getGerentes completed')
-            resolve('ok2');}
+            }
         );  
         });
   }

@@ -1,8 +1,12 @@
 page-check-limpieza {
-.able{
+.onDate{
     color: green;
 }
-.disable{
+.beforeOnDate{
     color:red;
 }
+.porUso{
+    color: blue !important;
+}
+
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-
+import { Observable } from 'rxjs';
 import { NavController, MenuController } from 'ionic-angular';
+import { LoadingController } from 'ionic-angular';
 import { Network } from '@ionic-native/network';
 
 import {LoginPage} from '../login/login';
@@ -36,12 +37,46 @@ public empresa =0;
 public controlesList: controlesList[] =[];
 public checklistList: checklistList[] = [];
 public checkLimpiezas: checkLimpieza[] = [];
-
-  constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,private servidor: Servidor, public db :SQLite,public network:Network) {
+public loader:any;
+public status:boolean[]=[false,false,false];
+  constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController) {
   
-       if (localStorage.getItem("inicializado") === null){
+      // if (localStorage.getItem("inicializado") === null){
+         if (localStorage.getItem("versioncontrols") === null) {
           if (this.network.type != 'none') {
-          localStorage.getItem("idempresa") === null ? console.log("no hay idempresa"): this.sincronizate();
+            if (localStorage.getItem("idempresa") === null) { 
+              console.log("no hay idempresa")
+            }else{ 
+              this.presentLoading();
+              this.sincronizate().subscribe(
+              (valor)=>{
+                console.log("1", valor);
+                switch(valor){
+                  case "controles":
+                    this.status[0] = true;
+                    break;
+                  case "checklists":
+                  this.status[1] = true;
+                  break;
+                  case "limpiezas":
+                  this.status[2] = true;
+                  break
+                }
+                console.log(this.status);
+                if (this.status[0] && this.status[1] && this.status[2]){
+                  console.log('#####ok');
+                  localStorage.setItem("versioncontrols","0");
+                  setTimeout(()=>{
+            this.getControles();
+            this.getChecklists();
+            this.getLimpiezas();
+            this.closeLoading();
+            },1500);
+                }
+              },
+              (error)=>console.log(error)
+            );
+            }
           }else{
             alert ('No hay conexión, para sincronizar los datos');
           }
@@ -50,7 +85,34 @@ public checkLimpiezas: checkLimpieza[] = [];
             (versionActual)=>{
            console.log("versionActual Controles",versionActual);
           if (versionActual > parseInt(localStorage.getItem("versioncontrols"))){ 
-            this.sincronizate(versionActual.toString());
+            this.presentLoading();
+            this.sincronizate(versionActual.toString()).subscribe(
+              (valor)=>{
+                console.log(valor);
+                switch(valor){
+                  case "controles":
+                    this.status[0] = true;
+                    break;
+                  case "checklists":
+                  this.status[1] = true;
+                  break;
+                  case "limpiezas":
+                  this.status[2] = true;
+                  break
+                }
+                if (this.status[0] && this.status[1] && this.status[2]){
+                  console.log('#####ok');
+                  setTimeout(()=>{
+            this.getControles();
+            this.getChecklists();
+            this.getLimpiezas();
+            this.closeLoading();
+                  },1500);
+                }
+              },
+              (error)=>console.log(error)
+            );
+
           }else{
             this.getControles();
             this.getChecklists();
@@ -96,7 +158,7 @@ hayUpdates() {
         },
         (error)=>{
           console.log(error)
-          resolve(updates);
+          resolve('Error en hay updates() home# 161' + updates);
       },
         ()=>{
             resolve(updates);
@@ -113,23 +175,25 @@ ionViewDidLoad(){
 
 refreshlogo(){
   this.empresa = parseInt(localStorage.getItem("idempresa"));
-this.logoempresa = "https://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
+this.logoempresa = URLS.SERVER + "logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
+
 }
 sincronizate(version? : string){
   console.log("sincronizando...");
  //CONTROLES
    //CONTROLES
    // DESCARGA CONTROLES ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
-            
+    return new Observable((response)=> {     
             this.sync.getMisControles(this.data.logged).subscribe(
             data => {
               //test
               this.miscontroles = JSON.parse(data.json());
               console.log('resultado' + this.miscontroles.success);
-              console.log('success: ' +this.miscontroles.data[0].nombre);
+              //console.log('success: ' +this.miscontroles.data[0].nombre);
               if (this.miscontroles.success){
               //test
                this.miscontroles = this.miscontroles.data;
+               if (this.miscontroles){
                 this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   db2.executeSql("delete from controles",[]).then((data) => {
                       console.log(JSON.stringify(data.res));
@@ -138,12 +202,18 @@ sincronizate(version? : string){
                       console.log("ERROR -> " + JSON.stringify(error));
                       //alert("Error 1");
                     } );
+
                 });
+               }
+                response.next('controles');
                //this.miscontroles.forEach (control => this.saveControl(control));
               }
             },
             err => console.error(err),
-            () => this.getControles()
+            () => {
+              if (version) localStorage.setItem("versioncontrols",version);
+              this.getControles();
+            }
 
         );  
 
@@ -162,6 +232,7 @@ sincronizate(version? : string){
                   console.log ("if");
                   //test
                     this.mischecks = this.mischecks.data;
+                    if (this.mischecks){
                     console.log("mischecklists: " + this.mischecks);
                    this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     db2.executeSql("delete from checklist",[]).then((data) => {
@@ -172,6 +243,8 @@ sincronizate(version? : string){
                       //alert("Error 2");
                     } );
                 });
+                    }
+                response.next('checklists');
                       //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
                   }
               },
@@ -198,6 +271,7 @@ sincronizate(version? : string){
                   console.log ("if");
                   //test
                     this.mischeckslimpiezas = this.mischeckslimpiezas.data;
+                    if (this.mischeckslimpiezas){
                     console.log("mischecklistslimpiezaas: " + this.mischeckslimpiezas);
                    this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     db2.executeSql("delete from checklimpieza",[]).then((data) => {
@@ -208,6 +282,8 @@ sincronizate(version? : string){
                       //alert("Error 2");
                     } );
                 });
+                    }
+                  response.next('limpiezas');
                       //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
                   }
               },
@@ -219,12 +295,13 @@ sincronizate(version? : string){
         );  
         //LIMPIEZAS
         //LIMPIEZAS
+    });
 }
 
   saveControl(control){
         this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {                
                   db2.executeSql("INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico) VALUES (?,?,?,?,?,?,?,?,?)",[control.id,control.idusuario,control.nombre,control.pla,control.valorminimo,control.valormaximo,control.objetivo,control.tolerancia,control.critico]).then((data) => {
-                  console.log("INSERT CONTROL: " + control.idusuario + JSON.stringify(data));
+                  //console.log("INSERT CONTROL: " + control.idusuario + JSON.stringify(data));
               }, (error) => {
                   console.log("ERROR SAVING CONTROL-> " + JSON.stringify(error));
               });
@@ -234,7 +311,7 @@ sincronizate(version? : string){
   saveChecklist(checklist){
         this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {            
                   db2.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES (?,?,?,?,?)",[checklist.idchecklist,checklist.idusuario,checklist.nombrechecklist,checklist.id,checklist.nombre]).then((data) => {
-                  console.log("INSERT CHECKLIST" + checklist.nombrechecklist + JSON.stringify(data));
+                  //console.log("INSERT CHECKLIST" + checklist.nombrechecklist + JSON.stringify(data));
               }, (error) => {
                   console.log("ERROR SAVING CHECKLIST -> " + JSON.stringify(error));
               });
@@ -243,8 +320,8 @@ sincronizate(version? : string){
 
   saveChecklimpieza(checklimpieza){
         this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {            
-                  db2.executeSql("INSERT INTO checklimpieza ( idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)",[checklimpieza.idlimpiezazona,checklimpieza.usuario,checklimpieza.nombrelimpieza,checklimpieza.id,checklimpieza.nombre,checklimpieza.fecha,checklimpieza.tipo,checklimpieza.periodicidad,checklimpieza.productos,checklimpieza.protocolo,checklimpieza.responsable]).then((data) => {
-                  console.log("INSERT CHECKLIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
+                  db2.executeSql("INSERT INTO checklimpieza ( idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)",[checklimpieza.idlimpiezazona,checklimpieza.idusuario,checklimpieza.nombrelimpieza,checklimpieza.id,checklimpieza.nombre,checklimpieza.fecha,checklimpieza.tipo,checklimpieza.periodicidad,checklimpieza.productos,checklimpieza.protocolo,checklimpieza.responsable]).then((data) => {
+                  //console.log("INSERT CHECKLIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
               }, (error) => {
                   console.log("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
               });
@@ -307,6 +384,7 @@ getChecklists(){
                                     
                   //this.checklistList = data.rows;
                   console.log(data.rows.length);
+                  if (data.rows.length > 0 ){
                       for (var index=0;index < data.rows.length;index++){
                         this.checklistList.push(data.rows.item(index));
                         
@@ -323,6 +401,7 @@ getChecklists(){
                       // });
                       //alert (data.res.rows[index].nombrechecklist);
                     }
+                  }
                   console.log ("checklist:", this.checklistList);
               }, (error) => {
                   console.log("ERROR -> " + JSON.stringify(error.err));
@@ -336,7 +415,8 @@ getLimpiezas(){
                   let fecha = moment(new Date()).format('YYYY-MM-DD');
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
-                  db2.executeSql("Select * FROM checklimpieza WHERE idusuario = ? and fecha <= ? GROUP BY idlimpiezazona", [0,fecha]).then((data) => {
+                  db2.executeSql("Select * FROM checklimpieza WHERE idusuario = ? and fecha <= ?  GROUP BY idlimpiezazona", [sessionStorage.getItem("idusuario"),fecha]).then(
+                    (data) => {
                   
                   console.log(data.rows.length);
                       for (var index=0;index < data.rows.length;index++){
@@ -345,8 +425,8 @@ getLimpiezas(){
                     }
                   console.log ("checkLimpiezas:", this.checkLimpiezas);
               }, (error) => {
-                  console.log("ERROR home. 342-> " + JSON.stringify(error.err));
-                  alert("error home. 342" + JSON.stringify(error.err));
+                  console.log("ERROR home. 342-> ", error);
+                  alert("error home. 342" + error);
               }); 
                   });
 }
@@ -362,7 +442,27 @@ this.navCtrl.push(CheckLimpiezaPage,{limpieza});
 
   doRefresh(refresher) {
     console.log('Begin async operation', refresher);
-    this.sincronizate();
+    //this.sincronizate();
+                this.sincronizate().subscribe(
+              (valor)=>{
+                console.log(valor);
+                switch(valor){
+                  case "controles":
+                    this.status[0] = true;
+                    break;
+                  case "checklists":
+                  this.status[1] = true;
+                  break;
+                  case "limpiezas":
+                  this.status[2] = true;
+                  break
+                }
+                if (this.status[0] && this.status[1] && this.status[2]){
+                  console.log('#####ok');
+                }
+              },
+              (error)=>console.log(error)
+            );
     setTimeout(() => {
       console.log('Async operation has ended');
       refresher.complete();
@@ -370,5 +470,21 @@ this.navCtrl.push(CheckLimpiezaPage,{limpieza});
       this.getChecklists();
       this.getLimpiezas();
     }, 2000);
+  }
+  presentLoading() {
+    console.log('##SHOW LOADING');
+    this.loader = this.loadingCtrl.create({
+      content: "Actualizando...",
+     // duration: 3000
+    });
+    this.loader.present();
+    //loader.dismiss();
+  }
+    closeLoading(){
+      console.log('##HIDE LOADING');
+   setTimeout(() => {
+      console.log('Async operation has ended');
+      this.loader.dismiss()
+    }, 1000);
   }
 }

@@ -1,8 +1,9 @@
-//let server = 'https://tfc.proacciona.es/', //prod
-let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+let server = 'https://tfc.proacciona.es/'; //prod
+//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
+  SERVER: server,
   BASE : base,
   LOGIN: base + 'actions/login.php',
   UPLOAD_DOCS: base + 'uploads.php',
@@ -186,7 +187,7 @@ export class checkLimpieza {
   public idusuario: number,
   public responsable:string,
   public descripcion: string,
-  public isondate?: boolean
+  public isbeforedate?: boolean
   ){}
 }
 

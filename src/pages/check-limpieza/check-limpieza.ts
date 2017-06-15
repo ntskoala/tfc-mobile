@@ -64,20 +64,20 @@ if (this.network.type != 'none'){
   }
 
 
-
-
 getLimpiezas(){
   this.checkLimpiezas =[];
+   let fecha = moment(new Date()).format('YYYY-MM-DD');
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
-                  db2.executeSql("Select * FROM checklimpieza WHERE idlimpiezazona = ?", [this.idlimpiezazona]).then((data) => {
+                  db2.executeSql("Select * FROM checklimpieza WHERE idlimpiezazona = ? AND idusuario = ? AND fecha <= ?", [this.idlimpiezazona, sessionStorage.getItem("idusuario"),fecha]).then((data) => {
                   
                   console.log(data.rows.length);
                       for (var index=0;index < data.rows.length;index++){
-                        let isondate = moment(data.rows.item(index).fecha).isSameOrBefore(this.hoy);
+                        let isbeforedate = moment(data.rows.item(index).fecha).isBefore(this.hoy,'day');
+                        let repeticion = this.checkPeriodo(data.rows.item(index).periodicidad);
 //id , idlimpiezazona ,idusuario , nombrelimpieza , idelemento , nombreelementol , fecha , tipo , periodicidad , productos , protocolo
                         this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idlimpiezazona,data.rows.item(index).nombrelimpieza,data.rows.item(index).idelemento,
-                        data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,'',isondate));
+                        data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate));
                         //this.checkLimpiezas.push(data.rows.item(index));
                     }
                   console.log ("checkLimpiezas:", this.checkLimpiezas);
@@ -86,6 +86,11 @@ getLimpiezas(){
                   alert("error home. 342" + JSON.stringify(error.err));
               }); 
                   });
+}
+checkPeriodo(periodicidad):string{
+let repeticion;
+repeticion = JSON.parse(periodicidad)
+return repeticion.repeticion;
 }
 
 terminar(){
@@ -100,7 +105,13 @@ if (elemento.checked){
         //[0,0,'2017-05-29','test','rtest','interno',0,'jorge',0]).then(
         [elemento.idElementoLimpieza,idempresa,elemento.fecha_prevista,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,idusuario,elemento.responsable,elemento.idLimpieza]).then(
   (Resultado) => {
-      let proxima_fecha = moment(this.nuevaFecha(elemento)).format('YYYY-MM-DD');
+    let proxima_fecha;
+    if (elemento.descripcion =="por uso"){
+      proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
+    }else{
+      proxima_fecha = moment(this.nuevaFecha(elemento)).format('YYYY-MM-DD');
+    }
+      
       console.log("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
       //elemento.fecha_prevista = proxima_fecha;
       db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha, elemento.id]).then
@@ -158,8 +169,8 @@ this.navCtrl.pop();
       title: 'Opciones',
       buttons: [
         {text: correcto,icon:'checkmark-circle',handler: () => {control.checked='true';control.valor = '';}},
-        {text: incorrecto,icon:'close-circle',handler: () => {control.checked='false';control.valor = '';}},
-        {text: aplica,icon:'help-circle',handler: () => {control.checked='na';control.valor = '';}},
+        // {text: incorrecto,icon:'close-circle',handler: () => {control.checked='false';control.valor = '';}},
+        // {text: aplica,icon:'help-circle',handler: () => {control.checked='na';control.valor = '';}},
       //  {text: valor,icon:'information-circle',handler: () => {this.setValor(control);}},
       //  {text: descrip,icon:'clipboard',handler: () => {this.editar(control);}},
       //  {text: 'Foto',icon:'camera',handler: () => {this.takeFoto(control);}},
@@ -205,8 +216,6 @@ this.navCtrl.pop();
       newdate = moment(proximaFecha).toDate();
       return newdate = new Date(Date.UTC(newdate.getFullYear(), newdate.getMonth(), newdate.getDate()))
 }
-
-
 
 
 nextWeekDay(periodicidad:any, fecha?:Date) {

@@ -51,6 +51,10 @@ if (!isNaN(this.empresa)){
       this.initdb.sincronizate().then(
         (data)=>{
           this.closeLoading();
+        },
+        (error)=>{
+          this.closeLoading();
+          alert('error actualizando usuarios, vuelve a intentarlo. Prueba estirando hacia abajo');
         }
       );
      
@@ -76,6 +80,7 @@ this.navCtrl.pop();
 }
 
  presentLoading() {
+   console.log('##SHOW LOADING');
     this.loader = this.loadingCtrl.create({
       content: "Actualizando...",
      // duration: 3000
@@ -84,6 +89,7 @@ this.navCtrl.pop();
     //loader.dismiss();
   }
   closeLoading(){
+    console.log('##CLOSE LOADING');
    setTimeout(() => {
       console.log('Async operation has ended');
       this.loader.dismiss()

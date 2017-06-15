@@ -54,14 +54,14 @@ public getMisControles(userid): Observable<any>
             let headers = new Headers();
             this.createAuthorizationHeader(headers);
 //        let miscontroles = this.http.get(`${this.config.baseurl}/views/getcontroles.php?userid=${userid}&_dc=1470480375978`,{headers:headers});
-       let miscontroles = this.http.get(`${this.baseurl}/views/getcontroles.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+       let miscontroles = this.http.get(`${this.baseurl}views/getcontroles.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         return miscontroles;
         
     }
 
 public getMisChecklists(userid): Observable<any>
 {
-        let miscontroles = this.http.get(`${this.baseurl}/views/getchecklists.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+        let miscontroles = this.http.get(`${this.baseurl}views/getchecklists.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         return miscontroles;
     }
 
@@ -73,7 +73,7 @@ public getMisLimpiezas(userid): Observable<any>
             let headers = new Headers();
             this.createAuthorizationHeader(headers);
 //        let miscontroles = this.http.get(`${this.config.baseurl}/views/getcontroles.php?userid=${userid}&_dc=1470480375978`,{headers:headers});
-       let mislimpiezas = this.http.get(`${this.baseurl}/views/getlimpiezas.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+       let mislimpiezas = this.http.get(`${this.baseurl}views/getlimpiezas.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         return mislimpiezas;
         
     }
@@ -84,7 +84,7 @@ public getMisUsers(): Observable<any>
     this.idempresa = localStorage.getItem("idempresa");
     console.log("sincro misusers, empresa:" + this.idempresa);
     //alert ('idempresa' + this.config.idempresa);
-        let misusers = this.http.get(`${this.baseurl}/views/getusers.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+        let misusers = this.http.get(`${this.baseurl}views/getusers.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         return misusers;
     }
 
@@ -92,9 +92,9 @@ public setGerentes(): Observable<any>
 {
 
     this.idempresa = localStorage.getItem("idempresa");
-    console.log("sincro misusers, empresa:" + this.idempresa);
+    console.log("sincro setgerentes, empresa:" + this.idempresa);
     //alert ('idempresa' + this.config.idempresa);
-        let misgerentes = this.http.get(`${this.baseurl}/views/getgerentes.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+        let misgerentes = this.http.get(`${this.baseurl}views/getgerentes.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         
         return misgerentes;
     }
@@ -102,7 +102,7 @@ public setGerentes(): Observable<any>
 setResultados(resultados,table):any
 {
    console.log('resultados ' + table + ": " +resultados);
-    this.posturl = this.baseurl+'/actions/set'+table+'.php?idempresa='+this.idempresa;
+    this.posturl = this.baseurl+'actions/set'+table+'.php?idempresa='+this.idempresa;
     console.log(this.posturl);
         let params = resultados;
         let headers = new Headers();

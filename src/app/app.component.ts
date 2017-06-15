@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, Nav, AlertController,ModalController } from 'ionic-angular';
+import { Platform, Nav, AlertController,ModalController, LoadingController } from 'ionic-angular';
 import { Network } from '@ionic-native/network';
 import { StatusBar } from '@ionic-native/status-bar';
 import {TranslateService} from 'ng2-translate/ng2-translate';
@@ -23,15 +23,15 @@ export class MyApp {
   //rootPage = "TraspasosPage";
 pages: Array<{title: string, component: any}>;
 
+public loader: any;
 
-
-  constructor(platform: Platform, public initdb: Initdb,private servidor: Servidor, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar,public network:Network) {
+  constructor(platform: Platform, public initdb: Initdb,private servidor: Servidor, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar,public network:Network,public loadingCtrl: LoadingController) {
 //constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
  console.log("before platform ready, check init");
     platform.ready().then(() => {
       console.log("platform ready, check init");
       //localStorage.setItem("inicializado","1");
-        if (localStorage.getItem("inicializado") === null) localStorage.setItem("inicializado","1");
+        if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
           if (parseInt(localStorage.getItem("inicializado")) < 3){
           console.log("iniciar");
           if (this.network.type != 'none') {
@@ -41,13 +41,21 @@ pages: Array<{title: string, component: any}>;
             alert ('No hay conexión, para sincronizar los datos');
           }
       } else{
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
             this.hayUpdates().then(
             (versionActual)=>{
               if (versionActual == -1){
-                console.log('ha habido un error');
+                console.log('ha habido un error # app.48');
               }else{
           console.log("versionActual Usuarios",versionActual);
-          if (versionActual > parseInt(localStorage.getItem("versionusers"))) this.initdb.sincronizate(versionActual.toString());
+          if (versionActual > parseInt(localStorage.getItem("versionusers"))) {
+            this.presentLoading();
+            this.initdb.sincronizate(versionActual.toString()).then(
+              ()=>{
+                this.closeLoading();
+              }
+            );
+          }
               }
           });
     }
@@ -122,6 +130,16 @@ hayUpdates() {
 openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
+    if (page.title == 'menu.login'){
+        localStorage.removeItem("loggedTime");
+        localStorage.removeItem("nombre");
+        localStorage.removeItem("password");
+        localStorage.removeItem("idusuario");
+        localStorage.removeItem("login");
+        sessionStorage.removeItem("nombre");
+        sessionStorage.removeItem("password");
+        sessionStorage.removeItem("idusuario");
+    }
     console.log(page.component);
     this.nav.setRoot(page.component);
 }  
@@ -142,7 +160,22 @@ sincrosired(){
 }
 
 
-
+  presentLoading() {
+    console.log('##SHOW LOADING 1');
+    this.loader = this.loadingCtrl.create({
+      content: "Actualizando...",
+     // duration: 3000
+    });
+    this.loader.present();
+    //loader.dismiss();
+  }
+    closeLoading(){
+      console.log('##HIDE LOADING 1');
+   setTimeout(() => {
+      console.log('Async operation has ended');
+      this.loader.dismiss()
+    }, 600);
+  }
 
 
 }
