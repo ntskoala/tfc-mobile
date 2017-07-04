@@ -48,7 +48,10 @@ public hoy: Date = new Date();
 
   }
   ionViewDidLoad() {
-    console.log('ionViewDidLoad CheckLimpiezaPage');
+
+  }
+ionViewDidEnter(){
+    console.log('ionViewDidEnter CheckLimpiezaPage');
     this.getLimpiezas();
 
 if (this.network.type != 'none'){
@@ -61,8 +64,7 @@ if (this.network.type != 'none'){
           }
           });
 }
-  }
-
+}
 
 getLimpiezas(){
   this.checkLimpiezas =[];
@@ -192,8 +194,11 @@ this.navCtrl.pop();
         proximaFecha = this.nextWeekDay(periodicidad);
         break;
         case "semanal":
-
         proximaFecha = moment(limpieza.fecha_prevista).add(periodicidad.frecuencia,"w");
+        while (moment(proximaFecha).isSameOrBefore(moment())){
+        limpieza.fecha_prevista = proximaFecha;
+        proximaFecha = moment(limpieza.fecha_prevista).add(periodicidad.frecuencia,"w");
+        }
         break;
         case "mensual":
         if (periodicidad.tipo == "diames"){

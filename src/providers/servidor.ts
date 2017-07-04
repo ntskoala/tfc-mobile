@@ -11,7 +11,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class Servidor {
 public idempresa= localStorage.getItem("idempresa");
-public userId= sessionStorage.getItem("login");
+public userId= localStorage.getItem("login");
   constructor(public llamada: Http) {
     console.log('Hello Servidor Provider');
   }
@@ -19,6 +19,11 @@ public userId= sessionStorage.getItem("login");
     return this.llamada.post(url + param, payload)
       .map((res: Response) => JSON.parse(res.json()));
   }
+//  isTokenValid (token) {
+//             var base64Url = token.split('.')[1];
+//             var base64 = base64Url.replace('-', '+').replace('_', '/');
+//             console.log (JSON.parse(window.atob(base64)));
+//   }
 
   getObjects(url: string, param: string) {
     let parametros = '?token=' + sessionStorage.getItem('token') + param; 

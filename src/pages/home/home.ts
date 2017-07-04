@@ -8,13 +8,14 @@ import {LoginPage} from '../login/login';
 import {ControlPage} from '../control/control';
 import { CheckPage } from '../check/check';
 import { CheckLimpiezaPage } from '../check-limpieza/check-limpieza';
+import { SupervisionPage } from '../supervision/supervision';
 import {Empresa} from '../empresa/empresa';
 import { Sync } from '../../providers/sync';
 import { Servidor } from '../../providers/servidor';
 import { Initdb } from '../../providers/initdb'
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-import { URLS, controlesList, checklistList, checkLimpieza } from '../../models/models'
+import { URLS, controlesList, checklistList, checkLimpieza, limpiezaRealizada,supervisionLimpieza } from '../../models/models'
 import * as moment from 'moment';
 
 
@@ -30,6 +31,7 @@ export class HomePage {
 miscontroles: any;
 mischecks: any;
 mischeckslimpiezas: any;
+mislimpiezasrealizadas: any;
 public cambio: number;
 accesomenu: any;
 public logoempresa;
@@ -37,18 +39,41 @@ public empresa =0;
 public controlesList: controlesList[] =[];
 public checklistList: checklistList[] = [];
 public checkLimpiezas: checkLimpieza[] = [];
+public supervisionLimpiezas: supervisionLimpieza[] = [];
 public loader:any;
-public status:boolean[]=[false,false,false];
+public status:boolean[]=[false,false,false,false];
   constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController) {
-  
-      // if (localStorage.getItem("inicializado") === null){
-         if (localStorage.getItem("versioncontrols") === null) {
+        let login = this.data.logged;
+        if ((login === undefined || login == null)) {
+          this.navCtrl.setRoot(LoginPage);
+        } else {
           if (this.network.type != 'none') {
-            if (localStorage.getItem("idempresa") === null) { 
-              console.log("no hay idempresa")
-            }else{ 
+            if (localStorage.getItem("versioncontrols") === null) {
+              this.callSincroniza();
+            } else {
+              this.hayUpdates().then(
+                (versionActual) => {
+                  console.log("versionActual Controles", versionActual);
+                  if (versionActual > parseInt(localStorage.getItem("versioncontrols"))) {
+                    this.callSincroniza(versionActual);
+
+                  } else {
+                    this.cargaListas();
+                  }
+                });
+            }
+            this.refreshlogo();
+          } else {
+            alert('No hay conexión, para sincronizar los datos');
+            this.cargaListas();
+          }
+        }
+}
+
+callSincroniza(versionActual?){
               this.presentLoading();
-              this.sincronizate().subscribe(
+              if (versionActual) versionActual = versionActual.toString();
+              this.sincronizate(versionActual).subscribe(
               (valor)=>{
                 console.log("1", valor);
                 switch(valor){
@@ -61,87 +86,31 @@ public status:boolean[]=[false,false,false];
                   case "limpiezas":
                   this.status[2] = true;
                   break
+                  case "limpiezasRealizadas":
+                  this.status[3] = true;
+                  break
                 }
                 console.log(this.status);
-                if (this.status[0] && this.status[1] && this.status[2]){
+                if (this.status[0] && this.status[1] && this.status[2] && this.status[3]){
                   console.log('#####ok');
-                  localStorage.setItem("versioncontrols","0");
+                  if (!(versionActual>0)) localStorage.setItem("versioncontrols","0");
                   setTimeout(()=>{
-            this.getControles();
-            this.getChecklists();
-            this.getLimpiezas();
+                    this.cargaListas();
+                    this.status=[false,false,false,false];
             this.closeLoading();
             },1500);
                 }
               },
               (error)=>console.log(error)
             );
-            }
-          }else{
-            alert ('No hay conexión, para sincronizar los datos');
-          }
-      } else{
-          this.hayUpdates().then(
-            (versionActual)=>{
-           console.log("versionActual Controles",versionActual);
-          if (versionActual > parseInt(localStorage.getItem("versioncontrols"))){ 
-            this.presentLoading();
-            this.sincronizate(versionActual.toString()).subscribe(
-              (valor)=>{
-                console.log(valor);
-                switch(valor){
-                  case "controles":
-                    this.status[0] = true;
-                    break;
-                  case "checklists":
-                  this.status[1] = true;
-                  break;
-                  case "limpiezas":
-                  this.status[2] = true;
-                  break
-                }
-                if (this.status[0] && this.status[1] && this.status[2]){
-                  console.log('#####ok');
-                  setTimeout(()=>{
-            this.getControles();
-            this.getChecklists();
-            this.getLimpiezas();
-            this.closeLoading();
-                  },1500);
-                }
-              },
-              (error)=>console.log(error)
-            );
-
-          }else{
-            this.getControles();
-            this.getChecklists();
-            this.getLimpiezas();
-          }
-            });
-      }
-            
-
-
-   console.log("constructor homePage_data.logged:",this.data.logged);
-         
-        let login = this.data.logged;
-        console.log("login =", login);
-        if ((login === undefined || login == null)) {
-          if (!localStorage.getItem("intro")) {
-            if (!sessionStorage.getItem("introvista"))
-            { 
-            this.navCtrl.setRoot(LoginPage);
-          }
-            else
-            { this.navCtrl.setRoot(LoginPage); }
-          }
-        }
-        else {
-        }
-        this.refreshlogo();
 }
 
+cargaListas(){
+            this.getControles();
+            this.getChecklists();
+            this.getLimpiezas();
+            this.getLimpiezasRealizadas();   
+}
 
 hayUpdates() {
     let updates:number = -1;
@@ -170,8 +139,12 @@ hayUpdates() {
 
 ionViewDidLoad(){
   this.cambio=0;
-}
 
+}
+ionViewDidEnter(){
+  console.log("didEnter...");
+
+}
 
 refreshlogo(){
   this.empresa = parseInt(localStorage.getItem("idempresa"));
@@ -295,6 +268,44 @@ sincronizate(version? : string){
         );  
         //LIMPIEZAS
         //LIMPIEZAS
+
+ //LIMPIEZAS REALIZADAS
+   //LIMPIEZAS REALIZADAS
+   // DESCARGA LIMPIEZAS ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
+            
+            this.sync.getMisLimpiezasRealizadas(this.data.logged).map(res => res.json()).subscribe(
+            data => {
+               this.mislimpiezasrealizadas = JSON.parse(data);
+                    console.log('resultado limpiezasRealizadas: ' + this.mislimpiezasrealizadas.success);
+                //    console.log('success check: ' +this.mischecks.data[0].nombre);
+                if (this.mislimpiezasrealizadas.success){
+                  console.log ("if LIMPIEZAS REALIZADAS.SUCEESS");
+                  //test
+                    this.mislimpiezasrealizadas = this.mislimpiezasrealizadas.data;
+                    if (this.mislimpiezasrealizadas){
+                    console.log("mislimpiezasrealizadas: " + this.mislimpiezasrealizadas);
+                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                    db2.executeSql("delete from supervisionlimpieza",[]).then((data) => {
+                      this.mislimpiezasrealizadas.forEach (limpiezarealizada => this.saveLimpiezaRealizada(limpiezarealizada));
+                      console.log(JSON.stringify('deleted limpiezas: ',data.res));
+                      }, (error) => {
+                      console.log("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
+                      //alert("Error 2");
+                    } );
+                });
+                    }
+                  response.next('limpiezasRealizadas');
+                      //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
+                  }
+              },
+            err => console.error(err),
+            () => {
+              if (version) localStorage.setItem("versioncontrols",version);
+              this.getChecklists();
+            }
+        );  
+        //LIMPIEZAS REALIZADAS
+        //LIMPIEZAS REALIZADAS
     });
 }
 
@@ -334,7 +345,42 @@ sincronizate(version? : string){
 //****EXCEPTION */
         });
 }
+saveLimpiezaRealizada(limpiezaRealizada){
+        this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {  
+          console.log("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor)) VALUES (?,?,?,?,?,?)",limpiezaRealizada.id,limpiezaRealizada.nombre,limpiezaRealizada.fecha,limpiezaRealizada.tipo,limpiezaRealizada.responsable,limpiezaRealizada.supervisor);              
+                  db2.executeSql("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision) VALUES (?,?,?,?,?,?,?)",[limpiezaRealizada.id,limpiezaRealizada.nombre,limpiezaRealizada.fecha,limpiezaRealizada.tipo,limpiezaRealizada.responsable,limpiezaRealizada.supervisor,limpiezaRealizada.supervision]).then((data) => {
+              }, (error) => {
+                  console.log("ERROR SAVING limpiezaRealizada-> " + JSON.stringify(error));
+              });
+        });
+}
 
+    getLimpiezasRealizadas() {
+
+      this.supervisionLimpiezas=[];
+      this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                  db2.executeSql("SELECT * FROM supervisionlimpieza WHERE idsupervisor = ?",[sessionStorage.getItem("idusuario")]).then((data) => {
+                  for(let i = 0; i < data.rows.length; i++) {
+                      this.supervisionLimpiezas.push(new supervisionLimpieza(
+                        data.rows.item(i).id,
+                        data.rows.item(i).idlimpiezarealizada,
+                        data.rows.item(i).nombrelimpieza,
+                        data.rows.item(i).fecha,
+                        data.rows.item(i).tipo,
+                        data.rows.item(i).responsable,
+                        data.rows.item(i).idsupervisor,
+                        null,
+                        0,
+                        null
+                      ));
+                    }
+                  }, (error) => {
+                  console.log("ERROR -> " + JSON.stringify(error.err));
+                  alert("error home 276" + JSON.stringify(error.err));
+                });  
+      });   
+      console.log("LIMPIEZAS REALIZADAS",  this.supervisionLimpiezas)
+    }
 
     getControles() {
       this.controlesList=[];
@@ -439,40 +485,20 @@ takeLimpieza(limpieza){
   console.log('home',limpieza);
 this.navCtrl.push(CheckLimpiezaPage,{limpieza});
 }
-
+supervisar(){
+  this.navCtrl.push(SupervisionPage);
+}
   doRefresh(refresher) {
     console.log('Begin async operation', refresher);
     //this.sincronizate();
-                this.sincronizate().subscribe(
-              (valor)=>{
-                console.log(valor);
-                switch(valor){
-                  case "controles":
-                    this.status[0] = true;
-                    break;
-                  case "checklists":
-                  this.status[1] = true;
-                  break;
-                  case "limpiezas":
-                  this.status[2] = true;
-                  break
-                }
-                if (this.status[0] && this.status[1] && this.status[2]){
-                  console.log('#####ok');
-                }
-              },
-              (error)=>console.log(error)
-            );
+    this.callSincroniza();
     setTimeout(() => {
       console.log('Async operation has ended');
       refresher.complete();
-      this.getControles();
-      this.getChecklists();
-      this.getLimpiezas();
     }, 2000);
   }
   presentLoading() {
-    console.log('##SHOW LOADING');
+    console.log('##SHOW LOADING HOME');
     this.loader = this.loadingCtrl.create({
       content: "Actualizando...",
      // duration: 3000
@@ -481,7 +507,7 @@ this.navCtrl.push(CheckLimpiezaPage,{limpieza});
     //loader.dismiss();
   }
     closeLoading(){
-      console.log('##HIDE LOADING');
+      console.log('##HIDE LOADING HOME');
    setTimeout(() => {
       console.log('Async operation has ended');
       this.loader.dismiss()

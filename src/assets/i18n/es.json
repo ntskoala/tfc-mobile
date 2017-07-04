@@ -3,6 +3,7 @@
     "tutorial" : "Tutorial",
      "menu": {    
         "home": "Home",
+        "supervision":"Supervisión",
         "controles": "Controles",
         "checklist": "Checklist",
         "sync": "Sincronización",

@@ -21,7 +21,8 @@
 
 <ion-content padding>
 <ion-item *ngFor="let control of checklistcontroles">
-  <ion-icon *ngIf="control.foto" name="camera" item-left></ion-icon><ion-icon *ngIf="control.descripcion" name="clipboard" item-left></ion-icon>
+  <ion-icon *ngIf="control.foto" name="camera" item-left></ion-icon>
+  <ion-icon *ngIf="control.descripcion" name="clipboard" item-left></ion-icon>
   <ion-label (click)="opciones(control)">{{control.nombrecontrol}}</ion-label>
 
   <ion-label *ngIf="control.valor">valor:{{control.valor}}</ion-label>

@@ -82,6 +82,7 @@ public userId= sessionStorage.getItem("login");
   ionViewDidLoad() {
     console.log('ionViewDidLoad Traspasos');
   }
+
   ngOnInit() {
        this.translate.get('traspasos.Tanque').subscribe((valor) => this.translateTanque=valor);
         this.translate.get('traspasos.Cliente').subscribe((valor) => this.translateCliente=valor);
@@ -335,7 +336,7 @@ let param = "&entidad=proveedores_entradas_producto"+"&field=idproveedor&idItem=
     this.loteSelected.numlote_proveedor = "P"+fecha.getDate() + "/"+ (+fecha.getMonth() + +1)+"/"+fecha.getFullYear()+"-"+contadorP;
     this.loteSelected.cantidad_inicial =  this.cantidadTraspaso;
     this.loteSelected.cantidad_remanente = this.cantidadTraspaso;
-    
+    this.loteSelected.fecha_caducidad = moment().add(7,'days').toDate();
     this.servidor.postObject(URLS.STD_ITEM, this.loteSelected,param).subscribe(
       response => {
         if (response.success) {

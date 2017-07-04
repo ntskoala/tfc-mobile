@@ -1,0 +1,39 @@
+<ion-header>
+
+  <ion-navbar>
+         <button menuToggle>
+      <ion-icon name='menu'></ion-icon>
+</button>
+    <ion-title class="titulo">
+      <div style="float:left">{{"menu.supervision" | translate }}</div>
+    <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
+    </ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+        <ion-refresher (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing...">
+    </ion-refresher-content>
+  </ion-refresher>
+
+<ion-item *ngFor="let supervision of supervisionLimpiezas">
+  <ion-icon *ngIf="supervision.detalles_supervision" name="clipboard" item-left></ion-icon>
+  <ion-label (click)="opciones(supervision)">{{supervision.nombrelimpieza}} {{supervision.fecha | date: "dd-MM-yy"}}</ion-label>
+
+  <ion-icon (click)="opciones(supervision)" *ngIf="supervision.supervision==1" name="checkmark-circle" item-right></ion-icon>
+  <ion-icon (click)="opciones(supervision)" *ngIf="supervision.supervision==2" name="close-circle" item-right></ion-icon>
+  <ion-icon (click)="opciones(supervision)" *ngIf="supervision.supervision==0" name="add-circle" item-right></ion-icon>         
+</ion-item>
+
+<button ion-button (click)="terminar()" twitter style="width: 48%;">{{"terminar" | translate}}</button> 
+<!--<button ion-button (click)="setSupervision()" twitter style="width: 48%;">{{"supervision" | translate}}</button> -->
+
+
+</ion-content>

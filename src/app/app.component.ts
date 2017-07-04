@@ -6,6 +6,7 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 import { HomePage } from '../pages/home/home';
 import { Initdb } from '../providers/initdb';
 import { LoginPage } from '../pages/login/login';
+import { SupervisionPage } from '../pages/supervision/supervision';
 import { Config } from '../pages/config/config';
 import { SyncPage } from '../pages/sync/sync';
 import { Empresa } from '../pages/empresa/empresa';
@@ -26,13 +27,18 @@ pages: Array<{title: string, component: any}>;
 public loader: any;
 
   constructor(platform: Platform, public initdb: Initdb,private servidor: Servidor, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar,public network:Network,public loadingCtrl: LoadingController) {
+
 //constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
  console.log("before platform ready, check init");
     platform.ready().then(() => {
       console.log("platform ready, check init");
       //localStorage.setItem("inicializado","1");
+ if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
+if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
+if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
+if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
         if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
-          if (parseInt(localStorage.getItem("inicializado")) < 3){
+          if (parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal){
           console.log("iniciar");
           if (this.network.type != 'none') {
             console.log("hay red,--> inicializa()");
@@ -91,6 +97,7 @@ public loader: any;
        this.pages = [
         // { title: 'menu.home' , component: HomePage },
       { title: 'menu.home' , component: HomePage },
+      {title: 'menu.supervision', component: SupervisionPage },
       { title: 'menu.sync' , component: SyncPage },
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },

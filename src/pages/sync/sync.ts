@@ -8,7 +8,7 @@ import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
 
 import { MyApp } from '../../app/app.component';
-import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, limpiezaRealizada } from '../../models/models';
+import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, limpiezaRealizada, Supervision } from '../../models/models';
 
 @Component({
   selector: 'page-sync',
@@ -25,7 +25,7 @@ export class SyncPage {
     if (this.network.type != 'none') {
       console.log("conected");
     }
-    this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
+    this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+ parseInt(localStorage.getItem("syncsupervision"));
   }
 
   alerta(text) {
@@ -40,6 +40,8 @@ export class SyncPage {
     if (this.network.type != 'none') {
       this.sync_data_control();
       this.sync_data_checklist();
+      this.sync_checklimpieza();
+      this.sync_data_supervision();
     }
     else {
 
@@ -71,8 +73,8 @@ export class SyncPage {
             .subscribe(data => {
               console.log("control5")
               localStorage.setItem("synccontrol", "0");
-              this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
-              this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
+             // this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
+             // this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
             },
             error => console.log("control6" + error),
             () => console.log("ok"));
@@ -111,7 +113,7 @@ export class SyncPage {
           }
           localStorage.setItem("syncchecklist", "0");
           this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
-          this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
+          this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
         }
       }, (error) => {
         console.log("ERROR -> " + JSON.stringify(error.err));
@@ -200,4 +202,55 @@ export class SyncPage {
     });
   }
 
+
+  sync_data_supervision() {
+    this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
+      console.log("base de datos abierta");
+
+      console.log("send limpiezas: ");
+      db2.executeSql("select * from supervisionlimpieza WHERE supervision > 0", []).then((data) => {
+        console.log(data.rows.length);
+        
+        let arrayfila = [];// : limpiezaRealizada[]=[];
+        if (data.rows.length > 0) {
+
+          for (let fila = 0; fila < data.rows.length; fila++) {
+           // let arrayfila = [];
+            //arrayfila.push(new limpiezaRealizada(null, data.rows.item(fila).idelemento, data.rows.item(fila).idempresa, data.rows.item(fila).fecha_prevista, data.rows.item(fila).fecha, data.rows.item(fila).nombre, data.rows.item(fila).descripcion, data.rows.item(fila).tipo, data.rows.item(fila).idusuario, data.rows.item(fila).responsable, data.rows.item(fila).idlimpiezazona))
+            let supervision = new Supervision(data.rows.item(fila).idlimpiezarealizada,data.rows.item(fila).idsupervisor, data.rows.item(fila).fecha_supervision, data.rows.item(fila).supervision, data.rows.item(fila).detalles_supervision);
+            //arrayfila.push(data.rows.item[fila]);
+            let param = "?entidad=limpieza_realizada&id="+data.rows.item(fila).idlimpiezarealizada;
+            this.servidor.putObject(URLS.STD_ITEM, param, supervision).subscribe(
+              response => {
+                if (response.success) {
+                  console.log('#Supervision sended', response.id, supervision);
+                  db2.executeSql("DELETE from supervisionlimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
+                    console.log("deleted",data.rows.length);
+                  });
+                }
+              },
+              error => console.log(error),
+              () => { });
+          }
+                localStorage.setItem("syncsupervision", "0");
+                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
+
+          // let param = "&entidad=limpieza_realizada";
+          // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
+          //   response => {
+          //     if (response.success) {
+          //     console.log('limpieza realizada sended',response.id);
+          //   }},
+          // error=>console.log(error),
+          // ()=>{});
+        }
+      }, (error) => {
+        console.log("ERROR -> " + JSON.stringify(error.err));
+        alert("error, no se han podido sincronizar todos los datos [limpiezasRealizadas]" + JSON.stringify(error.err));
+      });
+    }, (error) => {
+      console.log("ERROR al abrir la bd: ", error);
+    });
+
+  }
 }

@@ -18,6 +18,7 @@ public gerentes: any;
 //private storage;
 public logged: number;
 public badge: number;
+public versionDBLocal: number=5;
 
 //public db: SQLite;
 
@@ -89,13 +90,20 @@ public badge: number;
         }, (error) => {
             console.log("ERROR -> " + JSON.stringify(error));
   });
+     db2.executeSql('CREATE TABLE IF NOT EXISTS supervisionlimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezarealizada INTEGER,  nombrelimpieza TEXT, fecha DATETIME, tipo TEXT,  responsable TEXT, idsupervisor INTEGER, fecha_supervision DATETIME DEFAULT CURRENT_TIMESTAMP, supervision INTEGER, detalles_supervision TEXT)',[]).then((data) => {
+            console.log("TABLE CREATED SUPERVISIONLIMPIEZA-> " + JSON.stringify(data));
+        }, (error) => {
+            console.log("ERROR -> NO SE CREÓ SUPERVISIONLIMPIEZA: ",error);
+  });
+
         });
-localStorage.setItem("inicializado","3")
+localStorage.setItem("inicializado","5")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 //if (localStorage.getItem("versioncontrols") === null) {localStorage.setItem("versioncontrols","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
-this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
+this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
 
  }
 

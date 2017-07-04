@@ -1,5 +1,5 @@
-let server = 'https://tfc.proacciona.es/'; //prod
-//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+//let server = 'https://tfc.proacciona.es/'; //prod
+let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
@@ -45,6 +45,7 @@ export class ProduccionDetalle {
     public tipo_medida: string,
 ){}
 }
+
 export class ProduccionOrden {
   constructor(
     public id: number,  
@@ -65,6 +66,7 @@ export class ProduccionOrden {
     public idcliente?: number
 ){}
 }
+
 export class Cliente {
   constructor(
     public nombre: string,
@@ -75,6 +77,7 @@ export class Cliente {
     public id?: number
   ) {}
 }
+
 export class Distribucion {
   constructor(
     public id: number,
@@ -91,6 +94,7 @@ export class Distribucion {
     public alergenos: string
   ) {}
 }
+
 export class FamiliasProducto {
   constructor(
     public nombre: string,
@@ -100,6 +104,7 @@ export class FamiliasProducto {
 
   ) {}
 }
+
 export class ProveedorLoteProducto {
   constructor(
     public numlote_proveedor: string,
@@ -115,7 +120,6 @@ export class ProveedorLoteProducto {
     public id?: number
   ) {}
 }
-
 
 export class ResultadoControl {
   constructor(
@@ -187,7 +191,8 @@ export class checkLimpieza {
   public idusuario: number,
   public responsable:string,
   public descripcion: string,
-  public isbeforedate?: boolean
+  public isbeforedate?: boolean,
+  public supervisor?: number
   ){}
 }
 
@@ -204,5 +209,34 @@ export class limpiezaRealizada {
   public idusuario: number,
   public responsable: string,
   public idlimpiezazona:number,
+  public idsupervisor?:number,
+  public fecha_supervision?:Date,
+  public supervision?:number,
+  public detalles_supervision?:string
+  ){}
+}
+
+export class supervisionLimpieza {
+  constructor(
+  public id: number,
+  public idlimpiezarealizada:number,  
+  public nombrelimpieza: string, 
+  public fecha: Date, 
+  public tipo: string,  
+  public responsable: string,
+  public idsupervisor?:number,
+  public fecha_supervision?:Date,
+  public supervision?:number,
+  public detalles_supervision?:string
+  ){}
+}
+
+export class Supervision {
+  constructor(
+  public id: number,
+  public idsupervisor:number,
+  public fecha_supervision:Date,
+  public supervision:number,
+  public detalles_supervision:string
   ){}
 }

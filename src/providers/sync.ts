@@ -78,6 +78,18 @@ public getMisLimpiezas(userid): Observable<any>
         
     }
 
+public getMisLimpiezasRealizadas(userid): Observable<any>
+{
+    console.log ('baseurl',this.baseurl);
+   // this.loader.present();
+            let headers = new Headers();
+            this.createAuthorizationHeader(headers);
+//        let miscontroles = this.http.get(`${this.config.baseurl}/views/getcontroles.php?userid=${userid}&_dc=1470480375978`,{headers:headers});
+       let mislimpiezas = this.http.get(`${this.baseurl}views/getlimpiezasrealizadas.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+        return mislimpiezas;
+        
+    }
+
 
 public getMisUsers(): Observable<any>
 {
