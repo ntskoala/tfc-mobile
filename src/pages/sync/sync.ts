@@ -23,7 +23,7 @@ export class SyncPage {
   //public myapp:MyApp;
   constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync, public servidor: Servidor, public translate: TranslateService, public db: SQLite, public network: Network) {
     if (this.network.type != 'none') {
-      console.log("conected");
+      console.debug("conected");
     }
     this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+ parseInt(localStorage.getItem("syncsupervision"));
   }
@@ -33,7 +33,7 @@ export class SyncPage {
   }
 
   ionViewDidLoad() {
-    console.log('Hello Sync Page');
+    console.debug('Hello Sync Page');
   }
 
   sync_data() {
@@ -54,16 +54,16 @@ export class SyncPage {
     //alert("hay sinc");
     //this.db2 = new SQLite();
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.log("base de datos abierta 1");
+      console.debug("base de datos abierta 1");
 
 
       db2.executeSql("select idcontrol,resultado,fecha,foto, idusuario from resultadoscontrol", []).then((data) => {
-        console.log("executed sql" + data.rows.length);
+        console.debug("executed sql" + data.rows.length);
         if (data.rows.length > 0) {
           let arrayfila = [];
           for (let fila = 0; fila < data.rows.length; fila++) {
 
-            console.log(data.rows.item(fila));
+            console.debug(data.rows.item(fila));
             //let checklist = new ResultadoCechklist ()
             //arrayfila.push(data.rows.item(fila))
             arrayfila.push(new ResultadoControl(data.rows.item(fila).idcontrol, data.rows.item(fila).resultado, data.rows.item(fila).fecha, data.rows.item(fila).foto, data.rows.item(fila).idusuario));
@@ -71,21 +71,21 @@ export class SyncPage {
 
           this.sync.setResultados(JSON.stringify(arrayfila), "resultadoscontrol")
             .subscribe(data => {
-              console.log("control5")
+              console.debug("control5")
               localStorage.setItem("synccontrol", "0");
              // this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
              // this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
             },
-            error => console.log("control6" + error),
-            () => console.log("ok"));
+            error => console.debug("control6" + error),
+            () => console.debug("ok"));
         }
       }, (error) => {
-        console.log(error);
+        console.debug(error);
         alert("error, no se han podido sincronizar todos los datos [resultadoscontroles] " + error.message);
       });
 
     }, (error) => {
-      console.log("ERROR al abrir la bd: ", error);
+      console.debug("ERROR al abrir la bd: ", error);
     });
 
   }
@@ -94,7 +94,7 @@ export class SyncPage {
 
     //this.db = new SQLite();
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.log("base de datos abierta");
+      console.debug("base de datos abierta");
 
 
       db2.executeSql("select idlocal,idchecklist,fecha,foto, idusuario from resultadoschecklist", []).then((data) => {
@@ -102,55 +102,55 @@ export class SyncPage {
 
           for (let fila = 0; fila < data.rows.length; fila++) {
             let resultadoChecklist = new ResultadoCechklist(data.rows.item(fila).idlocal, data.rows.item(fila).idchecklist, data.rows.item(fila).fecha, data.rows.item(fila).foto, data.rows.item(fila).idusuario)
-            console.log(data.rows.item(fila));
+            console.debug(data.rows.item(fila));
             let idlocal = data.rows.item(fila).idlocal;
             //let arrayfila =[data.rows.item(fila)];
             let arrayfila = [resultadoChecklist];
             arrayfila.push()
             let idrespuesta = this.sync.setResultados(JSON.stringify(arrayfila), "resultadoschecklist")
               .subscribe(data => this.sync_checklistcontroles(data.id, idlocal));
-            console.log("returned" + idrespuesta);
+            console.debug("returned" + idrespuesta);
           }
           localStorage.setItem("syncchecklist", "0");
           this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
           this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
         }
       }, (error) => {
-        console.log("ERROR -> " + JSON.stringify(error.err));
+        console.debug("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [resultadoschecklist]" + JSON.stringify(error.err));
       });
 
     }, (error) => {
-      console.log("ERROR al abrir la bd: ", error);
+      console.debug("ERROR al abrir la bd: ", error);
     });
   }
 
   sync_checklistcontroles(id, idlocal) {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.log("base de datos abierta");
+      console.debug("base de datos abierta");
 
-      console.log("send: " + id + " idlocal= " + idlocal);
+      console.debug("send: " + id + " idlocal= " + idlocal);
       db2.executeSql("select idcontrolchecklist,  " + id + " as idresultadochecklist ,resultado,descripcion,fotocontrol from resultadoscontroleschecklist WHERE idresultadochecklist = ?", [idlocal]).then((data) => {
-        console.log(data.rows.length);
+        console.debug(data.rows.length);
         if (data.rows.length > 0) {
           let arrayfila = [];
           for (let fila = 0; fila < data.rows.length; fila++) {
-            console.log(data.rows.item(fila));
+            console.debug(data.rows.item(fila));
 
             //arrayfila.push(data.rows.item(fila))
             arrayfila.push(new ResultadosControlesChecklist(data.rows.item(fila).idcontrolchecklist, data.rows.item(fila).idresultadochecklist, data.rows.item(fila).resultado, data.rows.item(fila).descripcion, data.rows.item(fila).fotocontrol))
           }
           this.sync.setResultados(JSON.stringify(arrayfila), "resultadoscontroleschecklist")
-            .subscribe(data => { console.log("control3") },
-            error => console.log("control4" + error),
-            () => console.log("fin"));
+            .subscribe(data => { console.debug("control3") },
+            error => console.debug("control4" + error),
+            () => console.debug("fin"));
         }
       }, (error) => {
-        console.log("ERROR -> " + JSON.stringify(error.err));
+        console.debug("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [resultadoscontrolchecklist]" + JSON.stringify(error.err));
       });
     }, (error) => {
-      console.log("ERROR al abrir la bd: ", error);
+      console.debug("ERROR al abrir la bd: ", error);
     });
 
   }
@@ -158,11 +158,11 @@ export class SyncPage {
 
   sync_checklimpieza() {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.log("base de datos abierta");
+      console.debug("base de datos abierta");
 
-      console.log("send limpiezas: ");
+      console.debug("send limpiezas: ");
       db2.executeSql("select * from resultadoslimpieza ", []).then((data) => {
-        console.log(data.rows.length);
+        console.debug(data.rows.length);
         let param = "&entidad=limpieza_realizada";
         let arrayfila = [];// : limpiezaRealizada[]=[];
         if (data.rows.length > 0) {
@@ -175,41 +175,41 @@ export class SyncPage {
             this.servidor.postObject(URLS.STD_ITEM, limpieza, param).subscribe(
               response => {
                 if (response.success) {
-                  console.log('limpieza realizada sended', response.id);
+                  console.debug('limpieza realizada sended', response.id);
                   db2.executeSql("DELETE from resultadoslimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
-                    console.log("deleted",data.rows.length);
+                    console.debug("deleted",data.rows.length);
                   });
                 }
               },
-              error => console.log(error),
+              error => console.debug(error),
               () => { });
           }
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
           //   response => {
           //     if (response.success) {
-          //     console.log('limpieza realizada sended',response.id);
+          //     console.debug('limpieza realizada sended',response.id);
           //   }},
-          // error=>console.log(error),
+          // error=>console.debug(error),
           // ()=>{});
         }
       }, (error) => {
-        console.log("ERROR -> " + JSON.stringify(error.err));
+        console.debug("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [limpiezasRealizadas]" + JSON.stringify(error.err));
       });
     }, (error) => {
-      console.log("ERROR al abrir la bd: ", error);
+      console.debug("ERROR al abrir la bd: ", error);
     });
   }
 
 
   sync_data_supervision() {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.log("base de datos abierta");
+      console.debug("base de datos abierta");
 
-      console.log("send limpiezas: ");
+      console.debug("send limpiezas: ");
       db2.executeSql("select * from supervisionlimpieza WHERE supervision > 0", []).then((data) => {
-        console.log(data.rows.length);
+        console.debug(data.rows.length);
         
         let arrayfila = [];// : limpiezaRealizada[]=[];
         if (data.rows.length > 0) {
@@ -223,13 +223,13 @@ export class SyncPage {
             this.servidor.putObject(URLS.STD_ITEM, param, supervision).subscribe(
               response => {
                 if (response.success) {
-                  console.log('#Supervision sended', response.id, supervision);
+                  console.debug('#Supervision sended', response.id, supervision);
                   db2.executeSql("DELETE from supervisionlimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
-                    console.log("deleted",data.rows.length);
+                    console.debug("deleted",data.rows.length);
                   });
                 }
               },
-              error => console.log(error),
+              error => console.debug(error),
               () => { });
           }
                 localStorage.setItem("syncsupervision", "0");
@@ -239,17 +239,17 @@ export class SyncPage {
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
           //   response => {
           //     if (response.success) {
-          //     console.log('limpieza realizada sended',response.id);
+          //     console.debug('limpieza realizada sended',response.id);
           //   }},
-          // error=>console.log(error),
+          // error=>console.debug(error),
           // ()=>{});
         }
       }, (error) => {
-        console.log("ERROR -> " + JSON.stringify(error.err));
+        console.debug("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [limpiezasRealizadas]" + JSON.stringify(error.err));
       });
     }, (error) => {
-      console.log("ERROR al abrir la bd: ", error);
+      console.debug("ERROR al abrir la bd: ", error);
     });
 
   }

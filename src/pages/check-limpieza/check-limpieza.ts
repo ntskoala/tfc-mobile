@@ -38,7 +38,7 @@ public idlimpiezazona:number;
 public limpiezaRealizada: limpiezaRealizada;
 public hoy: Date = new Date();
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, public servidor: Servidor) {
-       console.log("param",this.params.get('limpieza'));
+       console.debug("param",this.params.get('limpieza'));
        
        this.idlimpiezazona =  this.params.get('limpieza').idlimpiezazona;
         this.nombreLimpieza = this.params.get('limpieza').nombrelimpieza;
@@ -51,7 +51,7 @@ public hoy: Date = new Date();
 
   }
 ionViewDidEnter(){
-    console.log('ionViewDidEnter CheckLimpiezaPage');
+    console.debug('ionViewDidEnter CheckLimpiezaPage');
     this.getLimpiezas();
 
 if (this.network.type != 'none'){
@@ -73,7 +73,7 @@ getLimpiezas(){
                   //this.checklistList = data.rows;
                   db2.executeSql("Select * FROM checklimpieza WHERE idlimpiezazona = ? AND idusuario = ? AND fecha <= ?", [this.idlimpiezazona, sessionStorage.getItem("idusuario"),fecha]).then((data) => {
                   
-                  console.log(data.rows.length);
+                  console.debug(data.rows.length);
                       for (var index=0;index < data.rows.length;index++){
                         let isbeforedate = moment(data.rows.item(index).fecha).isBefore(this.hoy,'day');
                         let repeticion = this.checkPeriodo(data.rows.item(index).periodicidad);
@@ -82,9 +82,9 @@ getLimpiezas(){
                         data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate));
                         //this.checkLimpiezas.push(data.rows.item(index));
                     }
-                  console.log ("checkLimpiezas:", this.checkLimpiezas);
+                  console.debug ("checkLimpiezas:", this.checkLimpiezas);
               }, (error) => {
-                  console.log("ERROR home. 342-> " + JSON.stringify(error.err));
+                  console.debug("ERROR home. 342-> " + JSON.stringify(error.err));
                   alert("error home. 342" + JSON.stringify(error.err));
               }); 
                   });
@@ -98,9 +98,9 @@ return repeticion.repeticion;
 terminar(){
   let idempresa = localStorage.getItem("idempresa");
   let idusuario = sessionStorage.getItem("idusuario")
-  console.log("terminar",this.checkLimpiezas);
+  console.debug("terminar",this.checkLimpiezas);
   this.checkLimpiezas.forEach((elemento)=>{
-    console.log("terminar2",elemento);
+    console.debug("terminar2",elemento);
 if (elemento.checked){
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
       db2.executeSql('INSERT INTO resultadoslimpieza (idelemento, idempresa, fecha_prevista, nombre, descripcion, tipo, idusuario, responsable,  idlimpiezazona ) VALUES (?,?,?,?,?,?,?,?,?)',
@@ -114,35 +114,35 @@ if (elemento.checked){
       proxima_fecha = moment(this.nuevaFecha(elemento)).format('YYYY-MM-DD');
     }
       
-      console.log("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
+      console.debug("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
       //elemento.fecha_prevista = proxima_fecha;
       db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha, elemento.id]).then
       ((Resultado) => {
-           console.log("updated fecha: ", Resultado);
+           console.debug("updated fecha: ", Resultado);
           //SI HAY RED UPDATE BACKOFFICE
            if (this.network.type != 'none') {
-            console.log("updating serer");
+            console.debug("updating serer");
              let param = "?entidad=limpieza_elemento&id="+elemento.idElementoLimpieza;
              let limpia={fecha:proxima_fecha};
             this.servidor.putObject(URLS.STD_ITEM,param,limpia).subscribe(
-              (resultado)=>console.log(resultado),
-              (error)=>console.log(error),
-              ()=>console.log('fin updating fecha')
+              (resultado)=>console.debug(resultado),
+              (error)=>console.debug(error),
+              ()=>console.debug('fin updating fecha')
             );
           }
       },
       (error) => {
-        console.log('ERROR ACTUALIZANDO FECHA', error);
+        console.debug('ERROR ACTUALIZANDO FECHA', error);
        });
   });
 },
-  (error) => {console.log(JSON.stringify(error))});
+  (error) => {console.debug(JSON.stringify(error))});
 }
 });
   
 
             if (this.network.type != 'none') {
-            console.log("conected");
+            console.debug("conected");
             this.sync.sync_checklimpieza();
           }
           else {
@@ -176,7 +176,7 @@ this.navCtrl.pop();
       //  {text: valor,icon:'information-circle',handler: () => {this.setValor(control);}},
       //  {text: descrip,icon:'clipboard',handler: () => {this.editar(control);}},
       //  {text: 'Foto',icon:'camera',handler: () => {this.takeFoto(control);}},
-        {text: cancel,role: 'cancel',handler: () => {console.log('Cancel clicked');}}
+        {text: cancel,role: 'cancel',handler: () => {console.debug('Cancel clicked');}}
         ]
          });
     actionSheet.present();

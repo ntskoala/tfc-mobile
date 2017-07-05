@@ -46,7 +46,7 @@ export class LoginPage {
 }
 
   ionViewDidLoad() {
-    console.log('Hello Login Page');
+    console.debug('Hello Login Page');
     this.empresa = parseInt(localStorage.getItem("idempresa"));
   //  this.logoempresa = "https://tfc.proacciona.es/logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
     this.logoempresa = URLS.SERVER +"logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
@@ -65,7 +65,7 @@ login(){
   
   let mensaje: string;
   this.data.getLogin(this.nombre,this.password).then((data) => { 
-      console.log("getlogin:" + data);
+      console.debug("getlogin:" + data);
       if (!isNaN(this.data.logged)){
         this.permanentLogin();
 
@@ -79,7 +79,7 @@ login(){
     (error)=> {
             this.translate.get("alertas.maluser").subscribe(resultado => { mensaje = resultado});
             alert (mensaje);
-      console.log ("error: " + error)}
+      console.debug ("error: " + error)}
     );
   }
 }
@@ -100,9 +100,9 @@ checkLogin():boolean{
   if (localStorage.getItem("loggedTime")){
   let ahora = moment(new Date());
   let fecha = moment(new Date(localStorage.getItem("loggedTime"))).add(24,"h");
-  console.log(ahora,fecha);
+  console.debug(ahora,fecha);
   if (moment(fecha).isAfter(moment(ahora))){
-    console.log('logged ok');
+    console.debug('logged ok');
       resultado = true;
         this.data.logged = parseInt(localStorage.getItem("idusuario"));
         sessionStorage.setItem("nombre",localStorage.getItem("nombre"));
@@ -111,7 +111,7 @@ checkLogin():boolean{
         sessionStorage.setItem("login",localStorage.getItem("login"));        
 
   }else{
-    console.log('logged timeout');
+    console.debug('logged timeout');
     resultado = false;
   }
   }else{
@@ -132,14 +132,14 @@ onconect(){
 
 
   doRefresh(refresher) {
-    console.log('Begin async operation', refresher);
+    console.debug('Begin async operation', refresher);
   //  this.presentLoading();
     this.data.sincronizate().then(
     (response)=>{
-      console.log('######',response);
+      console.debug('######',response);
    //   this.loader.dismiss();
           setTimeout(() => {
-      console.log('Async operation has ended');
+      console.debug('Async operation has ended');
       refresher.complete();
     }, 2000);
   });
@@ -156,7 +156,7 @@ onconect(){
   }
     closeLoading(){
    setTimeout(() => {
-      console.log('Async operation has ended');
+      console.debug('Async operation has ended');
       this.loader.dismiss()
     }, 1000);
   }

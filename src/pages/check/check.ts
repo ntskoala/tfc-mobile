@@ -56,19 +56,19 @@ public selectedValue:string;
         this.db.create({name: "data.db", location: "default"}).then(() => {
             //this.refresh();
             this.getChecklists(this.idchecklist);
-            console.log("base de datos abierta");
+            console.debug("base de datos abierta");
         }, (error) => {
-            console.log("ERROR al abrir la bd: ", error);
+            console.debug("ERROR al abrir la bd: ", error);
         });
   }
 
   ionViewDidLoad() {
-    console.log('Hello Check Page');
+    console.debug('Hello Check Page');
   }
 getChecklists(idchecklist){
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   db2.executeSql("Select * FROM checklist WHERE idchecklist = ? and idusuario = ?",[idchecklist, sessionStorage.getItem("idusuario")]).then((data) => {
-                  console.log ("resultado1" + data.rows.length);
+                  console.debug ("resultado1" + data.rows.length);
                   
                   
                   for (var index=0;index < data.rows.length;index++){
@@ -91,9 +91,9 @@ getChecklists(idchecklist){
                     }
                   //this.checklistcontroles = data.res.rows;
                   //this.checklistcontroles = JSON.parse(data.res.rows);
-                  //console.log (this.checklistcontroles);
+                  //console.debug (this.checklistcontroles);
               }, (error) => {
-                  console.log("ERROR -> " + JSON.stringify(error.err));
+                  console.debug("ERROR -> " + JSON.stringify(error.err));
                   alert("error " + JSON.stringify(error.err));
               }); 
                   });
@@ -102,22 +102,22 @@ getChecklists(idchecklist){
 
 
 terminar(){
-  console.log(this.checklistcontroles);
+  console.debug(this.checklistcontroles);
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
       db2.executeSql('INSERT INTO resultadoschecklist (idchecklist, foto,idusuario) VALUES (?,?,?)',[this.idchecklist,this.base64Image,sessionStorage.getItem("idusuario")]).then(
   (Resultado) => { 
-          // console.log("resultado: " + Resultado.res.insertId);
-           console.log("resultado2: " + Resultado.insertId);
+          // console.debug("resultado: " + Resultado.res.insertId);
+           console.debug("resultado2: " + Resultado.insertId);
           let idresultadochecklist = Resultado.insertId;
           //localStorage.setItem("sync",(parseInt(localStorage.getItem("sync"))+1).toString());
           for(var index in this.checklistcontroles) { 
             var attr = this.checklistcontroles[index];
             db2.executeSql('INSERT INTO resultadoscontroleschecklist (idcontrolchecklist,idchecklist, resultado, descripcion, fotocontrol, idresultadochecklist) VALUES (?,?,?,?,?,?)',[attr.idcontrol,this.idchecklist,attr.checked,attr.descripcion,attr.foto,idresultadochecklist]).then(
-          (Resultado) => { console.log(Resultado);},
-          (error) => {console.log(JSON.stringify(error))});
+          (Resultado) => { console.debug(Resultado);},
+          (error) => {console.debug(JSON.stringify(error))});
         }
           if (this.network.type != 'none') {
-            console.log("conected");
+            console.debug("conected");
             this.sync.sync_data_checklist();
           }
           else {
@@ -126,7 +126,7 @@ terminar(){
           }
   
 },
-  (error) => {console.log(JSON.stringify(error))});
+  (error) => {console.debug(JSON.stringify(error))});
   });
 
 this.navCtrl.pop();
@@ -148,9 +148,9 @@ takeFoto(control ?){
       }
         
     }, (err) => {
-        console.log(err);
+        console.debug(err);
     });
-    console.log(this.checklistcontroles);
+    console.debug(this.checklistcontroles);
   }
 editar(control){
           let prompt = this.alertCtrl.create({
@@ -196,7 +196,7 @@ setValor(control){
         {text: valor,icon:'information-circle',handler: () => {this.setValor(control);}},
         {text: descrip,icon:'clipboard',handler: () => {this.editar(control);}},
         {text: 'Foto',icon:'camera',handler: () => {this.takeFoto(control);}},
-        {text: cancel,role: 'cancel',handler: () => {console.log('Cancel clicked');}}
+        {text: cancel,role: 'cancel',handler: () => {console.debug('Cancel clicked');}}
         ]
          });
     actionSheet.present();

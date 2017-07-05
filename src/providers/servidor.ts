@@ -13,7 +13,7 @@ export class Servidor {
 public idempresa= localStorage.getItem("idempresa");
 public userId= localStorage.getItem("login");
   constructor(public llamada: Http) {
-    console.log('Hello Servidor Provider');
+    console.debug('Hello Servidor Provider');
   }
   login(url: string, param: string, payload = '') {
     return this.llamada.post(url + param, payload)
@@ -22,7 +22,7 @@ public userId= localStorage.getItem("login");
 //  isTokenValid (token) {
 //             var base64Url = token.split('.')[1];
 //             var base64 = base64Url.replace('-', '+').replace('_', '/');
-//             console.log (JSON.parse(window.atob(base64)));
+//             console.debug (JSON.parse(window.atob(base64)));
 //   }
 
   getObjects(url: string, param: string) {

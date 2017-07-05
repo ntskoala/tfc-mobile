@@ -21,7 +21,7 @@ public email:string;
   }
 
   ionViewDidLoad() {
-    console.log('Hello Config Page');
+    console.debug('Hello Config Page');
   }
 
 selectlang(){

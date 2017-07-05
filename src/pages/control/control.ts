@@ -43,31 +43,31 @@ public desactivado: boolean;
   }
 
   ionViewDidLoad() {
-    console.log('Hello Control Page');
+    console.debug('Hello Control Page');
   }
  checkrangoerror(idcontrol){
    let fuerarango = "false";
     if (!isNaN(this.control.minimo) && this.control.minimo != null){
       if (this.valor < this.control.minimo) {
-       console.log("valor minimo");
+       console.debug("valor minimo");
         fuerarango = "valorminimo";
       } 
    }
     if (!isNaN(this.control.maximo) && this.control.maximo != null){
       if (this.valor > this.control.maximo){
-       console.log("valor maximo");
+       console.debug("valor maximo");
         fuerarango = "valormaximo";
       } 
     }
     // if (!isNaN(this.control.tolerancia) && this.control.tolerancia != null){
     //   if (this.valor >= this.control.tolerancia){
-    //    console.log("valor tolerancia"); 
+    //    console.debug("valor tolerancia"); 
     //     fuerarango = "tolerancia";
     //   }  
     // }
     if (!isNaN(this.control.critico) && this.control.critico != null){
       if (this.valor > this.control.critico){
-       console.log("valor critico"); 
+       console.debug("valor critico"); 
        fuerarango = "critico";
       }  
     }
@@ -81,24 +81,24 @@ terminar(idcontrol){
                   //let db= new SQLite();
                   this.db.create({name: 'data.db',location: 'default'})
                   .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO resultadoscontrol (idcontrol, resultado, foto, idusuario) VALUES (?,?,?,?)',[idcontrol,this.valor,this.base64Image,sessionStorage.getItem("idusuario")]).then(
-  (Resultado) => { console.log("insert_ok:",Resultado);
+  (Resultado) => { console.debug("insert_ok:",Resultado);
                    
                           if (this.network.type != 'none') {
-                              console.log("conected");
+                              console.debug("conected");
                               this.sync.sync_data_control();
                               
                           }
                           else
                           {
-                            console.log ("suma:" + localStorage.getItem("synccontrol"));
+                            console.debug ("suma:" + localStorage.getItem("synccontrol"));
                               localStorage.setItem("synccontrol",(parseInt(localStorage.getItem("synccontrol"))+1).toString());
-                              console.log("this.myapp.badge",this.initdb.badge);
+                              console.debug("this.myapp.badge",this.initdb.badge);
                               this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
                           }
 
                   this.navCtrl.pop();
                   },
-  (error) => {console.log(JSON.stringify(error))});
+  (error) => {console.debug(JSON.stringify(error))});
  });
  }
  else // NO HAY UN NUMERO EN RESULTADO
@@ -123,7 +123,7 @@ takeFoto(){
         this.base64Image = "data:image/jpeg;base64," + imageData;
         
     }, (err) => {
-        console.log(err);
+        console.debug(err);
     });
   }
 
@@ -157,7 +157,7 @@ let parametros = bcontrol+'<br>'+ bvalorc+'<br>'+ bminimo+'<br>'+ bmaximo+'<br>'
 let body = mensaje + '<br>' + parametros + pie;
 
 
-console.log("preparando email:" + alerta);
+console.debug("preparando email:" + alerta);
 this.socialsharing.canShareViaEmail().then(() => {
                         this.socialsharing.shareViaEmail(
                           body, 
@@ -166,7 +166,7 @@ this.socialsharing.canShareViaEmail().then(() => {
                           [ "alertes@proacciona.es"],
                           null,
                           this.base64Image).then(() => {
-                              console.log("email ready");
+                              console.debug("email ready");
                         }).catch(() => {
                               this.translate.get("alertas.nohayemail")
                               .subscribe(resultado => { alert(resultado);});
@@ -207,7 +207,7 @@ this.socialsharing.canShareViaEmail().then(() => {
 //  }
 //  else { this.translate.get("alertas.nohayemail").subscribe(resultado => { alert(resultado)});}
 // },
-// (error) => { console.log(error)}
+// (error) => { console.debug(error)}
 // );
 
 

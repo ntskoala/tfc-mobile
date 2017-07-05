@@ -24,12 +24,12 @@ public loader: any;
   constructor(public navCtrl: NavController,public viewCtrl: ViewController, public initdb: Initdb, public sync: Sync,public translate: TranslateService,public loadingCtrl: LoadingController) {}
 
   ionViewDidLoad() {
-    console.log('Hello Empresa Page');
+    console.debug('Hello Empresa Page');
    // if (sessionStorage.getItem("idusuario")=="koala") this.koala = true;
-    console.log("koala",this.koala);
+    console.debug("koala",this.koala);
   }
 setEmpresa(){
-  console.log("es debug",this.debug);
+  console.debug("es debug",this.debug);
 if (this.debug) {
  // this.sync.baseurl = 'http://tfc.ntskoala.com/api';
  // localStorage.setItem("modo","debug");
@@ -80,7 +80,7 @@ this.navCtrl.pop();
 }
 
  presentLoading() {
-   console.log('##SHOW LOADING');
+   console.debug('##SHOW LOADING');
     this.loader = this.loadingCtrl.create({
       content: "Actualizando...",
      // duration: 3000
@@ -89,9 +89,9 @@ this.navCtrl.pop();
     //loader.dismiss();
   }
   closeLoading(){
-    console.log('##CLOSE LOADING');
+    console.debug('##CLOSE LOADING');
    setTimeout(() => {
-      console.log('Async operation has ended');
+      console.debug('Async operation has ended');
       this.loader.dismiss()
     }, 1000);
   }

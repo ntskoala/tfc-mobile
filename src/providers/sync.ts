@@ -29,7 +29,7 @@ createAuthorizationHeader(headers:Headers) {
     headers.append('token', 'qwerty123456'); 
   }
   constructor(public http: Http,public loadingCtrl: LoadingController,public db :SQLite) {
-    console.log('Hello Sync Provider');
+    console.debug('Hello Sync Provider');
     if (localStorage.getItem("modo")=="debug"){
     //    this.baseurl = "http://tfc.ntskoala.com/api";
     }
@@ -49,7 +49,7 @@ createAuthorizationHeader(headers:Headers) {
 
 public getMisControles(userid): Observable<any>
 {
-    console.log ('baseurl',this.baseurl);
+    console.debug ('baseurl',this.baseurl);
    // this.loader.present();
             let headers = new Headers();
             this.createAuthorizationHeader(headers);
@@ -68,7 +68,7 @@ public getMisChecklists(userid): Observable<any>
 
 public getMisLimpiezas(userid): Observable<any>
 {
-    console.log ('baseurl',this.baseurl);
+    console.debug ('baseurl',this.baseurl);
    // this.loader.present();
             let headers = new Headers();
             this.createAuthorizationHeader(headers);
@@ -80,7 +80,7 @@ public getMisLimpiezas(userid): Observable<any>
 
 public getMisLimpiezasRealizadas(userid): Observable<any>
 {
-    console.log ('baseurl',this.baseurl);
+    console.debug ('baseurl',this.baseurl);
    // this.loader.present();
             let headers = new Headers();
             this.createAuthorizationHeader(headers);
@@ -94,7 +94,7 @@ public getMisLimpiezasRealizadas(userid): Observable<any>
 public getMisUsers(): Observable<any>
 {
     this.idempresa = localStorage.getItem("idempresa");
-    console.log("sincro misusers, empresa:" + this.idempresa);
+    console.debug("sincro misusers, empresa:" + this.idempresa);
     //alert ('idempresa' + this.config.idempresa);
         let misusers = this.http.get(`${this.baseurl}views/getusers.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         return misusers;
@@ -104,7 +104,7 @@ public setGerentes(): Observable<any>
 {
 
     this.idempresa = localStorage.getItem("idempresa");
-    console.log("sincro setgerentes, empresa:" + this.idempresa);
+    console.debug("sincro setgerentes, empresa:" + this.idempresa);
     //alert ('idempresa' + this.config.idempresa);
         let misgerentes = this.http.get(`${this.baseurl}views/getgerentes.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         
@@ -113,9 +113,9 @@ public setGerentes(): Observable<any>
 
 setResultados(resultados,table):any
 {
-   console.log('resultados ' + table + ": " +resultados);
+   console.debug('resultados ' + table + ": " +resultados);
     this.posturl = this.baseurl+'actions/set'+table+'.php?idempresa='+this.idempresa;
-    console.log(this.posturl);
+    console.debug(this.posturl);
         let params = resultados;
         let headers = new Headers();
         //headers.append('Content-type', 'application/x-www-form-urlencoded');
@@ -123,48 +123,48 @@ setResultados(resultados,table):any
         // devuelve un Observable
        return this.http.post(this.posturl, params, {headers: headers})
             .map (res => JSON.parse(res.json()))
-            .do (data => {console.log(data);
+            .do (data => {console.debug(data);
                         //alert("data" + data);
-                        console.log("control2" + table);
+                        console.debug("control2" + table);
                          if (data.success== "true"){
-                             console.log("insert correcto " + table);
+                             console.debug("insert correcto " + table);
                             ///BORRAR DATOS TABLA 
                                 //this.storage = new Storage(SqlStorage, {name:'tfc'});
                  // let db= new SQLite();
                   this.db.create({name: 'data.db',location: 'default'})
                   .then((db2: SQLiteObject) => { db2.executeSql("delete from " + table, []).then(
-                                (data) => { console.log (JSON.stringify(data.res));}, 
-                                (error) => { console.log("ERROR -> " + JSON.stringify(error.err));});
+                                (data) => { console.debug (JSON.stringify(data.res));}, 
+                                (error) => { console.debug("ERROR -> " + JSON.stringify(error.err));});
                          });//FIN DB
                              }
                          else {
-                             console.log ("ERROR EN EL INSERT " + table);
+                             console.debug ("ERROR EN EL INSERT " + table);
                              }
                         });
             
-            //console.log()
+            //console.debug()
             //.subscribe(res => {
-            //              console.log("SUCCESS" + res.success);},
-            //              console.log (JSON.parse(res.json()).id);
+            //              console.debug("SUCCESS" + res.success);},
+            //              console.debug (JSON.parse(res.json()).id);
             //              let respuesta = JSON.parse(res.json()).success;
-            //              console.log ("respuesta= " + respuesta);
+            //              console.debug ("respuesta= " + respuesta);
             //              if (respuesta== "true"){
-            //                  console.log("insert correcto " + table);
+            //                  console.debug("insert correcto " + table);
             // //                 ///BORRAR DATOS TABLA 
             // //                     // this.storage = new Storage(SqlStorage, {name:'tfc'});
             // //                     // this.storage.query("delete from " + table).then(
-            // //                     // (data) => { console.log (JSON.stringify(data.res));}, 
-            // //                     // (error) => { console.log("ERROR -> " + JSON.stringify(error.err));});  
+            // //                     // (data) => { console.debug (JSON.stringify(data.res));}, 
+            // //                     // (error) => { console.debug("ERROR -> " + JSON.stringify(error.err));});  
             // //                     return respuesta.id;
             //                  }
             //              else {
-            //                  console.log ("ERROR EN EL INSERT " + table);
+            //                  console.debug ("ERROR EN EL INSERT " + table);
             //                  }
             //              },
             //              error => {
-            //                  console.log("error post: " + error);
+            //                  console.debug("error post: " + error);
             //              },
-            //              () => {console.log("FIN")} );
+            //              () => {console.debug("FIN")} );
                     
  //   this.http.post(`${this.config.baseurl}/actions/getusers.php?idempresa=${this.config.idempresa}&_dc=1470480375978`,);
 

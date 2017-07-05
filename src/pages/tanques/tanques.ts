@@ -23,9 +23,9 @@ public almacenes;
   }
 
   ionViewDidLoad() {
-  //  console.log(this.navParams.get("almacenes"));
-  //  console.log(this.navParams.get("almacenesOrigen"));
-  //  console.log(this.navParams.data);
+  //  console.debug(this.navParams.get("almacenes"));
+  //  console.debug(this.navParams.get("almacenesOrigen"));
+  //  console.debug(this.navParams.data);
     this.almacenes = this.navParams.get("almacenes");
     //this.almacenes = [1,2,3,4,5]
   }

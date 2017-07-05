@@ -29,9 +29,9 @@ public loader: any;
   constructor(platform: Platform, public initdb: Initdb,private servidor: Servidor, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar,public network:Network,public loadingCtrl: LoadingController) {
 
 //constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
- console.log("before platform ready, check init");
+ console.debug("before platform ready, check init");
     platform.ready().then(() => {
-      console.log("platform ready, check init");
+      console.debug("platform ready, check init");
       //localStorage.setItem("inicializado","1");
  if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
@@ -39,9 +39,9 @@ if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncc
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
         if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
           if (parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal){
-          console.log("iniciar");
+          console.debug("iniciar");
           if (this.network.type != 'none') {
-            console.log("hay red,--> inicializa()");
+            console.debug("hay red,--> inicializa()");
           this.initdb.inicializa();
           }else{
             alert ('No hay conexión, para sincronizar los datos');
@@ -51,9 +51,9 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
             this.hayUpdates().then(
             (versionActual)=>{
               if (versionActual == -1){
-                console.log('ha habido un error # app.48');
+                console.debug('ha habido un error # app.48');
               }else{
-          console.log("versionActual Usuarios",versionActual);
+          console.debug("versionActual Usuarios",versionActual);
           if (versionActual > parseInt(localStorage.getItem("versionusers"))) {
             this.presentLoading();
             this.initdb.sincronizate(versionActual.toString()).then(
@@ -77,9 +77,9 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
           this.translate.use(localStorage.getItem("lang"));
           this.translate.setDefaultLang(localStorage.getItem("lang"));
       }
-      console.log(localStorage.getItem("idempresa"));
+      console.debug(localStorage.getItem("idempresa"));
     if (localStorage.getItem("idempresa") === null || localStorage.getItem("idempresa") == 'undefined'){
-      console.log('dentro')
+      console.debug('dentro')
       let opciones =  {showBackdrop: true,enableBackdropDismiss:true}
       let modalEmpresa = this.modalCtrl.create(Empresa,opciones)
 
@@ -124,7 +124,7 @@ hayUpdates() {
             }
         },
         (error)=>{
-          console.log(error)
+          console.debug(error)
           resolve(updates);
       },
         ()=>{
@@ -147,7 +147,7 @@ openPage(page) {
         sessionStorage.removeItem("password");
         sessionStorage.removeItem("idusuario");
     }
-    console.log(page.component);
+    console.debug(page.component);
     this.nav.setRoot(page.component);
 }  
 existe(){
@@ -168,7 +168,7 @@ sincrosired(){
 
 
   presentLoading() {
-    console.log('##SHOW LOADING 1');
+    console.debug('##SHOW LOADING 1');
     this.loader = this.loadingCtrl.create({
       content: "Actualizando...",
      // duration: 3000
@@ -177,9 +177,9 @@ sincrosired(){
     //loader.dismiss();
   }
     closeLoading(){
-      console.log('##HIDE LOADING 1');
+      console.debug('##HIDE LOADING 1');
    setTimeout(() => {
-      console.log('Async operation has ended');
+      console.debug('Async operation has ended');
       this.loader.dismiss()
     }, 600);
   }

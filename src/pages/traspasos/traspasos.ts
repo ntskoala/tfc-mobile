@@ -80,7 +80,7 @@ public userId= sessionStorage.getItem("login");
 }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad Traspasos');
+    console.debug('ionViewDidLoad Traspasos');
   }
 
   ngOnInit() {
@@ -110,11 +110,11 @@ getOrden(idorden:number,fuente:string) {
           response => {
             if (response.success == 'true' && response.data) {
               for (let element of response.data) {
-                  console.log(response.data);
+                  console.debug(response.data);
                  // if (response.data.length==1){
                       if (fuente=="origen"){
                         this.ordenOrigen = new ProduccionOrden(element.id,element.idempresa,element.numlote,new Date(element.fecha_inicio),new Date(element.fecha_fin),new Date(element.fecha_caducidad),element.responsable,element.cantidad,element.tipo_medida,element.nombre,element.familia,element.estado);
-                        console.log("origen",fuente,this.ordenOrigen)
+                        console.debug("origen",fuente,this.ordenOrigen)
                       }else{
                           this.ordenDestino = new ProduccionOrden(element.id,element.idempresa,element.numlote,new Date(element.fecha_inicio),new Date(element.fecha_fin),new Date(element.fecha_caducidad),element.responsable,element.cantidad,element.tipo_medida,element.nombre,element.familia,element.estado);
                     }
@@ -142,7 +142,7 @@ getAlmacenes() {
              // this.listaZonas.emit(this.limpiezas);
             }
         },
-        (error)=>console.log(error),
+        (error)=>console.debug(error),
         ()=>{
             this.almacenes = this.almacenesOrigen;
         });
@@ -190,13 +190,13 @@ getProveedores(){
              }
             }
         },
-        error=>console.log(error),
+        error=>console.debug(error),
         ()=>{}
         ); 
 }
 
 getProductos(idProveedor:number){
-    console.log("id",idProveedor);
+    console.debug("id",idProveedor);
 
     (idProveedor >0)? this.proveedor = true: this.proveedor=false;
     this.cambioOrigen();
@@ -212,7 +212,7 @@ getProductos(idProveedor:number){
              }
             }
         },
-        error=>console.log(error),
+        error=>console.debug(error),
         ()=>{}
         ); 
 }
@@ -223,7 +223,7 @@ getEntradasProducto(idProducto){
   let filtro_dates = "&filterdates=true&fecha_field=fecha_entrada&fecha_inicio="+ filtro_inicio +  "&fecha_fin="+filtro_fin;
 
         this.idProductoActual = idProducto;
-        console.log('entradasproducto',idProducto)
+        console.debug('entradasproducto',idProducto)
          let parametros = '&idempresa=' + this.idempresa+"&entidad=proveedores_entradas_producto&field=idproducto&idItem="+idProducto+filtro_dates; 
         this.servidor.getObjects(URLS.STD_SUBITEM, parametros).subscribe(
           response => {
@@ -236,7 +236,7 @@ getEntradasProducto(idProducto){
              }
             }
         },
-        error=>console.log(error),
+        error=>console.debug(error),
         ()=>{}
         ); 
 }
@@ -274,7 +274,7 @@ seleccionarOrigen(origen: string,valor: number){
          this.loteSelected = this.entrada_productos[valor];
          //}
     }
-    //console.log(this.ordenOrigen)
+    //console.debug(this.ordenOrigen)
     //this.almacenesDestino.splice(0,0,new Almacen(0,0,'Selecciona',0,0,0));
 }
 
@@ -282,7 +282,7 @@ seleccionarDestino(valor:number){
     this.almacenDestinoSelected = this.almacenesDestino[valor];
     if (this.almacenDestinoSelected.idproduccionordenactual > 0){
     this.getOrden(this.almacenDestinoSelected.idproduccionordenactual,"destino");
-    console.log(this.ordenDestino)
+    console.debug(this.ordenDestino)
     }else{
         this.ordenDestino = null;
     }
@@ -290,19 +290,19 @@ seleccionarDestino(valor:number){
 
 traspasar(){
 this.ok=false;
-    //console.log(this.controlarOrigen() , this.controlarDestino());
+    //console.debug(this.controlarOrigen() , this.controlarDestino());
     if (this.controlarOrigen() && this.controlarDestino()){
 
-    console.log('traspaso_ordenOrigen',this.ordenOrigen)
-    console.log('traspaso_ordenDestino',this.ordenDestino)
+    console.debug('traspaso_ordenOrigen',this.ordenOrigen)
+    console.debug('traspaso_ordenDestino',this.ordenDestino)
     if (this.almacenOrigenSelected){
     //Comprobar cantidad de traspaso <= al disponible en origen this.almacenOrigenSelected.estado
     ////Comprobar cantidad de traspaso <= a la capacidad disponible en destino this.almacenDestinoSelected.capacidad . this.almacenDestinoSelected.estado
      this.setNewOrdenProduccion();
-//    console.log('restar de orden:' + this.ordenOrigen.id + "y de tanque" + this.almacenOrigenSelected.id);
-//    console.log('añadir a orden nueva orden:' + this.ordenOrigen.id +"y" +this.ordenDestino.id + "y sumar cantidad a tanque" + this.almacenDestinoSelected.id);
-//    console.log('poner en tanque' + this.almacenDestinoSelected.id + "el nuevo id generado de la nueva orden");
-//    console.log('si destino == tanque p, poner fecha caducidad = fecha_inicio(del lote nuevo) + 7 días');
+//    console.debug('restar de orden:' + this.ordenOrigen.id + "y de tanque" + this.almacenOrigenSelected.id);
+//    console.debug('añadir a orden nueva orden:' + this.ordenOrigen.id +"y" +this.ordenDestino.id + "y sumar cantidad a tanque" + this.almacenDestinoSelected.id);
+//    console.debug('poner en tanque' + this.almacenDestinoSelected.id + "el nuevo id generado de la nueva orden");
+//    console.debug('si destino == tanque p, poner fecha caducidad = fecha_inicio(del lote nuevo) + 7 días');
     }
     else if (this.loteSelected){
         if (this.loteSelected.numlote_proveedor == 'nueva entrada'){
@@ -327,7 +327,7 @@ setNuevaEntradaProveedor(){
             }
         },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('Calculando num lote');
         },
         ()=>{
@@ -346,8 +346,8 @@ let param = "&entidad=proveedores_entradas_producto"+"&field=idproveedor&idItem=
           this.setNewOrdenProduccion();
         }
     },
-    error =>console.log("Error en nueva entrada producto",error),
-    () =>console.log('entrada producto ok')
+    error =>console.debug("Error en nueva entrada producto",error),
+    () =>console.debug('entrada producto ok')
     );
         });
 }
@@ -360,27 +360,27 @@ setNewOrdenProduccion(ordenFuente?: ProduccionOrden){
     if (this.almacenDestinoSelected){
         this.nuevaOrden.cantidad=+this.almacenDestinoSelected.estado + +this.cantidadTraspaso;
         this.nuevaOrden.idalmacen = this.almacenDestinoSelected.id;
-        console.log("Destino",this.almacenDestinoSelected);
+        console.debug("Destino",this.almacenDestinoSelected);
         if (this.almacenDestinoSelected.level > 1){
             if(this.almacenOrigenSelected){
             if (this.almacenOrigenSelected.level<=1){
                 this.nuevaOrden.fecha_caducidad = moment().add(7,'days').toDate();
             }else{
-                console.log('Almacen destino > 1 y almacen origen level >1 = '+this.almacenOrigenSelected.level+' y ...');
+                console.debug('Almacen destino > 1 y almacen origen level >1 = '+this.almacenOrigenSelected.level+' y ...');
                 let caducidad;
                 if (this.ordenDestino){
                  caducidad = (moment(this.ordenOrigen.fecha_caducidad)<moment(this.ordenDestino.fecha_caducidad))?this.ordenOrigen.fecha_caducidad:this.ordenDestino.fecha_caducidad;
                 }else{
                      caducidad = this.ordenOrigen.fecha_caducidad;
                 }        
-                    console.log(caducidad);
+                    console.debug(caducidad);
                     this.nuevaOrden.fecha_caducidad = caducidad;
             }
             }else if (this.loteSelected){
                 if (this.ordenDestino)
                 {
                 let caducidad = (moment(this.loteSelected.fecha_caducidad)<moment(this.ordenDestino.fecha_caducidad))?this.loteSelected.fecha_caducidad:this.ordenDestino.fecha_caducidad;
-                    console.log(caducidad);
+                    console.debug(caducidad);
                     this.nuevaOrden.fecha_caducidad = caducidad;
                 }else{
                     this.nuevaOrden.fecha_caducidad = moment().add(7,'days').toDate();
@@ -416,7 +416,7 @@ this.nuevaOrden.tipo_medida = "l.";
             }
         },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('Calculando num lote');
         },
         ()=>{
@@ -445,7 +445,7 @@ let param = "&entidad=produccion_orden";
         }
     },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('setNewOrdenProduccionDetalle');
     },
     ()=>{}    
@@ -472,12 +472,12 @@ prepareNewOrdenProduccionDetalle(idOrden: number){
     this.nuevoDetalleOrden_Origen.proveedor = 'interno';
     this.nuevoDetalleOrden_Origen.producto = 'lote int ' + this.ordenOrigen.numlote;
     }
-    console.log('origen');
+    console.debug('origen');
     this.setNewOrdenProduccionDetalle(idOrden,this.nuevoDetalleOrden_Origen,'origen');
     
     if (this.almacenDestinoSelected){
     if (+this.almacenDestinoSelected.idproduccionordenactual > 0){
-        console.log('destino',+this.almacenDestinoSelected.idproduccionordenactual);
+        console.debug('destino',+this.almacenDestinoSelected.idproduccionordenactual);
     this.nuevoDetalleOrden_Destino.id =0;
     this.nuevoDetalleOrden_Destino.idorden = idOrden;
     this.nuevoDetalleOrden_Destino.proveedor = 'Interno';
@@ -490,7 +490,7 @@ prepareNewOrdenProduccionDetalle(idOrden: number){
  this.prepareAlmacenes(idOrden);
 }
 setNewOrdenProduccionDetalle(idOrden:number, detalleOrden: ProduccionDetalle,fuente:string){
-    console.log('setNewOrdenProduccionDetaalle',detalleOrden);
+    console.debug('setNewOrdenProduccionDetaalle',detalleOrden);
     //this.passItem = detalleOrden;
     let param = "&entidad=produccion_detalle"+"&field=idorden&idItem="+idOrden;
     this.servidor.postObject(URLS.STD_ITEM, detalleOrden,param).subscribe(
@@ -506,7 +506,7 @@ setNewOrdenProduccionDetalle(idOrden:number, detalleOrden: ProduccionDetalle,fue
         }
     },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('setNewOrdenProduccionDetalle ' + fuente);
         },
     () =>{}   
@@ -552,7 +552,7 @@ setAlmacen(almacen: Almacen){
         }
     },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('setAlmacen ' +almacen.nombre);
         },
     () =>{}   
@@ -561,18 +561,18 @@ setAlmacen(almacen: Almacen){
 
 
 setRemanente(detalleProduccion: ProduccionDetalle){
-  console.log("setRemanente",detalleProduccion)
+  console.debug("setRemanente",detalleProduccion)
   if (detalleProduccion.idmateriaprima >0){
         let parametros = '&idempresa=' + this.idempresa+"&idmateriaprima="+detalleProduccion.idmateriaprima+"&cantidad="+detalleProduccion.cantidad; 
         this.servidor.getObjects(URLS.UPDATE_REMANENTE, parametros).subscribe(
           response => {
             this.entrada_productos = [];
             if (response.success && response.data) {
-              console.log('updated');
+              console.debug('updated');
              }
         },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('setRemanente Materia Prima');
         },
         ()=>{}
@@ -591,7 +591,7 @@ setNewClienteDistribucion(distribucion: Distribucion ){
         }
     },
     error =>{
-        console.log(error);
+        console.debug(error);
         this.errorEn('setNewClienteDistribucion');
         },
     () =>{}   
@@ -624,7 +624,7 @@ controlarOrigen(){
     }
 
     if (this.proveedor){
-       console.log (this.cantidadTraspaso,+this.loteSelected.cantidad_remanente,typeof this.cantidadTraspaso, typeof +this.loteSelected.cantidad_remanente, +this.cantidadTraspaso <= +this.loteSelected.cantidad_remanente);
+       console.debug (this.cantidadTraspaso,+this.loteSelected.cantidad_remanente,typeof this.cantidadTraspaso, typeof +this.loteSelected.cantidad_remanente, +this.cantidadTraspaso <= +this.loteSelected.cantidad_remanente);
        if( +this.cantidadTraspaso <= +this.loteSelected.cantidad_remanente || this.loteSelected.numlote_proveedor =="nueva entrada"){
            return true;
        }else{
@@ -635,7 +635,7 @@ controlarOrigen(){
        }
 
     }else if (this.almacenOrigenSelected){
-        console.log( this.cantidadTraspaso <= this.almacenOrigenSelected.estado);
+        console.debug( this.cantidadTraspaso <= this.almacenOrigenSelected.estado);
         if ( +this.cantidadTraspaso <= +this.almacenOrigenSelected.estado){
             return true;
         }else{
@@ -652,7 +652,7 @@ controlarDestino(){
     }
         else{
     if (this.almacenDestinoSelected && this.almacenDestinoSelected.id > 0){
-        console.log ((this.almacenDestinoSelected.capacidad - this.almacenDestinoSelected.estado) >= this.cantidadTraspaso);
+        console.debug ((this.almacenDestinoSelected.capacidad - this.almacenDestinoSelected.estado) >= this.cantidadTraspaso);
         if((+this.almacenDestinoSelected.capacidad - +this.almacenDestinoSelected.estado) >= +this.cantidadTraspaso){
             return true;
         }else{
@@ -676,7 +676,7 @@ cierraMessage(){
 }
  
 setCliente(id:number){
-    console.log ("idcli",id)
+    console.debug ("idcli",id)
 //si es 0 es Tanque, si es mayor es el id de cliente seleccionado
 if (id>0){
     let i = this.clientes.findIndex((cli)=>cli.id==id);
@@ -702,13 +702,13 @@ verTanques(almacenes) {
     //this.navCtrl.push("TanquesPage",this.almacenesOrigen)
       this.navCtrl.push("TanquesPage", {almacenes: almacenes}).then(
       response => {
-        console.log('Response ' + response);
+        console.debug('Response ' + response);
       },
       error => {
-        console.log('Error: ' + error);
+        console.debug('Error: ' + error);
       }
     ).catch(exception => {
-      console.log('Exception ' + exception);
+      console.debug('Exception ' + exception);
     });
  
   }
