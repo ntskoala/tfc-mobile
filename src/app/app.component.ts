@@ -36,6 +36,7 @@ public loader: any;
  if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
+if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
         if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
           if (parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal){
@@ -47,7 +48,7 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
             alert ('No hay conexión, para sincronizar los datos');
           }
       } else{
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
             this.hayUpdates().then(
             (versionActual)=>{
               if (versionActual == -1){

@@ -6,7 +6,7 @@ import { Network } from '@ionic-native/network';
 import { Sync } from '../../providers/sync';
 import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
-
+import * as moment from 'moment';
 import { MyApp } from '../../app/app.component';
 import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, limpiezaRealizada, Supervision } from '../../models/models';
 
@@ -112,7 +112,7 @@ export class SyncPage {
             console.debug("returned" + idrespuesta);
           }
           localStorage.setItem("syncchecklist", "0");
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
           this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
         }
       }, (error) => {
@@ -175,6 +175,7 @@ export class SyncPage {
             this.servidor.postObject(URLS.STD_ITEM, limpieza, param).subscribe(
               response => {
                 if (response.success) {
+                  this.updateFechaElementoLimpieza(data.rows.item(fila).idelemento);
                   console.debug('limpieza realizada sended', response.id);
                   db2.executeSql("DELETE from resultadoslimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
                     console.debug("deleted",data.rows.length);
@@ -184,6 +185,9 @@ export class SyncPage {
               error => console.debug(error),
               () => { });
           }
+          localStorage.setItem("syncchecklimpieza", "0");
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
           //   response => {
@@ -202,6 +206,29 @@ export class SyncPage {
     });
   }
 
+  updateFechaElementoLimpieza(idElementoLimpieza) {
+    if (this.network.type != 'none') {
+      let fecha = moment(new Date()).format('YYYY-MM-DD');
+      let proxima_fecha = '';
+      console.debug("updating elementoLimpieza");
+      this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
+        //this.checklistList = data.rows;
+        db2.executeSql("Select * FROM checklimpieza WHERE idelemento = ? AND fecha >= ?", [idElementoLimpieza, fecha]).then((data) => {
+
+          for (var index = 0; index < data.rows.length; index++) {
+            proxima_fecha = moment(data.rows.item(index).fecha).format('YYYY-MM-DD');
+          }
+          let param = "?entidad=limpieza_elemento&id=" + idElementoLimpieza;
+          let limpia = { fecha: proxima_fecha };
+          this.servidor.putObject(URLS.STD_ITEM, param, limpia).subscribe(
+            (resultado) => console.debug(resultado),
+            (error) => console.debug(error),
+            () => console.debug('fin updating fecha')
+          );
+        });
+      });
+    }
+  }
 
   sync_data_supervision() {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
@@ -233,7 +260,7 @@ export class SyncPage {
               () => { });
           }
                 localStorage.setItem("syncsupervision", "0");
-                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
+                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
 
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(

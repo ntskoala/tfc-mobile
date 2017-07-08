@@ -113,7 +113,7 @@ if (elemento.checked){
     }else{
       proxima_fecha = moment(this.nuevaFecha(elemento)).format('YYYY-MM-DD');
     }
-      
+      localStorage.setItem("syncchecklimpieza", (parseInt(localStorage.getItem("syncchecklimpieza")) + 1).toString());
       console.debug("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
       //elemento.fecha_prevista = proxima_fecha;
       db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha, elemento.id]).then
@@ -146,8 +146,8 @@ if (elemento.checked){
             this.sync.sync_checklimpieza();
           }
           else {
-            localStorage.setItem("syncchecklimpieza", (parseInt(localStorage.getItem("syncchecklimpieza")) + 1).toString());
-            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist")+parseInt(localStorage.getItem("syncchecklimpieza")));
+
+            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
           }
 
 

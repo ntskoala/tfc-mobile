@@ -203,7 +203,7 @@ export class SupervisionPage {
       }
       else {
         console.debug("not conected");
-        this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist")) + parseInt(localStorage.getItem("syncsupervision"));
+        this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
       }
     });
     this.navCtrl.pop();

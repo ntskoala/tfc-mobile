@@ -93,7 +93,7 @@ terminar(idcontrol){
                             console.debug ("suma:" + localStorage.getItem("synccontrol"));
                               localStorage.setItem("synccontrol",(parseInt(localStorage.getItem("synccontrol"))+1).toString());
                               console.debug("this.myapp.badge",this.initdb.badge);
-                              this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"));
+                              this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
                           }
 
                   this.navCtrl.pop();
