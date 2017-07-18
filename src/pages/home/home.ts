@@ -50,27 +50,26 @@ public Momento;
   constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,public syncPage: SyncPage,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController, public params: NavParams) {
     this.network.onDisconnect().subscribe(
       estado=>{
-        console.log(estado.timeStamp - this.data.momentoCambioEstado);
-          this.data.momentoCambioEstado = estado.timeStamp;
+        console.log('desconectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
         this.data.hayConexion = false;
+        if(estado.timeStamp - this.data.momentoCambioEstado > 1){
+          this.data.momentoCambioEstado = estado.timeStamp;
+        }else{
+          console.log('poca diferencia', estado.timeStamp - this.data.momentoCambioEstado);
+        }
       }
     );
     this.network.onConnect().subscribe(
         estado=>{
-          console.log(estado.timeStamp - this.data.momentoCambioEstado);
+          console.log('conectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
           this.data.momentoCambioEstado = estado.timeStamp;
-           console.log ('lestado conexion',this.data.hayConexion);
+          console.log ('lestado conexion',this.data.hayConexion);
           if (!this.data.hayConexion){
+            console.log ('se procesará si badge',estado);
           this.data.hayConexion = true;
-          
           let badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
           if (badge > 0){
-          let rndTime = Math.random()*500;
-          console.log ('la conexion ha vuelto',estado);
-          setTimeout(
-            ()=>this.syncData(),
-            rndTime
-          )
+            this.syncData();
           }
         }
         }
