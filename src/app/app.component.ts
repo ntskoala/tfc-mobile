@@ -15,6 +15,7 @@ import { URLS } from '../models/models'
 
 @Component({
 templateUrl: 'app.component.html',
+providers: [SyncPage]
 //styleUrls: ['./app.scss']
 //  template: `<ion-nav [root]="rootPage"></ion-nav>`
 })
@@ -31,9 +32,12 @@ public loader: any;
 //constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
  console.debug("before platform ready, check init");
     platform.ready().then(() => {
+     // if (this.network.type == 'none') {
+
+     // }
       console.debug("platform ready, check init");
       //localStorage.setItem("inicializado","1");
- if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
+if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}

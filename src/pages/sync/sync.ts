@@ -8,7 +8,7 @@ import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
 import * as moment from 'moment';
 import { MyApp } from '../../app/app.component';
-import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, limpiezaRealizada, Supervision } from '../../models/models';
+import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, checkLimpieza, limpiezaRealizada, Supervision } from '../../models/models';
 
 @Component({
   selector: 'page-sync',
@@ -38,15 +38,21 @@ export class SyncPage {
 
   sync_data() {
     if (this.network.type != 'none') {
+ let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
+    this.servidor.login(URLS.LOGIN, param).subscribe(
+      response => {
+        if (response.success == 'true') {
+          // Guarda token en sessionStorage
+          sessionStorage.setItem('token', response.token);
       this.sync_data_control();
       this.sync_data_checklist();
       this.sync_checklimpieza();
       this.sync_data_supervision();
+          }
+          });
     }
     else {
-
       this.translate.get("alertas.conexion").subscribe(resultado => alert(resultado));
-
     }
   }
 
@@ -175,7 +181,7 @@ export class SyncPage {
             this.servidor.postObject(URLS.STD_ITEM, limpieza, param).subscribe(
               response => {
                 if (response.success) {
-                  this.updateFechaElementoLimpieza(data.rows.item(fila).idelemento);
+                  this.updateFechaElementoLimpieza(data.rows.item(fila).idelemento,data.rows.item(fila));
                   console.debug('limpieza realizada sended', response.id);
                   db2.executeSql("DELETE from resultadoslimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
                     console.debug("deleted",data.rows.length);
@@ -206,18 +212,30 @@ export class SyncPage {
     });
   }
 
-  updateFechaElementoLimpieza(idElementoLimpieza) {
+  updateFechaElementoLimpieza(idElementoLimpieza,LimpiezaRealizada) {
     if (this.network.type != 'none') {
       let fecha = moment(new Date()).format('YYYY-MM-DD');
       let proxima_fecha = '';
-      console.debug("updating elementoLimpieza");
+      console.log("updating elementoLimpieza");
       this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
         //this.checklistList = data.rows;
         db2.executeSql("Select * FROM checklimpieza WHERE idelemento = ? AND fecha >= ?", [idElementoLimpieza, fecha]).then((data) => {
-
+          let proxima_fecha;
           for (var index = 0; index < data.rows.length; index++) {
+            console.log(data.rows.item(index),data.rows.item(index),LimpiezaRealizada.descripcion,LimpiezaRealizada.fecha_prevista)
+                
+              //   console.log("Setting proxima Fecha de ", LimpiezaRealizada);
+              //   if (data.rows.item(index).descripcion =="por uso"){
+              //     proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
+              //     console.log("Por uso ", proxima_fecha);
+              // }else{
+              //     let p_fecha= this.nuevaFecha(data.rows.item(index),LimpiezaRealizada.descripcion,LimpiezaRealizada.fecha_prevista);
+              //     proxima_fecha = moment(p_fecha).format('YYYY-MM-DD');
+              //     console.log("No Por uso ", proxima_fecha, p_fecha);
+              // }
             proxima_fecha = moment(data.rows.item(index).fecha).format('YYYY-MM-DD');
           }
+          console.log("proxima_fecha ", proxima_fecha);
           let param = "?entidad=limpieza_elemento&id=" + idElementoLimpieza;
           let limpia = { fecha: proxima_fecha };
           this.servidor.putObject(URLS.STD_ITEM, param, limpia).subscribe(
@@ -232,11 +250,11 @@ export class SyncPage {
 
   sync_data_supervision() {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.debug("base de datos abierta");
+      console.log("sync data spervision");
 
       console.debug("send limpiezas: ");
       db2.executeSql("select * from supervisionlimpieza WHERE supervision > 0", []).then((data) => {
-        console.debug(data.rows.length);
+        console.log("limpiezas realizadas para sincronizar: ",data.rows.length);
         
         let arrayfila = [];// : limpiezaRealizada[]=[];
         if (data.rows.length > 0) {
@@ -250,9 +268,9 @@ export class SyncPage {
             this.servidor.putObject(URLS.STD_ITEM, param, supervision).subscribe(
               response => {
                 if (response.success) {
-                  console.debug('#Supervision sended', response.id, supervision);
+                  console.log('#Supervision sended', response.id, supervision);
                   db2.executeSql("DELETE from supervisionlimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
-                    console.debug("deleted",data.rows.length);
+                    console.log("deleted",data.rows.length);
                   });
                 }
               },
@@ -280,4 +298,105 @@ export class SyncPage {
     });
 
   }
+
+
+
+
+
+//************CALCULOS FECHA */
+  nuevaFecha(limpieza: checkLimpieza,descripcion?,fecha_prevista?){
+      let periodicidad = JSON.parse(limpieza.periodicidad)
+      let hoy = new Date();
+      let proximaFecha;
+       console.log("nuevaFecha", periodicidad, fecha_prevista);
+      switch (periodicidad.repeticion){
+        case "diaria":
+        proximaFecha = this.nextWeekDay(periodicidad);
+        break;
+        case "semanal":
+        proximaFecha = moment(fecha_prevista).add(periodicidad.frecuencia,"w");
+        while (moment(proximaFecha).isSameOrBefore(moment())){
+        fecha_prevista = proximaFecha;
+        proximaFecha = moment(fecha_prevista).add(periodicidad.frecuencia,"w");
+        }
+        break;
+        case "mensual":
+        if (periodicidad.tipo == "diames"){
+            proximaFecha = moment(fecha_prevista).add(periodicidad.frecuencia,"M");
+        } else{
+          proximaFecha = this.nextMonthDay(fecha_prevista,periodicidad);
+        }
+
+        break;
+        case "anual":
+        if (periodicidad.tipo == "diames"){
+          let año = moment(fecha_prevista).get('year') + periodicidad.frecuencia;
+        proximaFecha = moment().set({"year":año,"month":parseInt(periodicidad.mes)-1,"date":periodicidad.numdia});
+        } else{
+          proximaFecha = this.nextYearDay(fecha_prevista,periodicidad);
+        }
+        break;
+      }
+      let newdate;
+      newdate = moment(proximaFecha).toDate();
+      return newdate = new Date(Date.UTC(newdate.getFullYear(), newdate.getMonth(), newdate.getDate()))
+}
+
+
+nextWeekDay(periodicidad:any, fecha?:Date) {
+  console.log("nextweekday", periodicidad, fecha);
+  let hoy = new Date();
+  if (fecha) hoy = fecha;
+  let proximoDia:number =-1;
+  let nextFecha;
+  for(let currentDay= hoy.getDay();currentDay<6;currentDay++){
+    if (periodicidad.dias[currentDay].checked == true){
+      proximoDia = 7 + currentDay - (hoy.getDay()-1);
+      break;
+    }
+  }
+  if (proximoDia ==-1){
+      for(let currentDay= 0;currentDay<hoy.getDay();currentDay++){
+    if (periodicidad.dias[currentDay].checked == true){
+      proximoDia = currentDay + 7 - (hoy.getDay()-1);
+      break;
+    }
+  }
+}
+if(proximoDia >7) proximoDia =proximoDia-7;
+nextFecha = moment().add(proximoDia,"days");
+return nextFecha;
+}
+
+nextMonthDay(fecha_prevista1, periodicidad: any){
+  let  proximafecha;
+  let fecha_prevista = new Date(fecha_prevista1);
+  let mes = fecha_prevista.getMonth() +1 + periodicidad.frecuencia;
+ 
+if (periodicidad.numsemana ==5){
+ let ultimodia =  moment(fecha_prevista).add(periodicidad.frecuencia,"M").endOf('month').isoWeekday() - periodicidad.nomdia;
+  proximafecha = moment(fecha_prevista).add(periodicidad.frecuencia,"M").endOf('month').subtract(ultimodia,"days");
+}else{
+let primerdia = 7 - ((moment(fecha_prevista).add(periodicidad.frecuencia,"M").startOf('month').isoWeekday()) - periodicidad.nomdia)
+if (primerdia >6) primerdia= primerdia-7;
+ proximafecha = moment(fecha_prevista).add(periodicidad.frecuencia,"M").startOf('month').add(primerdia,"days").add(periodicidad.numsemana-1,"w");
+}
+return  proximafecha;
+}
+nextYearDay(fecha_prevista1, periodicidad: any){
+  let proximafecha;
+  let fecha_prevista = new Date(fecha_prevista1);
+  let mes = parseInt(periodicidad.mes) -1;
+  fecha_prevista = moment(fecha_prevista).month(mes).add(periodicidad.frecuencia,'y').toDate();
+
+if (periodicidad.numsemana ==5){
+ let ultimodia =  moment(fecha_prevista).endOf('month').isoWeekday() - periodicidad.nomdia;
+ proximafecha = moment(fecha_prevista).endOf('month').subtract(ultimodia,"days");
+}else{
+let primerdia = 7 - ((moment(fecha_prevista).startOf('month').isoWeekday()) - periodicidad.nomdia)
+if (primerdia >6) primerdia= primerdia-7;
+ proximafecha = moment(fecha_prevista).startOf('month').add(primerdia,"days").add(periodicidad.numsemana-1,"w");
+}
+return proximafecha;
+}
 }

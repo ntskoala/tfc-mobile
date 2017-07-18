@@ -19,7 +19,8 @@ public gerentes: any;
 public logged: number;
 public badge: number;
 public versionDBLocal: number=5;
-
+public hayConexion:boolean=false;
+public momentoCambioEstado:number=0;
 //public db: SQLite;
 
   constructor(public http: Http, public sync: Sync,public db :SQLite) {
@@ -124,7 +125,24 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                             db2.executeSql("delete from logins",[]).then((data) => {
                             console.debug("delete from logins->" + JSON.stringify(data));
-                            this.users.forEach (user => this.save(user));
+                            let valores = '';
+                            this.users.forEach (user => {
+                            //   this.save(user)
+                            
+                       
+                       valores += "("+user.id+",'"+user.usuario+",'"+user.password+"','"+user.tipouser+"','"+user.nombre+"'),";           
+                      });
+                      valores = valores.substr(0,valores.length-1);
+                      let query = "INSERT INTO logins (id, user, password, tipouser, nombre) VALUES" + valores;
+                      console.log('########',query);
+
+                      db2.executeSql("INSERT INTO logins (id, user, password, tipouser, nombre) VALUES" + valores ,[])
+                      .then((data) => {
+                        console.log('***********OK INSERT USERS', data)
+                      },
+                      (error)=>{ console.log('***********ERROR', error)});
+
+
                             }, (error) => {
                             console.debug("ERROR -> " + JSON.stringify(error.err));
                             });
@@ -169,16 +187,16 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
   }
 
 
-  save(user){
-      this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-      db2.executeSql("INSERT INTO logins (id, user, password, tipouser, nombre) VALUES (?,?,?,?,?)",[user.id,user.usuario,user.password,user.tipouser,user.nombre]).then((data) => {
-           console.debug("insert login ->" + JSON.stringify(data));
-            }, (error) => {
-                  console.debug("ERROR INSERTANDO LOGIN-> " + JSON.stringify(error));
-                  alert("error " + JSON.stringify(error.err));
-              });
-      });
-}
+//   save(user){
+//       this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+//       db2.executeSql("INSERT INTO logins (id, user, password, tipouser, nombre) VALUES (?,?,?,?,?)",[user.id,user.usuario,user.password,user.tipouser,user.nombre]).then((data) => {
+//            console.debug("insert login ->" + JSON.stringify(data));
+//             }, (error) => {
+//                   console.debug("ERROR INSERTANDO LOGIN-> " + JSON.stringify(error));
+//                   alert("error " + JSON.stringify(error.err));
+//               });
+//       });
+// }
 
 public getLogin(nombre: string, password:string): any{
     return new Promise((resolve,reject)=>{

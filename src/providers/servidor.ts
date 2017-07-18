@@ -43,7 +43,8 @@ public userId= localStorage.getItem("login");
       .map((res: Response) => JSON.parse(res.json()));
   }
 
-  putObject(url: string, param: string, object: Object) {
+  putObject(url: string, param: string, object: Object,origen?:string) {
+    console.log("PUT: ",object,new Date())
     let payload = JSON.stringify(object);        
     let parametros = param + '&token=' + sessionStorage.getItem('token')+"&userId="+this.userId+"&idempresa="+this.idempresa;
     return this.llamada.put(url + parametros, payload)

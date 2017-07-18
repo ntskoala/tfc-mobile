@@ -102,10 +102,18 @@ terminar(){
   this.checkLimpiezas.forEach((elemento)=>{
     console.debug("terminar2",elemento);
 if (elemento.checked){
+
+  console.log("TERMINAR",elemento);
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+    let fecha_prevista =  moment(elemento.fecha_prevista).format('YYYY-MM-DD');
+    if (elemento.descripcion =="por uso"){
+      fecha_prevista = moment(new Date()).format('YYYY-MM-DD');
+    }else{
+      fecha_prevista =  moment(elemento.fecha_prevista).format('YYYY-MM-DD');
+    }
       db2.executeSql('INSERT INTO resultadoslimpieza (idelemento, idempresa, fecha_prevista, nombre, descripcion, tipo, idusuario, responsable,  idlimpiezazona ) VALUES (?,?,?,?,?,?,?,?,?)',
         //[0,0,'2017-05-29','test','rtest','interno',0,'jorge',0]).then(
-        [elemento.idElementoLimpieza,idempresa,elemento.fecha_prevista,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,idusuario,elemento.responsable,elemento.idLimpieza]).then(
+        [elemento.idElementoLimpieza,idempresa,fecha_prevista,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,idusuario,elemento.responsable,elemento.idLimpieza]).then(
   (Resultado) => {
     let proxima_fecha;
     if (elemento.descripcion =="por uso"){
@@ -114,22 +122,24 @@ if (elemento.checked){
       proxima_fecha = moment(this.nuevaFecha(elemento)).format('YYYY-MM-DD');
     }
       localStorage.setItem("syncchecklimpieza", (parseInt(localStorage.getItem("syncchecklimpieza")) + 1).toString());
-      console.debug("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
+      this.initdb.badge += 1;
+      console.log("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
       //elemento.fecha_prevista = proxima_fecha;
+
       db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha, elemento.id]).then
       ((Resultado) => {
-           console.debug("updated fecha: ", Resultado);
+           console.log("updated fecha: ", Resultado);
           //SI HAY RED UPDATE BACKOFFICE
-           if (this.network.type != 'none') {
-            console.debug("updating serer");
-             let param = "?entidad=limpieza_elemento&id="+elemento.idElementoLimpieza;
-             let limpia={fecha:proxima_fecha};
-            this.servidor.putObject(URLS.STD_ITEM,param,limpia).subscribe(
-              (resultado)=>console.debug(resultado),
-              (error)=>console.debug(error),
-              ()=>console.debug('fin updating fecha')
-            );
-          }
+          //  if (this.network.type != 'none') {
+          //   console.log("updating server: ",proxima_fecha);
+          //    let param = "?entidad=limpieza_elemento&id="+elemento.idElementoLimpieza;
+          //    let limpia={fecha:proxima_fecha};
+          //   this.servidor.putObject(URLS.STD_ITEM,param,limpia).subscribe(
+          //     (resultado)=>console.log(resultado),
+          //     (error)=>console.debug(error),
+          //     ()=>console.log('fin updating fecha')
+          //   );
+          // }
       },
       (error) => {
         console.debug('ERROR ACTUALIZANDO FECHA', error);
@@ -146,11 +156,15 @@ if (elemento.checked){
             this.sync.sync_checklimpieza();
           }
           else {
-
-            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+            console.debug("update badge syncchecklimpieza");
+            //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
           }
 
+// let eliminar:boolean;
+// (this.checkLimpiezas.findIndex(limpieza=>limpieza.checked == false)<0)?eliminar=true:eliminar=false;
+// (this.checkLimpiezas.findIndex(limpieza=>limpieza.descripcion == 'por uso')<0)?eliminar=true:eliminar=false;
 
+// let params: object= {'origen':'checkLimpiezas','limpieza':this.idlimpiezazona,'eliminar':eliminar};
 this.navCtrl.pop();
 }
 

@@ -36,10 +36,10 @@ export class LoginPage {
   constructor(public navCtrl: NavController, menu: MenuController, public data: Initdb,public translate: TranslateService, public sync: SyncPage,public network:Network,public loadingCtrl: LoadingController) {
   //  translate.use('es');
    if (this.network.type != 'none') {
-  if (parseInt(localStorage.getItem("synccontrol")) > 0) { this.sync.sync_data_control();}
-  if (parseInt(localStorage.getItem("syncchecklist")) > 0) { this.sync.sync_data_checklist();}
+  // if (parseInt(localStorage.getItem("synccontrol")) > 0) { this.sync.sync_data_control();}
+  // if (parseInt(localStorage.getItem("syncchecklist")) > 0) { this.sync.sync_data_checklist();}
    }
-   this.onconect();
+  // this.onconect();
    if (this.checkLogin() == true){
      this.navCtrl.setRoot(HomePage);
    }
@@ -120,15 +120,16 @@ checkLogin():boolean{
 
   return resultado;
 }
-onconect(){
-  let connectSubscription = this.network.onConnect().subscribe(() => {
-  //alert (Network.type);
-      if (this.network.type != 'none') {
-      if (parseInt(localStorage.getItem("synccontrol")) > 0) { this.sync.sync_data_control();}
-      if (parseInt(localStorage.getItem("syncchecklist")) > 0) { this.sync.sync_data_checklist();}
-    }
-});
-}
+
+// onconect(){
+//   let connectSubscription = this.network.onConnect().subscribe(() => {
+//   //alert (Network.type);
+//       if (this.network.type != 'none') {
+//       if (parseInt(localStorage.getItem("synccontrol")) > 0) { this.sync.sync_data_control();}
+//       if (parseInt(localStorage.getItem("syncchecklist")) > 0) { this.sync.sync_data_checklist();}
+//     }
+// });
+// }
 
 
   doRefresh(refresher) {
