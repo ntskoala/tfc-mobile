@@ -82,8 +82,12 @@ export class SyncPage {
              // this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
              // this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
             },
-            error => console.debug("control6" + error),
-            () => console.debug("ok"));
+            error => 
+            console.debug("control6" + error)
+            ,
+            () => 
+            console.debug("ok")
+          );
         }
       }, (error) => {
         console.debug(error);
@@ -239,9 +243,14 @@ export class SyncPage {
           let param = "?entidad=limpieza_elemento&id=" + idElementoLimpieza;
           let limpia = { fecha: proxima_fecha };
           this.servidor.putObject(URLS.STD_ITEM, param, limpia).subscribe(
-            (resultado) => console.debug(resultado),
-            (error) => console.debug(error),
-            () => console.debug('fin updating fecha')
+            (resultado) => 
+            console.debug(resultado)
+            ,
+            (error) => 
+            console.debug(error)
+            ,
+            () => 
+            console.debug('fin updating fecha')
           );
         });
       });

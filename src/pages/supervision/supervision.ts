@@ -224,7 +224,9 @@ export class SupervisionPage {
               localStorage.setItem("syncsupervision", (parseInt(localStorage.getItem("syncsupervision")) + 1).toString());
               this.initdb.badge += 1;
             },
-            (error) => { console.debug(JSON.stringify(error)) });
+            (error) => { 
+              console.debug(JSON.stringify(error)) 
+            });
         }
       });
       if (this.network.type != 'none') {
@@ -294,7 +296,9 @@ logAndSend(){
         { text: correcto, icon: 'checkmark-circle', handler: () => { supervision.supervision = 1; } },
         { text: incorrecto, icon: 'close-circle', handler: () => { supervision.supervision = 2; } },
         { text: descrip, icon: 'clipboard', handler: () => { this.editar(supervision); } },
-        { text: cancel, role: 'cancel', handler: () => { console.debug('Cancel clicked'); } }
+        { text: cancel, role: 'cancel', handler: () => { 
+          console.debug('Cancel clicked'); 
+        } }
       ]
     });
     actionSheet.present();

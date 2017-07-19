@@ -123,6 +123,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                 if (this.users.success){
                     this.users = this.users.data;
                     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                        
                             db2.executeSql("delete from logins",[]).then((data) => {
                             console.debug("delete from logins->" + JSON.stringify(data));
                             let valores = '';
@@ -130,13 +131,12 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                             //   this.save(user)
                             
                        
-                       valores += "("+user.id+",'"+user.usuario+",'"+user.password+"','"+user.tipouser+"','"+user.nombre+"'),";           
+                       valores += "("+user.id+",'"+user.usuario+"','"+user.password+"','"+user.tipouser+"','"+user.usuario+"'),";           
                       });
                       valores = valores.substr(0,valores.length-1);
-                      let query = "INSERT INTO logins (id, user, password, tipouser, nombre) VALUES" + valores;
-                      console.log('########',query);
-
-                      db2.executeSql("INSERT INTO logins (id, user, password, tipouser, nombre) VALUES" + valores ,[])
+                     let query = "INSERT INTO logins (id, user, password, tipouser, nombre) VALUES " + valores;
+                      console.log('########',query);                    
+                    db2.executeSql(query ,[])
                       .then((data) => {
                         console.log('***********OK INSERT USERS', data)
                       },
@@ -146,6 +146,8 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                             }, (error) => {
                             console.debug("ERROR -> " + JSON.stringify(error.err));
                             });
+ 
+
                     });
                     //this.users.forEach (user => this.save(user));
                         }

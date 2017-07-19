@@ -98,7 +98,9 @@ terminar(idcontrol){
 
                   this.navCtrl.pop();
                   },
-  (error) => {console.debug(JSON.stringify(error))});
+  (error) => {
+    console.debug(JSON.stringify(error))
+    });
  });
  }
  else // NO HAY UN NUMERO EN RESULTADO
