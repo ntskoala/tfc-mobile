@@ -476,7 +476,7 @@ saveLimpiezaRealizada(limpiezaRealizada){
 }
 
     getLimpiezasRealizadas() {
-console.log("369->Inicio LimpizadasezasReali", moment(this.Momento).diff(moment(), 'seconds'));
+console.log("479->Inicio LimpizasRealizadas", moment(this.Momento).diff(moment(), 'seconds'));
       this.supervisionLimpiezas=[];
       //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   this.sql.executeSql("SELECT * FROM supervisionlimpieza WHERE idsupervisor = ?",[sessionStorage.getItem("idusuario")]).then((data) => {

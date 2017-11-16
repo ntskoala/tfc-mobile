@@ -64,10 +64,10 @@ login(){
   else{
   
   let mensaje: string;
-  this.data.getLogin(this.nombre,this.password).then((data) => { 
-      console.debug("getlogin:" + data);
+this.data.getLogin(this.nombre,this.password).then((data) => { 
+      console.log("getlogin:", data);
       if (!isNaN(this.data.logged)){
-        this.permanentLogin();
+        this.permanentLogin(data);
 
           this.navCtrl.setRoot(HomePage);
           }
@@ -84,12 +84,13 @@ login(){
   }
 }
 
-permanentLogin(){
+permanentLogin(user){
   let fecha =new Date().toString();
         localStorage.setItem("loggedTime",fecha);
         localStorage.setItem("nombre",this.nombre);
         localStorage.setItem("password",this.password);
         localStorage.setItem("idusuario",this.data.logged.toString());
+        localStorage.setItem("tipoUser",user.tipouser);
         localStorage.setItem("login",this.data.logged.toString());
         sessionStorage.setItem("nombre",this.nombre);
         sessionStorage.setItem("password",this.password);

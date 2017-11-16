@@ -34,11 +34,11 @@ export class SupervisionPage {
   }
 
   ionViewDidLoad() {
-    console.debug('ionViewDidLoad SupervisionPage');
+    console.log('ionViewDidLoad SupervisionPage');
 
   }
   ionViewDidEnter() {
-    console.debug('ionViewDidEnter SupervisionPage');
+    console.log('ionViewDidEnter SupervisionPage');
     this.presentLoading();
     this.refreshLimpiezas().then(
       (resultado)=>{
@@ -48,16 +48,16 @@ export class SupervisionPage {
   }
   refreshLimpiezas() {
     return new Promise((resolve, reject) => {
-      console.debug(this.network.type)
+      console.log(this.network.type)
       if (this.network.type != 'none') {
         // if (+parseInt(localStorage.getItem("syncsupervision"))>0){
         //   this.logAndSend();
         // }
         this.setLimpiezasRealizadas().then(
           (data) => {
-            console.debug('data: ' + data);
+            console.log('data: ' + data);
             if (data == 'ok') {
-              console.debug('getting limpiezasRealizadas: ' + data);
+              console.log('getting limpiezasRealizadas: ' + data);
               this.getLimpiezasRealizadas();
               resolve('actualizado');
             } else {
@@ -86,17 +86,17 @@ export class SupervisionPage {
       this.sync.getMisLimpiezasRealizadas(this.data.logged).map(res => res.json()).subscribe(
         data => {
           this.mislimpiezasrealizadas = JSON.parse(data);
-          console.debug('resultado limpiezasRealizadas: ' + this.mislimpiezasrealizadas.success);
-          //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+          console.log('resultado limpiezasRealizadas: ' + this.mislimpiezasrealizadas.success);
+          //    console.log('success check: ' +this.mischecks.data[0].nombre);
           if (this.mislimpiezasrealizadas.success) {
-            console.debug("if LIMPIEZAS REALIZADAS.SUCEESS");
+            console.log("if LIMPIEZAS REALIZADAS.SUCEESS");
             //test
             this.mislimpiezasrealizadas = this.mislimpiezasrealizadas.data;
             if (this.mislimpiezasrealizadas) {
-              console.debug("mislimpiezasrealizadas: " + this.mislimpiezasrealizadas);
+              console.log("mislimpiezasrealizadas: " + this.mislimpiezasrealizadas);
               this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
                 db2.executeSql("delete from supervisionlimpieza", []).then((data) => {
-                  console.debug(JSON.stringify('deleted limpiezas: ', data.res));
+                  console.log(JSON.stringify('deleted limpiezas: ', data.res));
                   let counter = 1;
                   let valores = '';
                   this.mislimpiezasrealizadas.forEach (limpiezaRealizada => 
@@ -110,20 +110,20 @@ export class SupervisionPage {
                     this.saveLimpiezaRealizada(query).then(
                       (resultado) => {
                         if (resultado == 'ok') {
-                          console.debug('resolve ok');
+                          console.log('resolve ok');
                           resolve('ok');
                         }
                       });
 
 
                   // for (let x = 0; x <= this.mislimpiezasrealizadas.length - 1; x++) {
-                  //   console.debug('for', x, counter);
+                  //   console.log('for', x, counter);
                   //   this.saveLimpiezaRealizada(this.mislimpiezasrealizadas[x], x).then(
                   //     (resultado) => {
-                  //       console.debug(resultado, counter, this.mislimpiezasrealizadas.length);
-                  //       console.debug(counter == this.mislimpiezasrealizadas.length);
+                  //       console.log(resultado, counter, this.mislimpiezasrealizadas.length);
+                  //       console.log(counter == this.mislimpiezasrealizadas.length);
                   //       if (counter == this.mislimpiezasrealizadas.length) {
-                  //         console.debug('resolve ok');
+                  //         console.log('resolve ok');
                   //         resolve('ok');
                   //       }
                   //       counter++
@@ -134,10 +134,12 @@ export class SupervisionPage {
                 }
 
                   , (error) => {
-                    console.debug("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
+                    console.log("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
                     //alert("Error 2");
                   });
               });
+            }else{
+              resolve('ok');
             }
             //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
           }
@@ -172,11 +174,11 @@ export class SupervisionPage {
   // saveLimpiezaRealizada(limpiezaRealizada, counter) {
   //   return new Promise((resolve, reject) => {
   //     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-  //       // console.debug("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision)) VALUES (?,?,?,?,?,?,?)", limpiezaRealizada.id, limpiezaRealizada.nombre, limpiezaRealizada.fecha, limpiezaRealizada.tipo, limpiezaRealizada.responsable, limpiezaRealizada.supervisor, limpiezaRealizada.supervision);
+  //       // console.log("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision)) VALUES (?,?,?,?,?,?,?)", limpiezaRealizada.id, limpiezaRealizada.nombre, limpiezaRealizada.fecha, limpiezaRealizada.tipo, limpiezaRealizada.responsable, limpiezaRealizada.supervisor, limpiezaRealizada.supervision);
   //       // db2.executeSql("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision) VALUES (?,?,?,?,?,?,?)", [limpiezaRealizada.id, limpiezaRealizada.nombre, limpiezaRealizada.fecha, limpiezaRealizada.tipo, limpiezaRealizada.responsable, limpiezaRealizada.supervisor, limpiezaRealizada.supervision]).then((data) => {
   //       //   resolve(counter);
   //       // }, (error) => {
-  //       //   console.debug("ERROR SAVING limpiezaRealizada-> " + JSON.stringify(error));
+  //       //   console.log("ERROR SAVING limpiezaRealizada-> " + JSON.stringify(error));
   //       // });
   //     });
   //   });
@@ -202,11 +204,11 @@ export class SupervisionPage {
           ));
         }
       }, (error) => {
-        console.debug("ERROR -> " + JSON.stringify(error.err));
+        console.log("ERROR -> " + JSON.stringify(error.err));
         alert("error home 276" + JSON.stringify(error.err));
       });
     });
-    console.debug("LIMPIEZAS REALIZADAS", this.supervisionLimpiezas)
+    console.log("LIMPIEZAS REALIZADAS", this.supervisionLimpiezas)
   }
 
   terminar() {
@@ -220,22 +222,22 @@ export class SupervisionPage {
           // db2.executeSql('UPDATE supervisionlimpieza SET  (fecha_supervision,supervision,detalles_supervision) VALUES (?,?,?) WHERE id = ?',[fecha,limpiezaRealizada.supervision,limpiezaRealizada.detalles_supervision, limpiezaRealizada.id]).then(
           db2.executeSql('UPDATE supervisionlimpieza SET  fecha_supervision = ?,supervision= ?,detalles_supervision= ? WHERE id = ?', [fecha, limpiezaRealizada.supervision, limpiezaRealizada.detalles_supervision, limpiezaRealizada.id]).then(
             (Resultado) => {
-              console.debug(Resultado);
+              console.log(Resultado);
               localStorage.setItem("syncsupervision", (parseInt(localStorage.getItem("syncsupervision")) + 1).toString());
               this.initdb.badge += 1;
             },
             (error) => { 
-              console.debug(JSON.stringify(error)) 
+              console.log(JSON.stringify(error)) 
             });
         }
       });
       if (this.network.type != 'none') {
-        console.debug("conected");
+        console.log("conected");
         this.logAndSend();
 
       }
       else {
-        console.debug("not conected");
+        console.log("not conected");
         //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
       }
     });
@@ -256,7 +258,7 @@ logAndSend(){
 
 
   // setSupervision(){
-  //   console.debug('Supervision started');
+  //   console.log('Supervision started');
   // this.supervisionLimpiezas.forEach((limpiezaRealizada)=>{
   //       if (limpiezaRealizada.supervision != 0){
   //             let supervision = new Supervision(limpiezaRealizada.idlimpiezarealizada,limpiezaRealizada.idsupervisor, limpiezaRealizada.fecha_supervision, limpiezaRealizada.supervision,limpiezaRealizada.detalles_supervision);
@@ -265,12 +267,12 @@ logAndSend(){
   //             this.servidor.putObject(URLS.STD_ITEM, param, supervision).subscribe(
   //               response => {
   //                 if (response.success) {
-  //                   console.debug('Supervision sended', response.id);
+  //                   console.log('Supervision sended', response.id);
 
   //                 }
   //               },
-  //               error => console.debug(error),
-  //               () => { console.debug('Supervision ended');});
+  //               error => console.log(error),
+  //               () => { console.log('Supervision ended');});
   //       }
   // });
 
@@ -297,7 +299,7 @@ logAndSend(){
         { text: incorrecto, icon: 'close-circle', handler: () => { supervision.supervision = 2; } },
         { text: descrip, icon: 'clipboard', handler: () => { this.editar(supervision); } },
         { text: cancel, role: 'cancel', handler: () => { 
-          console.debug('Cancel clicked'); 
+          console.log('Cancel clicked'); 
         } }
       ]
     });
@@ -317,7 +319,7 @@ logAndSend(){
     prompt.present();
   }
   presentLoading() {
-    console.debug('##SHOW LOADING');
+    console.log('##SHOW LOADING');
     this.loader = this.loadingCtrl.create({
       content: "Actualizando...",
       // duration: 3000
@@ -326,15 +328,15 @@ logAndSend(){
     //loader.dismiss();
   }
   closeLoading() {
-    console.debug('##HIDE LOADING');
+    console.log('##HIDE LOADING');
     setTimeout(() => {
-      console.debug('Async operation has ended');
+      console.log('Async operation has ended');
       this.loader.dismiss()
     }, 1000);
   }
 
   doRefresh(refresher) {
-    console.debug('Begin async operation', refresher);
+    console.log('Begin async operation', refresher);
     this.refreshLimpiezas().then(
       (resultado)=>{
         refresher.complete();

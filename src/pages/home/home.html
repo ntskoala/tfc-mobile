@@ -37,11 +37,14 @@
      </ion-card-title>
     <ion-card-content>
 <!--<ion-list *ngFor="let supervision of supervisionLimpiezas">-->
-<ion-item (click)="supervisar(supervision)">
+<ion-item (click)="supervisar(supervision)" *ngIf="supervisionLimpiezas.length>0">
+    <ion-badge item-content>{{supervisionLimpiezas.length}}</ion-badge>
       <ion-avatar item-left>
       <img src="assets/img/supervision.png">
     </ion-avatar>
-        <h2>{{ "menu.supervision" | translate }}</h2>
+    
+        <h2 style="width: 90px">{{ "menu.supervision" | translate }}</h2>
+       
          <!--<h2>{{supervision.nombrelimpieza}} {{supervision.fecha}}</h2>  -->
 </ion-item>
 <!--</ion-list>-->

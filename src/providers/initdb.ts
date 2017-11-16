@@ -214,7 +214,7 @@ public getLogin(nombre: string, password:string): any{
             sessionStorage.setItem("login",data.rows.item(0).id);
             //localStorage.setItem("idempresa",data.rows.item(0).idempresa);
             //return new Promise ((resolve,reject) => {resolve(true)});
-            return resolve('ok')
+            resolve(data.rows.item(0))
             }
         else{
             console.debug('undefined...')
