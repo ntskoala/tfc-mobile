@@ -134,6 +134,9 @@
     "no aplica":"no aplica",
     "descripcion":"Descripció",
     "cancel": "Cancelar",
-    "por uso": "Per ús"
+    "por uso": "Per ús",
+    "hay":"Hi ha ",
+    "eventosPendientes":"events pendents desde ",
+    "autocompletar": "desitges autocompletar totes les dates pendents?"
 
 }

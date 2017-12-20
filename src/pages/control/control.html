@@ -35,5 +35,13 @@
       <img [src]="base64Image" *ngIf="base64Image" />
 </ion-card-content>
   </ion-card>
-  
+  <ion-footer *ngIf="hayRetraso>1" style="padding:15px; background-color:#ccc">
+    <span ><b>
+    {{'hay' | translate}} {{hayRetraso}} {{'eventosPendientes' | translate}} {{fechaPrevista | date:'dd-MM-yyyy'}}, {{'autocompletar' | translate}} 
+    </b></span> 
+    <ion-item style="background-color:#eee">
+        <ion-label><b>completar</b></ion-label>
+    <ion-toggle [(ngModel)]="autocompletar"></ion-toggle>
+    </ion-item>
+  </ion-footer>
 </ion-content>

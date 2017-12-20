@@ -35,18 +35,21 @@ public loader: any;
      // if (this.network.type == 'none') {
 
      // }
-      console.debug("platform ready, check init");
+      console.log("platform ready, check init");
       //localStorage.setItem("inicializado","1");
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
+
         if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
+        console.log("#####iniciar#####",parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal);        
+        console.log("#####iniciar#####");
           if (parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal){
-          console.debug("iniciar");
+          console.log("iniciar",this.initdb.versionDBLocal);
           if (this.network.type != 'none') {
-            console.debug("hay red,--> inicializa()");
+            console.log("hay red,--> inicializa()");
           this.initdb.inicializa();
           }else{
             alert ('No hay conexión, para sincronizar los datos');
@@ -56,7 +59,7 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
             this.hayUpdates().then(
             (versionActual)=>{
               if (versionActual == -1){
-                console.debug('ha habido un error # app.48');
+                console.log('ha habido un error # app.48');
               }else{
           console.debug("versionActual Usuarios",versionActual);
           if (versionActual > parseInt(localStorage.getItem("versionusers"))) {

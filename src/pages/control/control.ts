@@ -3,6 +3,9 @@ import { NavController, NavParams } from 'ionic-angular';
 import {TranslateService} from 'ng2-translate';
 import {SyncPage} from '../sync/sync';
 import { Initdb } from '../../providers/initdb';
+import { Servidor } from '../../providers/servidor';
+import { URLS } from '../../models/models';
+import * as moment from 'moment';
 
 //import {TranslatePipe} from 'ng2-translate';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
@@ -11,6 +14,7 @@ import { SocialSharing } from '@ionic-native/social-sharing';
 //import { EmailComposer } from 'ionic-native';
 import { Network } from '@ionic-native/network';
 import { MyApp } from '../../app/app.component';
+import { PeriodosProvider } from '../../providers/periodos/periodos';
 /*
   Generated class for the Control page.
 
@@ -30,12 +34,19 @@ public idcontrol: number;
 public valor: number;
 public control: any;
 public desactivado: boolean;
+public fecha_prevista: Date;
+public periodicidad: any;
+public hayRetraso: number;
 //public myapp: MyApp;
-  constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, public initdb: Initdb, public sync: SyncPage,public db :SQLite, public camera: Camera,public network:Network,public socialsharing: SocialSharing) {
+  constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, 
+    public initdb: Initdb, public sync: SyncPage, public servidor: Servidor, public db :SQLite, public camera: Camera,
+    public network:Network, public socialsharing: SocialSharing, public periodos: PeriodosProvider) {
     this.control = this.navParams.get('control');
     this.nombre = this.navParams.get('control').nombre;
     this.pla = this.navParams.get('control').pla;
     this.idcontrol = this.navParams.get('control').id;
+    this.fecha_prevista = this.navParams.get('control').fecha;
+    this.periodicidad = JSON.parse(this.navParams.get('control').periodicidad);
     //this.base64Image = "false";
     this.desactivado = false;
    // this.storage = new Storage(SqlStorage, {name: 'tfc'});
@@ -44,7 +55,30 @@ public desactivado: boolean;
 
   ionViewDidLoad() {
     console.debug('Hello Control Page');
+    this.sync.login();
   }
+
+  ionViewDidEnter() {
+    if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
+      let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
+      this.servidor.login(URLS.LOGIN, param).subscribe(
+        response => {
+          if (response.success == 'true') {
+            // Guarda token en sessionStorage
+            localStorage.setItem('token', response.token);
+            }
+            });
+    }
+    this.hayRetraso = this.periodos.hayRetraso(this.fechaPrevista,this.periodicidad);
+  }
+isTokenExired (token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace('-', '+').replace('_', '/');
+            //return JSON.parse(window.atob(base64));
+            let jwt = JSON.parse(window.atob(base64));
+            console.log (moment.unix(jwt.exp).isBefore(moment()));
+           return moment.unix(jwt.exp).isBefore(moment());
+}
  checkrangoerror(idcontrol){
    let fuerarango = "false";
     if (!isNaN(this.control.minimo) && this.control.minimo != null){
@@ -73,6 +107,9 @@ public desactivado: boolean;
     }
     if (fuerarango != "false") this.sendalert(fuerarango);
  }
+
+
+
 terminar(idcontrol){
  if (!isNaN(this.valor))
  {
@@ -82,7 +119,29 @@ terminar(idcontrol){
                   this.db.create({name: 'data.db',location: 'default'})
                   .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO resultadoscontrol (idcontrol, resultado, foto, idusuario) VALUES (?,?,?,?)',[idcontrol,this.valor,this.base64Image,sessionStorage.getItem("idusuario")]).then(
   (Resultado) => { console.debug("insert_ok:",Resultado);
-                   
+
+  //******CALCULAR FECHA */
+  //******CALCULAR FECHA */
+
+  let proxima_fecha;
+  if (this.periodicidad['repeticion'] =="por uso"){
+    proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
+  }else{
+    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fecha_prevista)).format('YYYY-MM-DD');
+  }
+  console.log('PROXIMA_FECHA:',this.periodicidad.repeticion, proxima_fecha);
+
+  //******UPDATE FECHA LOCAL*/
+  //******UPDATE FECHA LOCAL*/
+  db2.executeSql('UPDATE controles set  fecha = ? WHERE id = ?',[proxima_fecha, this.idcontrol]).then
+  ((Resultado) => {
+       console.log("updated fecha: ", Resultado);
+  },
+  (error) => {
+    console.debug('ERROR ACTUALIZANDO FECHA', error);
+   });
+
+
                           if (this.network.type != 'none') {
                               console.debug("conected");
                               this.sync.sync_data_control();

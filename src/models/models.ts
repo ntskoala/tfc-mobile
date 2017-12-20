@@ -9,6 +9,7 @@ export const URLS = {
   UPLOAD_DOCS: base + 'uploads.php',
   STD_ITEM: base + 'std_item.php',
   STD_SUBITEM: base + 'std_subitem.php',
+  STD_FECHA: base + 'std_fecha.php',
   VERSION_USERS: base + 'actions/version_users.php',
   //**********TRAZABILIDAD */
   TRAZA_ORDENES:  base + 'traza_ordenes.php',
@@ -159,6 +160,10 @@ export class controlesList {
   maximo: number,
   tolerancia: number,
   critico: number,
+  fecha?: Date,
+  periodicidad2?:string,
+  frecuencia?:string,
+  isbeforedate?: boolean
   ){}
 }
 
@@ -172,6 +177,10 @@ export class checklistList {
   checked:boolean,
   idusuario: string,
   descripcion: string,
+  fecha?: Date,
+  periodicidad2?:string,
+  frecuencia?:string,
+  isbeforedate?: boolean 
   ){}
 }
 
@@ -238,5 +247,47 @@ export class Supervision {
   public fecha_supervision:Date,
   public supervision:number,
   public detalles_supervision:string
+  ){}
+}
+
+export class mantenimiento {
+  constructor(
+  public id: number,
+  public idMaquina: number,
+  public nombreMaquina: string,
+  public idMantenimiento:number,
+  public nombreMantenimiento:string,
+  public fecha_prevista: Date,
+  public tipo: string,
+  public periodicidad: string,
+  public checked:boolean,
+  public idusuario: number,
+  public responsable:string,
+  public descripcion: string,
+  public isbeforedate?: boolean,
+  public tipoMantenimiento?: string
+  ){}
+}
+
+export class mantenimientoRealizado {
+  constructor(
+  public id: number,
+  public idmantenimiento: number,
+  public idmaquina: number,
+  public maquina: string,
+  public mantenimiento: string,
+  public fecha_prevista:Date,
+  public fecha:Date,
+  public idusuario:number,
+  public responsable: string,
+  public descripcion: string,
+  public elemento:string,
+  public tipo: string,
+  public tipo2: string,
+  public causas: string,
+  public tipo_evento: string,
+  public idempresa: number,
+  public imagen:string
+  
   ){}
 }

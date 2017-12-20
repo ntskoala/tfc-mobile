@@ -142,6 +142,9 @@
     "no aplica":"no aplica",
     "descripcion":"Descripción",
     "cancel": "Cancelar",
-    "por uso": "Por uso"
+    "por uso": "Por uso",
+    "hay":"Hay ",
+    "eventosPendientes":"eventos pendientes desde ",
+    "autocompletar": "deseas autocompletar todas las fechas pendientes?"
 
 }

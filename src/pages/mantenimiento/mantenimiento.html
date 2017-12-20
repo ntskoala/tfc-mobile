@@ -1,0 +1,52 @@
+<!--
+  Generated template for the CheckLimpiezaPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  
+    <ion-navbar>
+      <ion-title>{{ nombreMaquina }} {{ nombre }}</ion-title>
+    </ion-navbar>
+  
+  </ion-header>
+  
+  <ion-content padding>
+  <ion-item>
+    <ion-avatar item-left>
+      <img [src]="icono">
+    </ion-avatar>
+      <ion-label [ngClass]="{'onDate':!isbeforedate,'beforeOnDate':isbeforedate}">{{nombre}}
+       <span *ngIf="isbeforedate"> - {{fechaPrevista | date:'dd-MM-yyyy'}} </span> 
+      </ion-label>
+      <ion-toggle [(ngModel)]="checked"></ion-toggle>
+  
+  
+      <!--<ion-label [ngClass]="{'onDate':!elementoLimpieza.isbeforedate,'beforeOnDate':elementoLimpieza.isbeforedate}" (click)="opciones(elementoLimpieza)">{{elementoLimpieza.nombreElementoLimpieza}}
+       <span *ngIf="elementoLimpieza.isbeforedate"> - {{elementoLimpieza.fecha_prevista}} </span>
+      </ion-label>
+      <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='true'" name="checkmark-circle" item-right></ion-icon>
+    <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='false'" name="close-circle" item-right></ion-icon>
+    <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='na'" name="help-circle" item-right></ion-icon>-->
+  
+  </ion-item>
+  <ion-item>
+    <ion-textarea placeholder="descripcion" [(ngModel)]="descripcion"></ion-textarea>
+  </ion-item>
+  
+  <button ion-button (click)="takeFoto()" twitter style="width: 47%;">{{"foto" | translate}}</button> 
+  
+  <button ion-button (click)="terminar()" twitter style="width: 47%;">{{"terminar" | translate}}</button>
+  <img [src]="imagen">
+  <ion-footer *ngIf="hayRetraso>1" style="padding:15px; background-color:#ccc">
+    <span ><b>
+    {{'hay' | translate}} {{hayRetraso}} {{'eventosPendientes' | translate}} {{fechaPrevista | date:'dd-MM-yyyy'}}, {{'autocompletar' | translate}} 
+    </b></span> 
+    <ion-item style="background-color:#eee">
+        <ion-label><b>completar</b></ion-label>
+    <ion-toggle [(ngModel)]="autocompletar"></ion-toggle>
+    </ion-item>
+  </ion-footer>
+  </ion-content>
+  

@@ -3,10 +3,31 @@
 }
 
 
-.platform-android .titulo{
-    
+.platform-android .titulo{   
 }
 
 .platform-browser .titulo{
-
 }
+
+@keyframes marquee {
+  0%   { -webkit-transform: translate(0,0); }
+  100% { -webkit-transform:translate(-100%,0); }
+  }
+  
+  @-webkit-keyframes marquee {
+  0%   { -webkit-transform: translate(0,0); }
+  100% { -webkit-transform:translate(-100%,0); }
+  }
+  
+  .marquee {
+  width: 100%;
+  white-space: nowrap;
+  animation: marquee 8s linear infinite;
+  -webkit-animation: marquee 8s linear infinite;
+    }
+  
+        .marquee:hover {
+  -webkit-animation-play-state: paused;
+  animation-play-state: paused;
+   }
+

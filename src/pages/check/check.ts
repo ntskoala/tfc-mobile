@@ -3,10 +3,13 @@ import { NavController, NavParams, AlertController,ActionSheetController } from 
 import {TranslateService} from 'ng2-translate';
 //import {Sync} from '../../providers/sync';
 
+import * as moment from 'moment';
+
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Camera } from '@ionic-native/camera';
 import {SyncPage} from '../sync/sync';
 import { Initdb } from '../../providers/initdb';
+import { PeriodosProvider } from '../../providers/periodos/periodos';
 
 import { Network } from '@ionic-native/network';
 import { MyApp } from '../../app/app.component';
@@ -44,14 +47,20 @@ public nombrechecklist: string;
 public base64Image;
 public checkvalue:string;
 public selectedValue:string;
+public fecha_prevista: Date;
+public periodicidad: any;
 //public myapp: MyApp;
 //public db: SQLite;
 //public fotositems: string[] =[];
-  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController, public initdb: Initdb, public sync: SyncPage, private translate: TranslateService,public db :SQLite, public camera: Camera,public network:Network) {
+  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
+    public actionSheetCtrl: ActionSheetController, public initdb: Initdb, public sync: SyncPage, 
+    private translate: TranslateService,public db :SQLite, public camera: Camera,
+    public network:Network, public periodos: PeriodosProvider) {
     
         this.idchecklist =  this.params.get('checklist').idchecklist;
         this.nombrechecklist = this.params.get('checklist').nombrechecklist;
-        
+        this.fecha_prevista = this.params.get('checklist').fecha;
+        this.periodicidad = JSON.parse(this.params.get('checklist').periodicidad);
         //this.db = new SQLite();
         this.db.create({name: "data.db", location: "default"}).then(() => {
             //this.refresh();
@@ -64,6 +73,7 @@ public selectedValue:string;
 
   ionViewDidLoad() {
     console.debug('Hello Check Page');
+    this.sync.login();
   }
 getChecklists(idchecklist){
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
@@ -116,6 +126,31 @@ terminar(){
           (Resultado) => { console.debug(Resultado);},
           (error) => {console.debug(JSON.stringify(error))});
         }
+
+  //******CALCULAR FECHA */
+  //******CALCULAR FECHA */
+
+  let proxima_fecha;
+  if (this.periodicidad['repeticion'] =="por uso"){
+    proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
+  }else{
+    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fecha_prevista)).format('YYYY-MM-DD');
+  }
+  console.log('PROXIMA_FECHA:',this.periodicidad.repeticion, proxima_fecha);
+
+  //******UPDATE FECHA LOCAL*/
+  //******UPDATE FECHA LOCAL*/
+  db2.executeSql('UPDATE checklist set  fecha = ? WHERE idchecklist = ?',[proxima_fecha, this.idchecklist]).then
+  ((Resultado) => {
+       console.log("updated fecha: ", Resultado);
+  },
+  (error) => {
+    console.debug('ERROR ACTUALIZANDO FECHA', error);
+   });
+
+
+
+
           if (this.network.type != 'none') {
             console.debug("conected");
             this.sync.sync_data_checklist();

@@ -9,6 +9,7 @@ import {ControlPage} from '../control/control';
 import { CheckPage } from '../check/check';
 import { SyncPage } from '../sync/sync';
 import { CheckLimpiezaPage } from '../check-limpieza/check-limpieza';
+import { MantenimientoPage } from '../mantenimiento/mantenimiento';
 import { SupervisionPage } from '../supervision/supervision';
 import {Empresa} from '../empresa/empresa';
 import { Sync } from '../../providers/sync';
@@ -16,7 +17,7 @@ import { Servidor } from '../../providers/servidor';
 import { Initdb } from '../../providers/initdb'
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-import { URLS, controlesList, checklistList, checkLimpieza, limpiezaRealizada,supervisionLimpieza } from '../../models/models'
+import { URLS, controlesList, checklistList, checkLimpieza, mantenimiento, limpiezaRealizada,supervisionLimpieza } from '../../models/models'
 import * as moment from 'moment';
 
 
@@ -33,6 +34,8 @@ export class HomePage {
 miscontroles: any;
 mischecks: any;
 mischeckslimpiezas: any;
+mismantenimientos: any;
+miscalibraciones: any;
 mislimpiezasrealizadas: any;
 public cambio: number;
 accesomenu: any;
@@ -42,10 +45,12 @@ public controlesList: controlesList[] =[];
 public checklistList: checklistList[] = [];
 public checkLimpiezas: checkLimpieza[] = [];
 public supervisionLimpiezas: supervisionLimpieza[] = [];
+public mantenimientos: mantenimiento[]=[];
+public calibraciones: mantenimiento[]=[];
 public loader:any;
 public status:boolean[]=[false,false,false,false];
 public sql: SQLiteObject;
-public Momento;
+public Momento = moment();
 
   constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,public syncPage: SyncPage,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController, public params: NavParams) {
     this.network.onDisconnect().subscribe(
@@ -105,6 +110,19 @@ public Momento;
         }
 }
 
+ionViewDidLoad(){
+  this.cambio=0;
+  
+
+}
+ionViewDidEnter(){
+  console.log("didEnter...");
+this.cargaListas();
+  // if (this.params.get('origen')== 'checkLimpiezas'){
+  //   alert('from limpiezas' + + this.params.get('limpieza') + this.params.get('eliminar'))
+  // }
+  
+}
 
 syncData(){
         console.log ('a sincronizar');
@@ -130,14 +148,20 @@ callSincroniza(versionActual?){
                   break;
                   case "limpiezas":
                   this.status[2] = true;
-                  break
-                  case "limpiezasRealizadas":
+                  break;
+                  case "mantenimientos":
                   this.status[3] = true;
+                  break;
+                  case "calibraciones":
+                  this.status[4] = true;
+                  break;
+                  case "limpiezasRealizadas":
+                  this.status[5] = true;
                   break
                 }
                 console.log(this.status, moment(this.Momento).diff(moment(), 'seconds'));
-                if (this.status[0] && this.status[1] && this.status[2] && this.status[3]){
-                 console.log("STATUS 4", moment(this.Momento).diff(moment(), 'seconds'));
+                if (this.status[0] && this.status[1] && this.status[2] && this.status[3] && this.status[4] && this.status[5]){
+                 console.log("STATUS 6", moment(this.Momento).diff(moment(), 'seconds'));
 
                   if (!(versionActual>0)) localStorage.setItem("versioncontrols","0");
                   setTimeout(()=>{ 
@@ -156,7 +180,11 @@ cargaListas(){
             this.getControles();
             this.getChecklists();
             this.getLimpiezas();
-            this.getLimpiezasRealizadas();  
+            this.getLimpiezasRealizadas();
+            if (localStorage.getItem("tipoUser")=='Gerente'){
+              this.getMantenimientos();
+              this.getCalibraciones();
+            }
   console.log("Fin CargaListas", moment(this.Momento).diff(moment(), 'seconds')); 
 }
 
@@ -171,6 +199,7 @@ hayUpdates() {
               for (let element of response.data) {
                 updates = element.updatecontrols;
               }
+              resolve(updates);
             }
         },
         (error)=>{
@@ -178,24 +207,14 @@ hayUpdates() {
           resolve('Error en hay updates() home# 161' + updates);
       },
         ()=>{
-            resolve(updates);
+            
         });
     });
         //return updates;
    }
 
 
-ionViewDidLoad(){
-  this.cambio=0;
 
-}
-ionViewDidEnter(){
-  console.log("didEnter...");
-  // if (this.params.get('origen')== 'checkLimpiezas'){
-  //   alert('from limpiezas' + + this.params.get('limpieza') + this.params.get('eliminar'))
-  // }
-  
-}
 
 refreshlogo(){
   this.empresa = parseInt(localStorage.getItem("idempresa"));
@@ -225,18 +244,20 @@ sincronizate(version? : string){
                       let valores='';
                       this.miscontroles.forEach (control => {
                         //this.saveControl(control)
-                       argumentos.push ('(?,?,?,?,?,?,?,?,?)');
-                       valores += "("+control.id+","+control.idusuario+",'"+control.nombre+"','"+control.pla+"',"+control.valorminimo+","+control.valormaximo+","+control.objetivo+","+control.tolerancia+","+control.critico+"),";           
+                       argumentos.push ('(?,?,?,?,?,?,?,?,?,?,?,?)');
+                       valores += "("+control.id+","+control.idusuario+",'"+control.nombre+"','"+control.pla+"',"+control.valorminimo+","+control.valormaximo+","+control.objetivo+","+control.tolerancia+","+control.critico+",'"+control.fecha_+"','"+control.periodicidad2+"','"+this.checkPeriodo(control.periodicidad2)+"'),";           
                       });
                       valores = valores.substr(0,valores.length-1);
-                      let query = "INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico) VALUES" + valores;
-                      console.log('########',query);
+                       let query = "INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico,fecha,periodicidad,frecuencia) VALUES" + valores;
+                       console.log('########',query);
 
-                      this.sql.executeSql("INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico) VALUES" + valores ,[])
+                      this.sql.executeSql("INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico,fecha,periodicidad,frecuencia) VALUES" + valores ,[])
                       .then((data) => {
                         console.log('***********OK INSERT CONTROLES', data)
                       },
-                      (error)=>{ console.log('***********ERROR', error)});
+                      (error)=>{ 
+                        console.log('***********ERROR CONTROLES', error)
+                      });
 
                       }, (error) => {
                       console.log("ERROR -> " + JSON.stringify(error));
@@ -281,18 +302,18 @@ sincronizate(version? : string){
                       let valores='';
                       this.mischecks.forEach (checklist => {
                        // this.saveChecklist(checklist)
-                       argumentos.push ('(?,?,?,?,?)');
-                        valores += "("+checklist.idchecklist+","+checklist.idusuario+",'"+checklist.nombrechecklist+"',"+checklist.id+",'"+checklist.nombre+"'),";
+                       argumentos.push ('(?,?,?,?,?,?,?,?)');
+                        valores += "("+checklist.idchecklist+","+checklist.idusuario+",'"+checklist.nombrechecklist+"',"+checklist.id+",'"+checklist.nombre+"','"+checklist.fecha_+"','"+checklist.periodicidad2+"','"+this.checkPeriodo(checklist.periodicidad2)+"'),";
                        //valores.push([fila]);
                       });
                       valores = valores.substr(0,valores.length-1);
-                      let query = "INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES " + valores;
+                      let query = "INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol,fecha,periodicidad,frecuencia) VALUES " + valores;
                       console.log('########',query);
-                      this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES " + valores ,[])
+                      this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol,fecha,periodicidad,frecuencia) VALUES " + valores ,[])
                       .then((data) => {
                         console.log('***********OK INSERT CHECKLIST', data)
                       },
-                      (error)=>{ console.log('***********ERROR', error)});
+                      (error)=>{ console.log('***********ERROR CHECKLISTS', error)});
                          
                   //this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES ("+checklist+")").then((data) => {console.log('*****************FIN')});
 
@@ -352,7 +373,7 @@ sincronizate(version? : string){
                       .then((data) => {
                         console.log('***********OK INSERT LIMPIEZASREALIZADAS', data)
                       },
-                      (error)=>{ console.log('***********ERROR', error)});
+                      (error)=>{ console.log('***********ERROR CHECKLIMPIEZA', error)});
                       console.log(JSON.stringify('deleted limpiezas: ',data.res));
                       }, (error) => {
                       console.log("ERROR home. 211 delete mislimpiezas-> " + JSON.stringify(error));
@@ -372,6 +393,115 @@ sincronizate(version? : string){
         );  
         //LIMPIEZAS
         //LIMPIEZAS
+
+  //MANTENIMIENTOS
+   //MANTENIMIENTOS
+   // DESCARGA MANTENIMIENTOS ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
+            
+   this.sync.getMisMantenimientos(this.data.logged).map(res => res.json()).subscribe(
+    data => {
+       this.mismantenimientos = JSON.parse(data);
+            console.log('resultado mantenimientos: ' + this.mismantenimientos.success);
+        //    console.log('success check: ' +this.mischecks.data[0].nombre);
+        if (this.mismantenimientos.success){
+          //test
+            this.mismantenimientos = this.mismantenimientos.data;
+            if (this.mismantenimientos){
+            console.log("mismantenimientos: ", this.mismantenimientos);
+         //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+            this.sql.executeSql("delete from maquina_mantenimiento",[]).then((data) => {
+              let argumentos=[];
+              let valores='';
+              this.mismantenimientos.forEach (mantenimiento => 
+            {
+               argumentos.push ('(?,?,?,?,?,?,?)');
+               valores += "("+mantenimiento.id+","+mantenimiento.idMaquina+",'"+mantenimiento.nombreMaquina+"','"+mantenimiento.nombre+"','"+mantenimiento.fecha+"','"+mantenimiento.tipo+"','"+mantenimiento.periodicidad+"','"+mantenimiento.responsable+"',"+mantenimiento.orden+"),";           
+              });
+              valores = valores.substr(0,valores.length-1);
+              //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+              let query = "INSERT INTO maquina_mantenimiento ( id, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
+              console.log('########',query);
+
+              this.sql.executeSql(query,[])
+              .then((data) => {
+                console.log('***********OK INSERT maquina_MANTENIMIENTOS', data)
+              },
+              (error)=>{ console.log('***********ERROR maquina_MANTENIMIENTOS', error)});
+              console.log(JSON.stringify('deleted maquina_mantenimientos: ',data.res));
+              }, (error) => {
+              console.log("ERROR home. 211 delete mismantenimientos-> " + JSON.stringify(error));
+              //alert("Error 2");
+            } );
+        //});
+            }
+          response.next('mantenimientos');
+              //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
+          }
+      },
+    err => console.error(err),
+    () => {
+      if (version) localStorage.setItem("versioncontrols",version);
+     // this.getChecklists();
+    }
+);  
+//MANTENIMIENTOS 
+//MANTENIMIENTOS
+
+ //CALIBRACIONES
+   //CALIBRACIONES
+   // DESCARGA CALIBRACIONES ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
+            
+   this.sync.getMisCalibraciones(this.data.logged).map(res => res.json()).subscribe(
+    data => {
+       this.miscalibraciones = JSON.parse(data);
+            console.log('resultado miscalibraciones: ' + this.miscalibraciones.success);
+        //    console.log('success check: ' +this.mischecks.data[0].nombre);
+        if (this.miscalibraciones.success){
+          //test
+            this.miscalibraciones = this.miscalibraciones.data;
+            if (this.miscalibraciones){
+            console.log("miscalibraciones: ", this.miscalibraciones);
+         //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+            this.sql.executeSql("delete from maquina_calibraciones",[]).then((data) => {
+              let argumentos=[];
+              let valores='';
+              this.miscalibraciones.forEach (mantenimiento => 
+            {
+              //    this.saveChecklimpieza(checklimpieza)
+
+              argumentos.push ('(?,?,?,?,?,?,?)');
+              valores += "("+mantenimiento.id+","+mantenimiento.idMaquina+",'"+mantenimiento.nombreMaquina+"','"+mantenimiento.nombre+"','"+mantenimiento.fecha+"','"+mantenimiento.tipo+"','"+mantenimiento.periodicidad+"','"+mantenimiento.responsable+"',"+mantenimiento.orden+"),";           
+             });
+             valores = valores.substr(0,valores.length-1);
+             //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+             let query = "INSERT INTO maquina_calibraciones ( id, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
+             console.log('########',query);
+
+              this.sql.executeSql(query,[])
+              .then((data) => {
+                console.log('***********OK INSERT CALIBRACIONES', data)
+              },
+              (error)=>{ console.log('***********ERROR CALIBRACIONES', error)});
+              console.log(JSON.stringify('deleted CALIBRACIONES: ',data.res));
+              }, (error) => {
+              console.log("ERROR home. 211 delete CALIBRACIONES-> " + JSON.stringify(error));
+              //alert("Error 2");
+            } );
+        //});
+            }
+          response.next('calibraciones');
+              //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
+          }
+      },
+    err => console.error(err),
+    () => {
+      if (version) localStorage.setItem("versioncontrols",version);
+     // this.getChecklists();
+    }
+);  
+//CALIBRACIONES
+//CALIBRACIONES
+
 
  //LIMPIEZAS REALIZADAS
    //LIMPIEZAS REALIZADAS
@@ -406,7 +536,7 @@ sincronizate(version? : string){
                       .then((data) => {
                         console.log('***********OK INSERT LIMPIEZASREALIZADAS', data)
                       },
-                      (error)=>{ console.log('***********ERROR', error)});
+                      (error)=>{ console.log('***********ERROR SUPERVISIONLIMPIEZA', error)});
                       console.log(JSON.stringify('deleted limpiezas: ',data.res));
                       }, (error) => {
                       console.log("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
@@ -505,10 +635,12 @@ console.log("FIN LimpizadasezasReali", moment(this.Momento).diff(moment(), 'seco
 
     getControles() {
       console.log("397->Inicio controles", moment(this.Momento).diff(moment(), 'seconds'));
+      let fecha = moment(new Date()).format('YYYY-MM-DD');
       this.controlesList=[];
       //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-                  this.sql.executeSql("SELECT * FROM controles WHERE idusuario = ?",[sessionStorage.getItem("idusuario")]).then((data) => {
+                  this.sql.executeSql("SELECT * FROM controles WHERE idusuario = ?  and fecha <= ? ",[sessionStorage.getItem("idusuario"),fecha]).then((data) => {
                   for(let i = 0; i < data.rows.length; i++) {
+                    let isBD = moment(new Date(data.rows.item(i).fecha)).isBefore(moment(), 'day');
                       this.controlesList.push({
                       "id": data.rows.item(i).id,
                       "nombre": data.rows.item(i).nombre,
@@ -517,6 +649,10 @@ console.log("FIN LimpizadasezasReali", moment(this.Momento).diff(moment(), 'seco
                       "maximo": data.rows.item(i).maximo,
                       "tolerancia": data.rows.item(i).tolerancia,
                       "critico": data.rows.item(i).critico,
+                      "fecha": data.rows.item(i).fecha,
+                      "periodicidad": data.rows.item(i).periodicidad,
+                      "frecuencia":data.rows.item(i).frecuencia,
+                      "isbeforedate":isBD
                       });
                     }
                   }, (error) => {
@@ -547,17 +683,19 @@ takeControl(control)
 
 getChecklists(){
   console.log("439->Inicio Checklist", moment(this.Momento).diff(moment(), 'seconds'));
+  let fecha = moment(new Date()).format('YYYY-MM-DD');
   this.checklistList =[];
                  // this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //db2.executeSql("Select * FROM checklist WHERE idusuario = ? GROUP BY idlimpiezazona", [sessionStorage.getItem("idusuario")]).then((data) => {
-                  this.sql.executeSql("Select * FROM checklist WHERE idusuario = ? GROUP BY idchecklist", [sessionStorage.getItem("idusuario")]).then((data) => {                  
+                  this.sql.executeSql("Select * FROM checklist WHERE idusuario = ? and fecha <= ?  GROUP BY idchecklist", [sessionStorage.getItem("idusuario"),fecha]).then((data) => {                  
                                     
                   //this.checklistList = data.rows;
                   console.log(data.rows.length);
                   if (data.rows.length > 0 ){
                       for (var index=0;index < data.rows.length;index++){
+                        let isBD = moment(new Date(data.rows.item(index).fecha)).isBefore(moment(), 'day');
                         this.checklistList.push(data.rows.item(index));
-                        
+                        this.checklistList[index]["isbeforedate"] = isBD;
                         console.log(data.rows.item(index));
                       //   this.checklistList.push({
                       //         "id":  data.rows.item(index).id,
@@ -575,8 +713,8 @@ getChecklists(){
                   }
                   console.log ("checklist:", this.checklistList);
               }, (error) => {
-                  console.log("ERROR -> " + JSON.stringify(error.err));
-                  alert("error home 325 " + JSON.stringify(error.err));
+                  console.log("ERROR Checklist-> " + JSON.stringify(error.err));
+                  alert("error home Checklist 325 " + JSON.stringify(error.err));
               }); 
               // });
               console.log("472->FIN Checklist", moment(this.Momento).diff(moment(), 'seconds'));
@@ -590,21 +728,67 @@ getLimpiezas(){
                   //this.checklistList = data.rows;
                   this.sql.executeSql("Select * FROM checklimpieza WHERE idusuario = ? and fecha <= ?  GROUP BY idlimpiezazona", [sessionStorage.getItem("idusuario"),fecha]).then(
                     (data) => {
-                  
-                  console.log(data.rows.length);
+                  console.log('NUMchecklimpiezas:',data.rows.length);
                       for (var index=0;index < data.rows.length;index++){
                      //   this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idLimpieza,))
                         this.checkLimpiezas.push(data.rows.item(index));
                     }
                   console.log ("checkLimpiezas:", this.checkLimpiezas);
               }, (error) => {
-                  console.log("ERROR home. 342-> ", error);
-                  alert("error home. 342" + error);
+                  console.log("ERROR home Limpizas. 342-> ", error);
+                  alert("error home Limpizas. 342" + error);
               }); 
              //});
              console.log("Fin  Limpizas",new Date());
 }
-
+getMantenimientos(){
+  console.log("738->Inicio Mantenimientos",moment(this.Momento).diff(moment(), 'seconds'));
+  this.mantenimientos =[];
+                  let fecha = moment(new Date()).format('YYYY-MM-DD');
+                  let isBD;
+                  //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                  //this.checklistList = data.rows;
+                  this.sql.executeSql("Select * FROM maquina_mantenimiento WHERE fecha <= ?  GROUP BY nombreMaquina ORDER BY nombreMaquina, orden", [fecha]).then(
+                    (data) => {
+                  console.log('NUMmantenimientos:',data.rows.length);
+                      for (var index=0;index < data.rows.length;index++){
+                        isBD = moment(new Date(data.rows.item(index).fecha)).isBefore(moment(), 'day');
+                     //   this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idLimpieza,))
+                        this.mantenimientos.push(data.rows.item(index));
+                        this.mantenimientos[index].isbeforedate = isBD;
+                    }
+                  console.log ("mantenimientos:", this.mantenimientos);
+              }, (error) => {
+                  console.log("ERROR home mantenimientos. 752-> ", error);
+                  alert("error home mantenimientos. 752" + error);
+              }); 
+             //});
+             console.log("Fin  mantenimientoss",new Date());
+}
+getCalibraciones(){
+  console.log("738->Inicio Calibraciones",moment(this.Momento).diff(moment(), 'seconds'));
+  this.calibraciones =[];
+                  let fecha = moment(new Date()).format('YYYY-MM-DD');
+                  let isBD;
+                  //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+                  //this.checklistList = data.rows;
+                  this.sql.executeSql("Select * FROM maquina_calibraciones WHERE fecha <= ?  GROUP BY nombreMaquina ORDER BY nombreMaquina, orden", [fecha]).then(
+                    (data) => {
+                  console.log('NUMCalibraciones:',data.rows.length);
+                      for (var index=0;index < data.rows.length;index++){
+                        isBD = moment(new Date(data.rows.item(index).fecha)).isBefore(moment(), 'day');
+                     //   this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idLimpieza,))
+                        this.calibraciones.push(data.rows.item(index));
+                        this.calibraciones[index].isbeforedate = isBD;
+                    }
+                  console.log ("Calibraciones:", this.calibraciones);
+              }, (error) => {
+                  console.log("ERROR home Calibraciones. 773-> ", error);
+                  alert("error home Calibraciones. 774" + error);
+              }); 
+             //});
+             console.log("Fin  Calibraciones",new Date());
+}
 takeChecklist(checklist){
 this.navCtrl.push(CheckPage,{checklist});
 }
@@ -613,6 +797,12 @@ takeLimpieza(limpieza){
   console.log('home',limpieza);
 this.navCtrl.push(CheckLimpiezaPage,{limpieza});
 }
+
+takeMantenimiento(mantenimiento,entidad){
+  console.log('home',mantenimiento);
+this.navCtrl.push(MantenimientoPage,{mantenimiento,entidad});
+}
+
 supervisar(){
   this.navCtrl.push(SupervisionPage);
 }
@@ -641,4 +831,20 @@ supervisar(){
       this.loader.dismiss()
     }, 1000);
   }
+
+  checkPeriodo(periodicidad: string): string{
+    if (periodicidad){
+    let valor:string;
+    try{
+    let periodo = JSON.parse(periodicidad);
+    return periodo.repeticion;
+    }catch(e){
+      console.log('**error:',e);
+      return 'por uso';
+    } 
+    }else{
+      return 'por uso';
+    }
+  }
+
 }

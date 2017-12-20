@@ -16,7 +16,8 @@ import{CheckPage} from '../pages/check/check';
 import { SyncPage } from '../pages/sync/sync';
 import { Config } from '../pages/config/config';
 import { Empresa } from '../pages/empresa/empresa';
-import { CheckLimpiezaPage } from '../pages/check-limpieza/check-limpieza'
+import { CheckLimpiezaPage } from '../pages/check-limpieza/check-limpieza';
+import { MantenimientoPage } from '../pages/mantenimiento/mantenimiento'
 import { SupervisionPage } from '../pages/supervision/supervision'
 //import { Tanques } from '../pages/tanques/tanques';
 //import { TraspasosPage } from '../pages/traspasos/traspasos';
@@ -27,6 +28,7 @@ import { Servidor } from '../providers/servidor';
 import {BrowserModule} from "@angular/platform-browser";
 import {HttpModule,Http} from '@angular/http';
 import {TranslateModule,TranslateLoader, TranslateStaticLoader } from 'ng2-translate/ng2-translate';
+import { PeriodosProvider } from '../providers/periodos/periodos';
 
 export function createTranslateLoader(http: Http) {
     return new TranslateStaticLoader(http, './assets/i18n', '.json');
@@ -40,6 +42,7 @@ export function createTranslateLoader(http: Http) {
     ControlPage,
     CheckPage,
     CheckLimpiezaPage,
+    MantenimientoPage,
     SupervisionPage,
     SyncPage,
     Config,
@@ -65,6 +68,7 @@ export function createTranslateLoader(http: Http) {
     ControlPage,
     CheckPage,
     CheckLimpiezaPage,
+    MantenimientoPage,
     SupervisionPage,
     SyncPage,
     Config,
@@ -78,7 +82,7 @@ export function createTranslateLoader(http: Http) {
     StatusBar,
     Initdb,
     Sync,
-    Servidor
+    Servidor, PeriodosProvider, PeriodosProvider
   ]
   
 })

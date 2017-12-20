@@ -37,17 +37,21 @@ public checkLimpiezas:checkLimpieza[]=[];
 public idlimpiezazona:number;
 public limpiezaRealizada: limpiezaRealizada;
 public hoy: Date = new Date();
-  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, public servidor: Servidor) {
+  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
+    public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, 
+    private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, 
+    public servidor: Servidor) {
        console.debug("param",this.params.get('limpieza'));
        
-       this.idlimpiezazona =  this.params.get('limpieza').idlimpiezazona;
-        this.nombreLimpieza = this.params.get('limpieza').nombrelimpieza;
+      this.idlimpiezazona =  this.params.get('limpieza').idlimpiezazona;
+      this.nombreLimpieza = this.params.get('limpieza').nombrelimpieza;
      
       //this.limpieza.id =1;
       //this.limpieza.nombreLimpieza ="test";
 
   }
-  ionViewDidLoad() {
+
+ionViewDidLoad() {
 
   }
 ionViewDidEnter(){
@@ -60,7 +64,7 @@ if (this.network.type != 'none'){
       response => {
         if (response.success == 'true') {
           // Guarda token en sessionStorage
-          sessionStorage.setItem('token', response.token);
+          localStorage.setItem('token', response.token);
           }
           });
 }
@@ -129,17 +133,6 @@ if (elemento.checked){
       db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha, elemento.id]).then
       ((Resultado) => {
            console.log("updated fecha: ", Resultado);
-          //SI HAY RED UPDATE BACKOFFICE
-          //  if (this.network.type != 'none') {
-          //   console.log("updating server: ",proxima_fecha);
-          //    let param = "?entidad=limpieza_elemento&id="+elemento.idElementoLimpieza;
-          //    let limpia={fecha:proxima_fecha};
-          //   this.servidor.putObject(URLS.STD_ITEM,param,limpia).subscribe(
-          //     (resultado)=>console.log(resultado),
-          //     (error)=>console.debug(error),
-          //     ()=>console.log('fin updating fecha')
-          //   );
-          // }
       },
       (error) => {
         console.debug('ERROR ACTUALIZANDO FECHA', error);
@@ -149,8 +142,6 @@ if (elemento.checked){
   (error) => {console.debug(JSON.stringify(error))});
 }
 });
-  
-
             if (this.network.type != 'none') {
             console.debug("conected");
             this.sync.sync_checklimpieza();

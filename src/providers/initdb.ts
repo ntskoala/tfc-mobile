@@ -18,7 +18,15 @@ public gerentes: any;
 //private storage;
 public logged: number;
 public badge: number;
-public versionDBLocal: number=5;
+
+//*****************  VERSION BBDD */
+//anterior 6 -> posterior version 7. 
+//actualizará tablas Controles y checklist.(añade fecha y periodicidad)
+//Crea nuevas tablas CHECKMANTENIMIENTOS Y RESULTADOSMANTENIMIENTOS
+//************ VER SI VAN JUNTAS MANTENIMIENTOS Y CALIBRACIONES */
+public versionDBLocal: number=7;
+//*****************  VERSION BBDD */
+
 public hayConexion:boolean=false;
 public momentoCambioEstado:number=0;
 //public db: SQLite;
@@ -47,14 +55,14 @@ public momentoCambioEstado:number=0;
         }, (error) => {
             console.debug("ERROR -> " + JSON.stringify(error.err));
   });
-  //this.db.executeSql('DROP TABLE IF EXISTS controles',[]);
-     db2.executeSql('CREATE TABLE IF NOT EXISTS controles (uid INTEGER PRIMARY KEY AUTOINCREMENT,id INTEGER,idusuario INTEGER, nombre TEXT, pla TEXT, minimo INTEGER, maximo INTEGER, objetivo INTEGER, tolerancia INTEGER, critico INTEGER)',[]).then((data) => {
+  db2.executeSql('DROP TABLE IF EXISTS controles',[]);
+     db2.executeSql('CREATE TABLE IF NOT EXISTS controles (uid INTEGER PRIMARY KEY AUTOINCREMENT,id INTEGER,idusuario INTEGER, nombre TEXT, pla TEXT, minimo INTEGER, maximo INTEGER, objetivo INTEGER, tolerancia INTEGER, critico INTEGER, fecha DATETIME, periodicidad TEXT, frecuencia TEXT)',[]).then((data) => {
             console.debug("TABLE CREATED CONTROLES-> " + JSON.stringify(data));
         }, (error) => {
             console.debug("ERROR -> " + JSON.stringify(error.err));
   });
-  //db.executeSql('DROP TABLE IF EXISTS checklist',[]);
-       db2.executeSql('CREATE TABLE IF NOT EXISTS checklist (id INTEGER PRIMARY KEY AUTOINCREMENT, idchecklist INTEGER,idusuario INTEGER, nombrechecklist TEXT, idcontrol INT, nombrecontrol TEXT, checked TEXT DEFAULT "false")',[]).then((data) => {
+  db2.executeSql('DROP TABLE IF EXISTS checklist',[]);
+       db2.executeSql('CREATE TABLE IF NOT EXISTS checklist (id INTEGER PRIMARY KEY AUTOINCREMENT, idchecklist INTEGER,idusuario INTEGER, nombrechecklist TEXT, idcontrol INT, nombrecontrol TEXT, checked TEXT DEFAULT "false", fecha DATETIME, periodicidad TEXT, frecuencia TEXT)',[]).then((data) => {
             console.debug("TABLE CREATED CHECKLIST-> " + JSON.stringify(data));
         }, (error) => {
             console.debug("ERROR -> " + JSON.stringify(error.err));
@@ -65,6 +73,20 @@ public momentoCambioEstado:number=0;
         }, (error) => {
             console.debug("ERROR -> NO SE CREÓ CHECKLIMPIEZA: ",error);
   });
+
+  db2.executeSql('DROP TABLE IF EXISTS mantenimientos',[]);
+  db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_mantenimiento (id INTEGER PRIMARY KEY, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT, orden INTEGER)',[]).then((data) => {
+    console.debug("TABLE CREATED MANTENIMIENTOS-> " + JSON.stringify(data));
+}, (error) => {
+    console.debug("ERROR -> NO SE CREÓ MANTENIMIENTOS: ",error);
+});
+    db2.executeSql('DROP TABLE IF EXISTS calibraciones',[]);
+    db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_calibraciones (id INTEGER PRIMARY KEY, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT,  orden INTEGER)',[]).then((data) => {
+    console.debug("TABLE CREATED CALIBRACIONES-> " + JSON.stringify(data));
+    }, (error) => {
+    console.debug("ERROR -> NO SE CREÓ CALIBRACIONES: ",error);
+    });
+
   //this.db.executeSql('DROP TABLE IF EXISTS resultadoscontrol',[]);
   //*** ATENCION fecha DATETIME DEFAULT CURRENT_TIMESTAMP ES UTC, una hora menos que en españa. se compensa en los informes de backoffice
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoscontrol (id INTEGER PRIMARY KEY AUTOINCREMENT, idcontrol INTEGER, resultado INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, foto BLOB, idusuario INTEGER)',[]).then((data) => {
@@ -91,11 +113,25 @@ public momentoCambioEstado:number=0;
         }, (error) => {
             console.debug("ERROR -> " + JSON.stringify(error));
   });
+  
+
+    db2.executeSql('DROP TABLE IF EXISTS mantenimientosrealizados',[]);
+    db2.executeSql('CREATE TABLE IF NOT EXISTS mantenimientosrealizados (id INTEGER PRIMARY KEY AUTOINCREMENT, idmantenimiento INTEGER, idmaquina INTEGER, maquina TEXT, mantenimiento TEXT, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP,idusuario INTEGER, responsable TEXT, descripcion TEXT, elemento TEXT, tipo TEXT,tipo2 TEXT,causas TEXT,tipo_evento TEXT, idempresa INTEGER, imagen BLOB)',[]).then((data) => {
+        console.debug("TABLE CREATED MANTENIMIENTOSREALIZADOS-> " + JSON.stringify(data));
+    }, (error) => {
+        console.debug("ERROR -> " + JSON.stringify(error));
+});
+
+
+
      db2.executeSql('CREATE TABLE IF NOT EXISTS supervisionlimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezarealizada INTEGER,  nombrelimpieza TEXT, fecha DATETIME, tipo TEXT,  responsable TEXT, idsupervisor INTEGER, fecha_supervision DATETIME DEFAULT CURRENT_TIMESTAMP, supervision INTEGER, detalles_supervision TEXT)',[]).then((data) => {
             console.debug("TABLE CREATED SUPERVISIONLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
             console.debug("ERROR -> NO SE CREÓ SUPERVISIONLIMPIEZA: ",error);
   });
+
+
+
 
         });
 localStorage.setItem("inicializado","5")

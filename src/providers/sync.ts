@@ -63,8 +63,7 @@ public getMisChecklists(userid): Observable<any>
 {
         let miscontroles = this.http.get(`${this.baseurl}views/getchecklists.php?idempresa=${this.idempresa}&_dc=1470480375978`);
         return miscontroles;
-    }
-
+}
 
 public getMisLimpiezas(userid): Observable<any>
 {
@@ -77,7 +76,17 @@ public getMisLimpiezas(userid): Observable<any>
         return mislimpiezas;
         
     }
-
+public getMisMantenimientos(userid): Observable<any>
+{
+    let miscontroles = this.http.get(`${this.baseurl}views/getmantenimientos.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+    return miscontroles;
+}
+public getMisCalibraciones(userid): Observable<any>
+{
+    let miscontroles = this.http.get(`${this.baseurl}views/getcalibraciones.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+    return miscontroles;
+}
+    
 public getMisLimpiezasRealizadas(userid): Observable<any>
 {
     console.debug ('baseurl',this.baseurl);

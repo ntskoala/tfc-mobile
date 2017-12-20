@@ -8,7 +8,7 @@ import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
 import * as moment from 'moment';
 import { MyApp } from '../../app/app.component';
-import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, checkLimpieza, limpiezaRealizada, Supervision } from '../../models/models';
+import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, checkLimpieza, limpiezaRealizada, Supervision, mantenimientoRealizado } from '../../models/models';
 
 @Component({
   selector: 'page-sync',
@@ -21,7 +21,8 @@ export class SyncPage {
   public conexion: boolean = false;
   public badge: number;
   //public myapp:MyApp;
-  constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync, public servidor: Servidor, public translate: TranslateService, public db: SQLite, public network: Network) {
+  constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync, public servidor: Servidor, 
+    public translate: TranslateService, public db: SQLite, public network: Network) {
     if (this.network.type != 'none') {
       console.debug("conected");
     }
@@ -34,8 +35,22 @@ export class SyncPage {
 
   ionViewDidLoad() {
     console.debug('Hello Sync Page');
-  }
 
+  }
+login(){
+  if (this.network.type != 'none'){
+    if (!sessionStorage.getItem('token')){
+    let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
+  this.servidor.login(URLS.LOGIN, param).subscribe(
+    response => {
+      if (response.success == 'true') {
+        // Guarda token en sessionStorage
+        localStorage.setItem('token', response.token);
+        }
+        });
+      }
+}
+}
   sync_data() {
     if (this.network.type != 'none') {
  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
@@ -59,6 +74,7 @@ export class SyncPage {
   sync_data_control() {
     //alert("hay sinc");
     //this.db2 = new SQLite();
+    
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
       console.debug("base de datos abierta 1");
 
@@ -77,7 +93,9 @@ export class SyncPage {
 
           this.sync.setResultados(JSON.stringify(arrayfila), "resultadoscontrol")
             .subscribe(data => {
-              console.debug("control5")
+              console.log("control5",data);
+              arrayfila.forEach((control)=>{this.updateFechaElemento(control.idcontrol,'controles','id');})
+              
               localStorage.setItem("synccontrol", "0");
              // this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
              // this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
@@ -99,6 +117,41 @@ export class SyncPage {
     });
 
   }
+  updateFechaElemento(idElemento:number,entidad:string, identificador:string) {
+    if (this.network.type != 'none') {
+      let fecha = moment(new Date()).format('YYYY-MM-DD');
+      let proxima_fecha = '';
+      this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
+        db2.executeSql("Select * FROM " + entidad + " WHERE " + identificador + " = ? AND fecha >= ?", [idElemento, fecha]).then((data) => {
+          let proxima_fecha;
+          console.log('resultados update fecha',data.rows.length);
+          for (var index = 0; index < data.rows.length; index++) {
+            proxima_fecha = moment(data.rows.item(index).fecha).format('YYYY-MM-DD');
+          }
+          let param = "?entidad=" + entidad + "&id=" + idElemento;
+          let control;
+          if (entidad == 'controles' || entidad == 'checklist'){
+           control = { fecha_: proxima_fecha};
+          }else{
+            control = { fecha: proxima_fecha};
+          }
+          console.log('UPDATING REMOTE DATE',entidad,idElemento,identificador,control);
+          this.servidor.putObject(URLS.STD_FECHA, param, control).subscribe(
+            (resultado) =>{
+              if (resultado.success == "nuevaFecha"){
+              db2.executeSql("UPDATE " + entidad + " SET fecha  = ? WHERE " + identificador + " = ?", [resultado.nuevaFecha, idElemento]).then((data) => {
+                console.log('UPDATING LOCAL DATE',entidad,resultado.nuevaFecha);
+              },
+            (error)=>{console.log('ERRORLOG',error)});
+              }
+            },
+            (error) =>{console.log('********',error);},
+            () => {});
+        },
+      (error)=>{console.log('error select update Fecha',error);});
+      });
+    }
+  }
 
   sync_data_checklist() {
 
@@ -118,7 +171,11 @@ export class SyncPage {
             let arrayfila = [resultadoChecklist];
             arrayfila.push()
             let idrespuesta = this.sync.setResultados(JSON.stringify(arrayfila), "resultadoschecklist")
-              .subscribe(data => this.sync_checklistcontroles(data.id, idlocal));
+              .subscribe(data => {
+                this.sync_checklistcontroles(data.id, idlocal);
+                arrayfila.forEach((checklist)=>{this.updateFechaElemento(checklist.idchecklist,'checklist','idchecklist');})
+                
+              });
             console.debug("returned" + idrespuesta);
           }
           localStorage.setItem("syncchecklist", "0");
@@ -227,16 +284,6 @@ export class SyncPage {
           let proxima_fecha;
           for (var index = 0; index < data.rows.length; index++) {
             console.log(data.rows.item(index),data.rows.item(index),LimpiezaRealizada.descripcion,LimpiezaRealizada.fecha_prevista)
-                
-              //   console.log("Setting proxima Fecha de ", LimpiezaRealizada);
-              //   if (data.rows.item(index).descripcion =="por uso"){
-              //     proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
-              //     console.log("Por uso ", proxima_fecha);
-              // }else{
-              //     let p_fecha= this.nuevaFecha(data.rows.item(index),LimpiezaRealizada.descripcion,LimpiezaRealizada.fecha_prevista);
-              //     proxima_fecha = moment(p_fecha).format('YYYY-MM-DD');
-              //     console.log("No Por uso ", proxima_fecha, p_fecha);
-              // }
             proxima_fecha = moment(data.rows.item(index).fecha).format('YYYY-MM-DD');
           }
           console.log("proxima_fecha ", proxima_fecha);
@@ -305,12 +352,50 @@ export class SyncPage {
     }, (error) => {
       console.debug("ERROR al abrir la bd: ", error);
     });
-
   }
 
+  sync_mantenimientos(){
+    this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
+      db2.executeSql("select * from mantenimientosrealizados", []).then((data) => {
+        if (data.rows.length > 0) {
+          console.log('anviar elementos:',data.rows.length);
+          let param = "&entidad=mantenimientos_realizados";
+          let entidad;
+          let arrayfila = [];
+          for (let fila = 0; fila < data.rows.length; fila++) {
+            let mantenimiento = new mantenimientoRealizado(null, data.rows.item(fila).idmantenimiento, data.rows.item(fila).idmaquina, data.rows.item(fila).maquina, 
+            data.rows.item(fila).mantenimiento,data.rows.item(fila).fecha_prevista,data.rows.item(fila).fecha,data.rows.item(fila).idusuario,data.rows.item(fila).responsable,
+            data.rows.item(fila).descripcion,data.rows.item(fila).elemento,data.rows.item(fila).tipo,data.rows.item(fila).tipo2,
+            data.rows.item(fila).causas,data.rows.item(fila).tipo_evento,data.rows.item(fila).idempresa,data.rows.item(fila).imagen);
+          
+            this.servidor.postObject(URLS.STD_ITEM, mantenimiento, param).subscribe(
+              response => {
+                if (response.success) {
+                  if(mantenimiento.tipo_evento == "mantenimiento"){
+                    entidad = "maquina_mantenimiento";
+                    }else{
+                    entidad = "maquina_calibraciones";              
+                    }
+                  this.updateFechaElemento(mantenimiento.idmantenimiento,entidad,'id');
+                  db2.executeSql("DELETE from mantenimientosrealizados WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
+                    console.debug("deleted 1 item");
+                  },
+                (error)=>{console.log('Deleting mantenimientosrelizados ERROR',error)});
+                }
+              },
+              error => console.debug(error),
+              () => { });
+            }
+        }
+      }, (error) => {
+        console.debug(error);
+        alert("error, no se han podido sincronizar todos los datos [mantenimientosrealizados] " + error.message);
+      });
 
-
-
+    }, (error) => {
+      console.debug("ERROR al abrir la bd: ", error);
+    });
+  }
 
 //************CALCULOS FECHA */
   nuevaFecha(limpieza: checkLimpieza,descripcion?,fecha_prevista?){

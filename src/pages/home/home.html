@@ -28,7 +28,7 @@
 <img [src]="logoempresa" *ngIf="empresa" class="center logo"/>
 </ion-col>
 </ion-row>
-  
+
   <p>
   </p>
 
@@ -55,7 +55,9 @@
       <ion-avatar item-left>
       <img src="assets/img/temp.png">
     </ion-avatar>
-         <h2>{{control.nombre}} {{control.pla}}</h2>  
+         <!-- <h2><marquee loop="2" scrolldelay="60" behavior="alternate">{{control.nombre}} {{control.pla}} {{control.frecuencia}}</marquee></h2>   -->
+      <h2 [ngClass]="{'marquee': control.nombre.length+control.pla.length>25,'onDate':!control.isbeforedate,'beforeOnDate':control.isbeforedate,'porUso':control.frecuencia == 'por uso'}">{{control.nombre}} {{control.pla}} {{control.frecuencia}} </h2>  
+         
 </ion-item>
 </ion-list>
   
@@ -64,7 +66,7 @@
       <ion-avatar item-left>
       <img src="assets/img/checks.jpg">
     </ion-avatar>
-         <h2>{{checklist.nombrechecklist}}</h2>
+         <h2 [ngClass]="{'marquee': checklist.nombrechecklist.length>25,'onDate':!checklist.isbeforedate,'beforeOnDate':checklist.isbeforedate,'porUso':checklist.frecuencia == 'por uso'}">{{checklist.nombrechecklist}}</h2>
 </ion-item>
 </ion-list>   
 
@@ -77,7 +79,26 @@
     </ion-avatar>
          <h2>{{Limpieza.nombrelimpieza}}</h2>  
 </ion-item>
-</ion-list>     
+</ion-list>
+
+<ion-list *ngFor="let Mantenimiento of mantenimientos">
+  <ion-item (click)="takeMantenimiento(Mantenimiento,'maquina_mantenimiento')">
+        <ion-avatar item-left>
+        <img src="assets/img/machine.png">
+      </ion-avatar>
+      <h2 [ngClass]="{'marquee': (Mantenimiento.nombre.length + Mantenimiento.nombreMaquina.length) >25,'onDate':!Mantenimiento.isbeforedate,'beforeOnDate':Mantenimiento.isbeforedate}">{{Mantenimiento.nombre}} {{Mantenimiento.nombreMaquina}}</h2>  
+  </ion-item>
+  </ion-list> 
+
+  <ion-list *ngFor="let Calibracion of calibraciones">
+    <ion-item (click)="takeMantenimiento(Calibracion,'maquina_calibraciones')">
+          <ion-avatar item-left>
+          <img src="assets/img/balance.png">
+        </ion-avatar>
+        <h2 [ngClass]="{'marquee': (Calibracion.nombre.length + Calibracion.nombreMaquina.length) >25,'onDate':!Calibracion.isbeforedate,'beforeOnDate':Calibracion.isbeforedate}">{{Calibracion.nombre}} {{Calibracion.nombreMaquina}}</h2>  
+    </ion-item>
+    </ion-list> 
+
     </ion-card-content>
    </ion-card>
 
