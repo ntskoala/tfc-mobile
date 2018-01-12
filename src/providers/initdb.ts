@@ -107,7 +107,7 @@ public momentoCambioEstado:number=0;
         }, (error) => {
             console.debug("ERROR -> " + JSON.stringify(error));
   });
-    //this.db.executeSql('DROP TABLE IF EXISTS resultadosLimpieza',[]);
+     db2.executeSql('DROP TABLE IF EXISTS resultadosLimpieza',[]);
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoslimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idelemento INTEGER, idempresa INTEGER, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, nombre TEXT, descripcion TEXT, tipo TEXT, idusuario INTEGER, responsable TEXT,  idlimpiezazona INTEGER)',[]).then((data) => {
             console.debug("TABLE CREATED RESULTADOSLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
@@ -123,8 +123,8 @@ public momentoCambioEstado:number=0;
 });
 
 
-
-     db2.executeSql('CREATE TABLE IF NOT EXISTS supervisionlimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezarealizada INTEGER,  nombrelimpieza TEXT, fecha DATETIME, tipo TEXT,  responsable TEXT, idsupervisor INTEGER, fecha_supervision DATETIME DEFAULT CURRENT_TIMESTAMP, supervision INTEGER, detalles_supervision TEXT)',[]).then((data) => {
+    db2.executeSql('DROP TABLE IF EXISTS supervisionlimpieza',[]);
+     db2.executeSql('CREATE TABLE IF NOT EXISTS supervisionlimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezarealizada INTEGER,idElemento INTEGER,  nombrelimpieza TEXT,idZona INTEGER,nombreZona TEXT, fecha DATETIME, tipo TEXT,  responsable TEXT, idsupervisor INTEGER, fecha_supervision DATETIME DEFAULT CURRENT_TIMESTAMP, supervision INTEGER, detalles_supervision TEXT)',[]).then((data) => {
             console.debug("TABLE CREATED SUPERVISIONLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
             console.debug("ERROR -> NO SE CREÓ SUPERVISIONLIMPIEZA: ",error);
@@ -140,7 +140,8 @@ if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccon
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
-this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+if (localStorage.getItem("syncmantenimiento") === null) {localStorage.setItem("syncmantenimiento","0")}
+this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
  }
 
 

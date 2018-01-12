@@ -228,8 +228,11 @@ export class limpiezaRealizada {
 export class supervisionLimpieza {
   constructor(
   public id: number,
-  public idlimpiezarealizada:number,  
+  public idlimpiezarealizada:number,
+  public idElemento:number,
   public nombrelimpieza: string, 
+  public idZona:number,  
+  public nombreZona: string, 
   public fecha: Date, 
   public tipo: string,  
   public responsable: string,

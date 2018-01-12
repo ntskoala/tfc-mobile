@@ -17,8 +17,9 @@ import { Servidor } from '../../providers/servidor';
 import { Initdb } from '../../providers/initdb'
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-import { URLS, controlesList, checklistList, checkLimpieza, mantenimiento, limpiezaRealizada,supervisionLimpieza } from '../../models/models'
+import { URLS, controlesList, checklistList, checkLimpieza, mantenimiento, limpiezaRealizada,supervisionLimpieza, mantenimientoRealizado } from '../../models/models'
 import * as moment from 'moment';
+import { setTimeout } from 'timers';
 
 
 
@@ -51,7 +52,7 @@ public loader:any;
 public status:boolean[]=[false,false,false,false];
 public sql: SQLiteObject;
 public Momento = moment();
-
+public cargando: boolean=false;
   constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,public syncPage: SyncPage,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController, public params: NavParams) {
     this.network.onDisconnect().subscribe(
       estado=>{
@@ -72,7 +73,7 @@ public Momento = moment();
           if (!this.data.hayConexion){
             console.log ('se procesará si badge',estado);
           this.data.hayConexion = true;
-          let badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+          let badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
           if (badge > 0){
             this.syncData();
           }
@@ -85,7 +86,7 @@ public Momento = moment();
         } else {
           this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
             this.sql = db2;
-          
+            if (!this.cargando) this.cargaListas();
           if (this.network.type != 'none') {
             if (localStorage.getItem("versioncontrols") === null) {
               this.callSincroniza();
@@ -117,7 +118,10 @@ ionViewDidLoad(){
 }
 ionViewDidEnter(){
   console.log("didEnter...");
-this.cargaListas();
+  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+    this.sql = db2;
+  if (!this.cargando) this.cargaListas();
+  });
   // if (this.params.get('origen')== 'checkLimpiezas'){
   //   alert('from limpiezas' + + this.params.get('limpieza') + this.params.get('eliminar'))
   // }
@@ -176,16 +180,20 @@ callSincroniza(versionActual?){
 }
 
 cargaListas(){
+  this.cargando=true;
   console.log("Inicio CargaListas", moment(this.Momento).diff(moment(), 'seconds'));
             this.getControles();
             this.getChecklists();
             this.getLimpiezas();
             this.getLimpiezasRealizadas();
-            if (localStorage.getItem("tipoUser")=='Gerente'){
+            if (localStorage.getItem("tipoUser")=='Mantenimiento'){
               this.getMantenimientos();
               this.getCalibraciones();
             }
   console.log("Fin CargaListas", moment(this.Momento).diff(moment(), 'seconds')); 
+  setTimeout(()=>{
+    this.cargando = false;
+  },500);
 }
 
 hayUpdates() {
@@ -516,20 +524,21 @@ sincronizate(version? : string){
                   console.log ("if LIMPIEZAS REALIZADAS.SUCEESS");
                   //test
                     this.mislimpiezasrealizadas = this.mislimpiezasrealizadas.data;
-                    if (this.mislimpiezasrealizadas){
+                    //if (this.mislimpiezasrealizadas){
                     console.log("mislimpiezasrealizadas: " + this.mislimpiezasrealizadas);
                    //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     this.sql.executeSql("delete from supervisionlimpieza",[]).then((data) => {
                       let argumentos=[];
                       let valores='';
+                      if (this.mislimpiezasrealizadas){
                       this.mislimpiezasrealizadas.forEach (limpiezaRealizada => {
                       //  this.saveLimpiezaRealizada(limpiezarealizada)
 
                        argumentos.push ('(?,?,?,?,?,?,?)');
-                       valores += "("+limpiezaRealizada.id+",'"+limpiezaRealizada.nombre+"','"+limpiezaRealizada.fecha+"','"+limpiezaRealizada.tipo+"','"+limpiezaRealizada.responsable+"',"+limpiezaRealizada.supervisor+","+limpiezaRealizada.supervision+"),";           
+                       valores += "("+limpiezaRealizada.id+",'"+limpiezaRealizada.nombre+"',"+limpiezaRealizada.idlimpiezazona+",'"+limpiezaRealizada.nombreZona+"','"+limpiezaRealizada.fecha+"','"+limpiezaRealizada.tipo+"','"+limpiezaRealizada.responsable+"',"+limpiezaRealizada.supervisor+","+limpiezaRealizada.supervision+"),";           
                       });
                       valores = valores.substr(0,valores.length-1);
-                      let query = "INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision) VALUES " + valores;
+                      let query = "INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza,idZona,nombreZona, fecha, tipo,  responsable, idsupervisor, supervision) VALUES " + valores;
                       console.log('########',query);
 
                       this.sql.executeSql(query,[])
@@ -537,13 +546,14 @@ sincronizate(version? : string){
                         console.log('***********OK INSERT LIMPIEZASREALIZADAS', data)
                       },
                       (error)=>{ console.log('***********ERROR SUPERVISIONLIMPIEZA', error)});
+                    }
                       console.log(JSON.stringify('deleted limpiezas: ',data.res));
                       }, (error) => {
                       console.log("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
                       //alert("Error 2");
                     } );
                 //});
-                    }
+                    //}
                   response.next('limpiezasRealizadas');
                       //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
                   }
@@ -614,6 +624,7 @@ console.log("479->Inicio LimpizasRealizadas", moment(this.Momento).diff(moment()
                       this.supervisionLimpiezas.push(new supervisionLimpieza(
                         data.rows.item(i).id,
                         data.rows.item(i).idlimpiezarealizada,
+                        data.rows.item(i).idElemento,
                         data.rows.item(i).nombrelimpieza,
                         data.rows.item(i).fecha,
                         data.rows.item(i).tipo,
@@ -741,9 +752,11 @@ getLimpiezas(){
              //});
              console.log("Fin  Limpizas",new Date());
 }
+
 getMantenimientos(){
   console.log("738->Inicio Mantenimientos",moment(this.Momento).diff(moment(), 'seconds'));
   this.mantenimientos =[];
+  
                   let fecha = moment(new Date()).format('YYYY-MM-DD');
                   let isBD;
                   //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {

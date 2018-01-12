@@ -71,7 +71,7 @@ export class SupervisionPage {
           response => {
             if (response.success == 'true') {
               // Guarda token en sessionStorage
-              sessionStorage.setItem('token', response.token);
+              localStorage.setItem('token', response.token);
             }
           });
       } else {
@@ -102,10 +102,10 @@ export class SupervisionPage {
                   this.mislimpiezasrealizadas.forEach (limpiezaRealizada => 
                     {
                       //this.saveLimpiezaRealizada(limpiezarealizada)
-                     valores += "("+limpiezaRealizada.id+",'"+limpiezaRealizada.nombre+"','"+limpiezaRealizada.fecha+"','"+limpiezaRealizada.tipo+"','"+limpiezaRealizada.responsable+"',"+limpiezaRealizada.supervisor+","+limpiezaRealizada.supervision+"),";
+                     valores += "("+limpiezaRealizada.maxId+","+limpiezaRealizada.idelemento+",'"+limpiezaRealizada.nombre+"',"+limpiezaRealizada.idlimpiezazona+",'"+limpiezaRealizada.nombreZona+"','"+limpiezaRealizada.fecha+"','"+limpiezaRealizada.tipo+"','"+limpiezaRealizada.responsable+"',"+limpiezaRealizada.supervisor+","+limpiezaRealizada.supervision+"),";
                   });
                       valores = valores.substr(0,valores.length-1);
-                      let query = "INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision) VALUES " + valores;
+                      let query = "INSERT INTO supervisionlimpieza (idlimpiezarealizada, idElemento, nombrelimpieza,idZona,nombreZona, fecha, tipo,  responsable, idsupervisor, supervision) VALUES " + valores;
                       console.log('########',query);
                     this.saveLimpiezaRealizada(query).then(
                       (resultado) => {
@@ -128,9 +128,7 @@ export class SupervisionPage {
                   //       }
                   //       counter++
                   //     });
-
                   // }
-
                 }
 
                   , (error) => {
@@ -193,7 +191,10 @@ export class SupervisionPage {
           this.supervisionLimpiezas.push(new supervisionLimpieza(
             data.rows.item(i).id,
             data.rows.item(i).idlimpiezarealizada,
+            data.rows.item(i).idElemento,
             data.rows.item(i).nombrelimpieza,
+            data.rows.item(i).idZona,
+            data.rows.item(i).nombreZona,
             data.rows.item(i).fecha,
             data.rows.item(i).tipo,
             data.rows.item(i).responsable,
@@ -215,14 +216,15 @@ export class SupervisionPage {
     let fecha = moment(new Date()).format('YYYY-MM-DD HH:mm');
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
       localStorage.setItem("syncsupervision",'0');
-      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
       
       this.supervisionLimpiezas.forEach((limpiezaRealizada) => {
         if (limpiezaRealizada.supervision != 0) {
           // db2.executeSql('UPDATE supervisionlimpieza SET  (fecha_supervision,supervision,detalles_supervision) VALUES (?,?,?) WHERE id = ?',[fecha,limpiezaRealizada.supervision,limpiezaRealizada.detalles_supervision, limpiezaRealizada.id]).then(
-          db2.executeSql('UPDATE supervisionlimpieza SET  fecha_supervision = ?,supervision= ?,detalles_supervision= ? WHERE id = ?', [fecha, limpiezaRealizada.supervision, limpiezaRealizada.detalles_supervision, limpiezaRealizada.id]).then(
+          db2.executeSql('UPDATE supervisionlimpieza SET  fecha_supervision = ?,supervision= ?,detalles_supervision= ? WHERE idElemento = ?', [fecha, limpiezaRealizada.supervision, limpiezaRealizada.detalles_supervision, limpiezaRealizada.idElemento]).then(
             (Resultado) => {
               console.log(Resultado);
+              console.log("LR",limpiezaRealizada);
               localStorage.setItem("syncsupervision", (parseInt(localStorage.getItem("syncsupervision")) + 1).toString());
               this.initdb.badge += 1;
             },
@@ -238,23 +240,29 @@ export class SupervisionPage {
       }
       else {
         console.log("not conected");
+        this.navCtrl.pop();
         //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
       }
     });
-    this.navCtrl.pop();
+    
   }
 
 logAndSend(){
-        let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' + sessionStorage.getItem("password");
-        this.servidor.login(URLS.LOGIN, param).subscribe(
-          response => {
-            if (response.success == 'true') {
-              // Guarda token en sessionStorage
-              sessionStorage.setItem('token', response.token);
-              this.syncPage.sync_data_supervision();
-            }
+    let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
+    this.servidor.login(URLS.LOGIN, param).subscribe(
+      response => {
+        if (response.success == 'true') {
+          // Guarda token en sessionStorage
+          localStorage.setItem('token', response.token);
+          this.syncPage.sync_data_supervision();
+          setTimeout(()=>{this.navCtrl.pop()},500);
+          }else{
+            this.syncPage.sync_data_supervision();
+            setTimeout(()=>{this.navCtrl.pop()},500);
+          }
           });
 }
+
 
 
   // setSupervision(){

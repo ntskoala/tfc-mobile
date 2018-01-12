@@ -13,11 +13,13 @@ import { Camera } from '@ionic-native/camera';
 import {SyncPage} from '../sync/sync';
 import { Initdb } from '../../providers/initdb';
 import {Servidor} from '../../providers/servidor';
+import { PeriodosProvider } from '../../providers/periodos/periodos';
 
 import { Network } from '@ionic-native/network';
 import { URLS, checkLimpieza,limpiezaRealizada } from '../../models/models'
 
 import * as moment from 'moment'; 
+import { ElementRef } from '@angular/core/src/linker/element_ref';
 /**
  * Generated class for the CheckLimpiezaPage page.
  *
@@ -37,15 +39,23 @@ public checkLimpiezas:checkLimpieza[]=[];
 public idlimpiezazona:number;
 public limpiezaRealizada: limpiezaRealizada;
 public hoy: Date = new Date();
+public fecha_prevista: Date;
+//public periodicidad: any;
+public hayRetraso: number;
+public autocompletar:boolean=false;
+public numProcesados:number;
+public idempresa = localStorage.getItem("idempresa");
+public idusuario = sessionStorage.getItem("idusuario");
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
     public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, 
     private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, 
-    public servidor: Servidor) {
+    public servidor: Servidor, public periodos: PeriodosProvider) {
        console.debug("param",this.params.get('limpieza'));
        
       this.idlimpiezazona =  this.params.get('limpieza').idlimpiezazona;
       this.nombreLimpieza = this.params.get('limpieza').nombrelimpieza;
-     
+      this.fecha_prevista = this.params.get('limpieza').fecha;
+      //this.periodicidad = JSON.parse(this.params.get('limpieza').periodicidad);
       //this.limpieza.id =1;
       //this.limpieza.nombreLimpieza ="test";
 
@@ -55,20 +65,35 @@ ionViewDidLoad() {
 
   }
 ionViewDidEnter(){
+
     console.debug('ionViewDidEnter CheckLimpiezaPage');
     this.getLimpiezas();
 
-if (this.network.type != 'none'){
+    if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
       let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
-    this.servidor.login(URLS.LOGIN, param).subscribe(
-      response => {
-        if (response.success == 'true') {
-          // Guarda token en sessionStorage
-          localStorage.setItem('token', response.token);
-          }
-          });
+      this.servidor.login(URLS.LOGIN, param).subscribe(
+        response => {
+          if (response.success == 'true') {
+            // Guarda token en sessionStorage
+            localStorage.setItem('token', response.token);
+            }
+            });
+    }
+  }
+
+isTokenExired (token) {
+  if (token){
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace('-', '+').replace('_', '/');
+            //return JSON.parse(window.atob(base64));
+            let jwt = JSON.parse(window.atob(base64));
+            console.log (moment.unix(jwt.exp).isBefore(moment()));
+           return moment.unix(jwt.exp).isBefore(moment());
+  }else{
+    return true;
+  }
 }
-}
+
 
 getLimpiezas(){
   this.checkLimpiezas =[];
@@ -81,9 +106,14 @@ getLimpiezas(){
                       for (var index=0;index < data.rows.length;index++){
                         let isbeforedate = moment(data.rows.item(index).fecha).isBefore(this.hoy,'day');
                         let repeticion = this.checkPeriodo(data.rows.item(index).periodicidad);
+                        if (!this.hayRetraso && repeticion != "por uso"){
+                      this.hayRetraso = this.periodos.hayRetraso(data.rows.item(index).fecha,JSON.parse(data.rows.item(index).periodicidad));
+                        }
+
 //id , idlimpiezazona ,idusuario , nombrelimpieza , idelemento , nombreelementol , fecha , tipo , periodicidad , productos , protocolo
                         this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idlimpiezazona,data.rows.item(index).nombrelimpieza,data.rows.item(index).idelemento,
-                        data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate));
+                        data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,
+                        data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate));
                         //this.checkLimpiezas.push(data.rows.item(index));
                     }
                   console.debug ("checkLimpiezas:", this.checkLimpiezas);
@@ -93,6 +123,7 @@ getLimpiezas(){
               }); 
                   });
 }
+
 checkPeriodo(periodicidad):string{
 let repeticion;
 repeticion = JSON.parse(periodicidad)
@@ -100,64 +131,105 @@ return repeticion.repeticion;
 }
 
 terminar(){
-  let idempresa = localStorage.getItem("idempresa");
-  let idusuario = sessionStorage.getItem("idusuario")
   console.debug("terminar",this.checkLimpiezas);
+  this.numProcesados = this.checkLimpiezas.filter(element=>element.checked==true).length;
   this.checkLimpiezas.forEach((elemento)=>{
-    console.debug("terminar2",elemento);
+    console.log("terminar2",elemento.nombreElementoLimpieza,elemento.checked,elemento.periodicidad);
 if (elemento.checked){
-
+  let fecha;
+  (this.autocompletar)? fecha = moment(elemento.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
+  this.guardarLimpiezaRealizada(elemento,fecha)
   console.log("TERMINAR",elemento);
+
+}
+
+});
+
+
+}
+
+guardarLimpiezaRealizada(elemento: checkLimpieza, fecha:Date){
+
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
     let fecha_prevista =  moment(elemento.fecha_prevista).format('YYYY-MM-DD');
-    if (elemento.descripcion =="por uso"){
-      fecha_prevista = moment(new Date()).format('YYYY-MM-DD');
-    }else{
-      fecha_prevista =  moment(elemento.fecha_prevista).format('YYYY-MM-DD');
-    }
-      db2.executeSql('INSERT INTO resultadoslimpieza (idelemento, idempresa, fecha_prevista, nombre, descripcion, tipo, idusuario, responsable,  idlimpiezazona ) VALUES (?,?,?,?,?,?,?,?,?)',
+
+    // if (elemento.descripcion =="por uso"){
+    //   fecha_prevista = moment(new Date()).format('YYYY-MM-DD');
+    // }else{
+    //   fecha_prevista =  moment(elemento.fecha_prevista).format('YYYY-MM-DD');
+    // }
+
+    // (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
+
+      db2.executeSql('INSERT INTO resultadoslimpieza (idelemento, idempresa, fecha_prevista,fecha, nombre, descripcion, tipo, idusuario, responsable,  idlimpiezazona ) VALUES (?,?,?,?,?,?,?,?,?,?)',
         //[0,0,'2017-05-29','test','rtest','interno',0,'jorge',0]).then(
-        [elemento.idElementoLimpieza,idempresa,fecha_prevista,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,idusuario,elemento.responsable,elemento.idLimpieza]).then(
+        [elemento.idElementoLimpieza,this.idempresa,fecha_prevista,fecha,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,this.idusuario,elemento.responsable,elemento.idLimpieza]).then(
   (Resultado) => {
-    let proxima_fecha;
-    if (elemento.descripcion =="por uso"){
-      proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
-    }else{
-      proxima_fecha = moment(this.nuevaFecha(elemento)).format('YYYY-MM-DD');
-    }
+      this.updateFecha(elemento,fecha);
       localStorage.setItem("syncchecklimpieza", (parseInt(localStorage.getItem("syncchecklimpieza")) + 1).toString());
       this.initdb.badge += 1;
-      console.log("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
-      //elemento.fecha_prevista = proxima_fecha;
-
-      db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha, elemento.id]).then
-      ((Resultado) => {
-           console.log("updated fecha: ", Resultado);
-      },
-      (error) => {
-        console.debug('ERROR ACTUALIZANDO FECHA', error);
-       });
-  });
+      //console.log("updated fecha: ",proxima_fecha,elemento.fecha_prevista);
+  },
+  (error) => {console.log("eeror",error)});
 },
-  (error) => {console.debug(JSON.stringify(error))});
-}
-});
-            if (this.network.type != 'none') {
-            console.debug("conected");
-            this.sync.sync_checklimpieza();
-          }
-          else {
-            console.debug("update badge syncchecklimpieza");
-            //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
-          }
+  (error) => {console.log("eeror",error)});
 
-// let eliminar:boolean;
-// (this.checkLimpiezas.findIndex(limpieza=>limpieza.checked == false)<0)?eliminar=true:eliminar=false;
-// (this.checkLimpiezas.findIndex(limpieza=>limpieza.descripcion == 'por uso')<0)?eliminar=true:eliminar=false;
-
-// let params: object= {'origen':'checkLimpiezas','limpieza':this.idlimpiezazona,'eliminar':eliminar};
-this.navCtrl.pop();
 }
+
+
+updateFecha(elemento: checkLimpieza,fecha : Date){
+  console.log("###updating fecha",elemento);
+//updateFecha(fecha,completaFechas, idElemento){
+  let proxima_fecha;
+  let periodicidad = JSON.parse(elemento.periodicidad);
+  if (moment(fecha).isValid() && periodicidad.repeticion != "por uso") {
+    proxima_fecha = moment(this.periodos.nuevaFecha(periodicidad,fecha,this.autocompletar)).format('YYYY-MM-DD');
+  } else {
+    proxima_fecha = moment(this.periodos.nuevaFecha(periodicidad,this.hoy)).format('YYYY-MM-DD');
+  }
+  
+  console.log("updating fecha",proxima_fecha);
+  if (moment(proxima_fecha).isAfter(moment(),'day') || periodicidad.repeticion == "por uso"){
+    console.log("updateFecha 1",elemento);
+    this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+  //******UPDATE FECHA LOCAL*/
+  //******UPDATE FECHA LOCAL*/
+  db2.executeSql('UPDATE checklimpieza set  fecha = ? WHERE id = ?',[proxima_fecha,elemento.id]).then
+  ((Resultado) => {
+       console.log("updated fecha:2 ", Resultado);
+  },
+  (error) => {
+    console.debug('ERROR ACTUALIZANDO FECHA', error);
+   });
+    });        
+    if (this.network.type != 'none') {
+      console.log("conected");
+      this.sync.sync_checklimpieza();
+    }
+    else {
+      console.log("update badge syncchecklimpieza");
+      //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+    }
+    this.numProcesados--;
+    if (this.numProcesados==0) setTimeout(()=>{this.navCtrl.pop()},500);
+    
+        }else{
+
+          // console.log("sigue programando: ",proxima_fecha);
+          // this.fecha_prevista = proxima_fecha;
+          // this.terminar();
+          console.log("sigue programando: ",proxima_fecha);
+          elemento.fecha_prevista = proxima_fecha;
+          //limpiezaRealizada.fecha_prevista = proxima_fecha;
+          //(limpiezaRealizada.fecha = proxima_fecha;
+          this.guardarLimpiezaRealizada(elemento,proxima_fecha);
+        }
+}
+
+
+
+
+
 
   opciones(control) {
     let correcto;

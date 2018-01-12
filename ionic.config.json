@@ -1,5 +1,8 @@
 {
   "name": "tfc-mobile2",
   "app_id": "f1420738",
-  "type": "ionic-angular"
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
 }

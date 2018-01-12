@@ -23,7 +23,14 @@
     </ion-refresher-content>
   </ion-refresher>
 
-<ion-item *ngFor="let supervision of supervisionLimpiezas">
+
+  <ion-list *ngFor="let supervision of supervisionLimpiezas; let index = index">
+      <ion-list-header class="limpiezazona" *ngIf="(index == 0)?true:supervision.nombreZona != supervisionLimpiezas[index -1].nombreZona">
+          {{supervision.nombreZona}}
+        </ion-list-header>
+    
+<ion-item >
+
   <ion-icon *ngIf="supervision.detalles_supervision" name="clipboard" item-left></ion-icon>
   <ion-label (click)="opciones(supervision)">{{supervision.nombrelimpieza}} {{supervision.fecha | date: "dd-MM-yy"}}</ion-label>
 
@@ -31,9 +38,7 @@
   <ion-icon (click)="opciones(supervision)" *ngIf="supervision.supervision==2" name="close-circle" item-right></ion-icon>
   <ion-icon (click)="opciones(supervision)" *ngIf="supervision.supervision==0" name="add-circle" item-right></ion-icon>         
 </ion-item>
-
+  </ion-list>
 <button ion-button (click)="terminar()" twitter style="width: 48%;">{{"terminar" | translate}}</button> 
 <!--<button ion-button (click)="setSupervision()" twitter style="width: 48%;">{{"supervision" | translate}}</button> -->
-
-
 </ion-content>

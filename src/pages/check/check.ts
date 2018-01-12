@@ -9,7 +9,9 @@ import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Camera } from '@ionic-native/camera';
 import {SyncPage} from '../sync/sync';
 import { Initdb } from '../../providers/initdb';
+import { Servidor } from '../../providers/servidor';
 import { PeriodosProvider } from '../../providers/periodos/periodos';
+import { URLS } from '../../models/models';
 
 import { Network } from '@ionic-native/network';
 import { MyApp } from '../../app/app.component';
@@ -49,12 +51,15 @@ public checkvalue:string;
 public selectedValue:string;
 public fecha_prevista: Date;
 public periodicidad: any;
+public hayRetraso: number;
+public autocompletar:boolean=false;
+public hoy: Date = new Date();
 //public myapp: MyApp;
 //public db: SQLite;
 //public fotositems: string[] =[];
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
     public actionSheetCtrl: ActionSheetController, public initdb: Initdb, public sync: SyncPage, 
-    private translate: TranslateService,public db :SQLite, public camera: Camera,
+    private translate: TranslateService,public db :SQLite, public camera: Camera,public servidor: Servidor,
     public network:Network, public periodos: PeriodosProvider) {
     
         this.idchecklist =  this.params.get('checklist').idchecklist;
@@ -73,8 +78,35 @@ public periodicidad: any;
 
   ionViewDidLoad() {
     console.debug('Hello Check Page');
-    this.sync.login();
+    //this.sync.login();
   }
+  ionViewDidEnter() {
+    if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
+      let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
+      this.servidor.login(URLS.LOGIN, param).subscribe(
+        response => {
+          if (response.success == 'true') {
+            // Guarda token en sessionStorage
+            localStorage.setItem('token', response.token);
+            }
+            });
+    }
+    this.hayRetraso = this.periodos.hayRetraso(this.fecha_prevista,this.periodicidad);
+  }
+isTokenExired (token) {
+  if (token){
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace('-', '+').replace('_', '/');
+            //return JSON.parse(window.atob(base64));
+            let jwt = JSON.parse(window.atob(base64));
+            console.log (moment.unix(jwt.exp).isBefore(moment()));
+           return moment.unix(jwt.exp).isBefore(moment());
+  }else{
+    return true;
+  }
+}
+
+
 getChecklists(idchecklist){
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   db2.executeSql("Select * FROM checklist WHERE idchecklist = ? and idusuario = ?",[idchecklist, sessionStorage.getItem("idusuario")]).then((data) => {
@@ -107,14 +139,18 @@ getChecklists(idchecklist){
                   alert("error " + JSON.stringify(error.err));
               }); 
                   });
-
 }
 
 
 terminar(){
   console.debug(this.checklistcontroles);
+  let fecha;
+  
+  (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
+  
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-      db2.executeSql('INSERT INTO resultadoschecklist (idchecklist, foto,idusuario) VALUES (?,?,?)',[this.idchecklist,this.base64Image,sessionStorage.getItem("idusuario")]).then(
+      db2.executeSql('INSERT INTO resultadoschecklist (idchecklist,fecha, foto,idusuario) VALUES (?,?,?,?)',
+      [this.idchecklist, fecha, this.base64Image,sessionStorage.getItem("idusuario")]).then(
   (Resultado) => { 
           // console.debug("resultado: " + Resultado.res.insertId);
            console.debug("resultado2: " + Resultado.insertId);
@@ -124,20 +160,42 @@ terminar(){
             var attr = this.checklistcontroles[index];
             db2.executeSql('INSERT INTO resultadoscontroleschecklist (idcontrolchecklist,idchecklist, resultado, descripcion, fotocontrol, idresultadochecklist) VALUES (?,?,?,?,?,?)',[attr.idcontrol,this.idchecklist,attr.checked,attr.descripcion,attr.foto,idresultadochecklist]).then(
           (Resultado) => { console.debug(Resultado);},
-          (error) => {console.debug(JSON.stringify(error))});
+          (error) => {console.log('ERROR al INSERT RESULTADOSCHECKLIST DDBB',error)});
         }
 
   //******CALCULAR FECHA */
   //******CALCULAR FECHA */
 
-  let proxima_fecha;
-  if (this.periodicidad['repeticion'] =="por uso"){
-    proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
-  }else{
-    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fecha_prevista)).format('YYYY-MM-DD');
-  }
-  console.log('PROXIMA_FECHA:',this.periodicidad.repeticion, proxima_fecha);
+  // let proxima_fecha;
+  // if (this.periodicidad['repeticion'] =="por uso"){
+  //   proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
+  // }else{
+  //   proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fecha_prevista)).format('YYYY-MM-DD');
+  // }
+  // console.log('PROXIMA_FECHA:',this.periodicidad.repeticion, proxima_fecha);
 
+  //******UPDATE FECHA LOCAL*/
+  //******UPDATE FECHA LOCAL*/
+  this.updateFecha(this.fecha_prevista,this.autocompletar);
+
+},
+  (error) => {console.log('ERROR al abrir DDBB',error)});
+  });
+
+
+}
+
+updateFecha(fecha,completaFechas){
+  let proxima_fecha;
+  if (moment(fecha).isValid() && this.periodicidad.repeticion != "por uso") {
+    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,fecha,completaFechas)).format('YYYY-MM-DD');
+  } else {
+    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.hoy)).format('YYYY-MM-DD');
+  }
+  
+  console.log("updating fecha",proxima_fecha);
+  if (moment(proxima_fecha).isAfter(moment(),'day')){
+    this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
   //******UPDATE FECHA LOCAL*/
   //******UPDATE FECHA LOCAL*/
   db2.executeSql('UPDATE checklist set  fecha = ? WHERE idchecklist = ?',[proxima_fecha, this.idchecklist]).then
@@ -147,25 +205,25 @@ terminar(){
   (error) => {
     console.debug('ERROR ACTUALIZANDO FECHA', error);
    });
+    });        
+    if (this.network.type != 'none') {
+      console.debug("conected");
+      this.sync.sync_data_checklist();
+    }
+    else {
+      localStorage.setItem("syncchecklist", (parseInt(localStorage.getItem("syncchecklist")) + 1).toString());
+      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+    }
+    this.navCtrl.pop();
+        }else{
 
-
-
-
-          if (this.network.type != 'none') {
-            console.debug("conected");
-            this.sync.sync_data_checklist();
-          }
-          else {
-            localStorage.setItem("syncchecklist", (parseInt(localStorage.getItem("syncchecklist")) + 1).toString());
-            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
-          }
-  
-},
-  (error) => {console.debug(JSON.stringify(error))});
-  });
-
-this.navCtrl.pop();
+          console.log("sigue programando: ",proxima_fecha);
+          this.fecha_prevista = proxima_fecha;
+          this.terminar();
+        }
 }
+
+
 takeFoto(control ?){
   //this.base64Image = "data:image/jpeg;base64,";
   this.camera.getPicture({

@@ -55,7 +55,7 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
             alert ('No hay conexión, para sincronizar los datos');
           }
       } else{
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
             this.hayUpdates().then(
             (versionActual)=>{
               if (versionActual == -1){

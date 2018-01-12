@@ -19,8 +19,12 @@ export class PeriodosProvider {
     //periodicidad = JSON.parse(periodicidad)
     let hoy = new Date();
     let proximaFecha;
-    console.log('****PERIODICIDAD',periodicidad.repeticion)
+    console.log('****PERIODICIDAD###',periodicidad.repeticion)
+
     switch (periodicidad.repeticion){
+      case "por uso":
+      proximaFecha = hoy;
+      break;
       case "diaria":
       proximaFecha = this.nextWeekDay(periodicidad,fecha_prevista);
       if (!completarFechas){
@@ -150,7 +154,7 @@ hayRetraso(fechaPrevista,periodicidad):number{
   let retraso:number = 0;
   let periodo;
  // periodicidad = JSON.parse(periodicidad)
-  console.log('****PERIODICIDAD',periodicidad.repeticion)
+  console.log('****PERIODICIDAD_hay retraso??',periodicidad.repeticion)
   switch (periodicidad.repeticion){
     case "diaria":
     periodo = 'days';

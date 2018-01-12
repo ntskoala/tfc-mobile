@@ -97,8 +97,7 @@ console.log ("icono",this.icono);
   }
 
   this.hayRetraso = this.periodos.hayRetraso(this.fechaPrevista,this.periodicidad);
-  
-  
+
 }
 
 

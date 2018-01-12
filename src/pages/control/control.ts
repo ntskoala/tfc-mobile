@@ -37,6 +37,8 @@ public desactivado: boolean;
 public fecha_prevista: Date;
 public periodicidad: any;
 public hayRetraso: number;
+public autocompletar:boolean=false;
+public hoy: Date = new Date();
 //public myapp: MyApp;
   constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, 
     public initdb: Initdb, public sync: SyncPage, public servidor: Servidor, public db :SQLite, public camera: Camera,
@@ -69,7 +71,7 @@ public hayRetraso: number;
             }
             });
     }
-    this.hayRetraso = this.periodos.hayRetraso(this.fechaPrevista,this.periodicidad);
+    this.hayRetraso = this.periodos.hayRetraso(this.fecha_prevista,this.periodicidad);
   }
 isTokenExired (token) {
             var base64Url = token.split('.')[1];
@@ -110,53 +112,23 @@ isTokenExired (token) {
 
 
 
-terminar(idcontrol){
+terminar(){
+  let idcontrol = this.idcontrol;
  if (!isNaN(this.valor))
  {
+   let fecha;
    this.desactivado = true;
+   (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
    this.checkrangoerror(idcontrol);
                   //let db= new SQLite();
                   this.db.create({name: 'data.db',location: 'default'})
-                  .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO resultadoscontrol (idcontrol, resultado, foto, idusuario) VALUES (?,?,?,?)',[idcontrol,this.valor,this.base64Image,sessionStorage.getItem("idusuario")]).then(
+                  .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO resultadoscontrol (idcontrol, resultado, fecha, foto, idusuario) VALUES (?,?,?,?,?)',
+                  [idcontrol,this.valor, fecha, this.base64Image,sessionStorage.getItem("idusuario")]).then(
   (Resultado) => { console.debug("insert_ok:",Resultado);
-
-  //******CALCULAR FECHA */
-  //******CALCULAR FECHA */
-
-  let proxima_fecha;
-  if (this.periodicidad['repeticion'] =="por uso"){
-    proxima_fecha = moment(new Date()).format('YYYY-MM-DD');
-  }else{
-    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fecha_prevista)).format('YYYY-MM-DD');
-  }
-  console.log('PROXIMA_FECHA:',this.periodicidad.repeticion, proxima_fecha);
-
   //******UPDATE FECHA LOCAL*/
   //******UPDATE FECHA LOCAL*/
-  db2.executeSql('UPDATE controles set  fecha = ? WHERE id = ?',[proxima_fecha, this.idcontrol]).then
-  ((Resultado) => {
-       console.log("updated fecha: ", Resultado);
-  },
-  (error) => {
-    console.debug('ERROR ACTUALIZANDO FECHA', error);
-   });
-
-
-                          if (this.network.type != 'none') {
-                              console.debug("conected");
-                              this.sync.sync_data_control();
-                              
-                          }
-                          else
-                          {
-                            console.debug ("suma:" + localStorage.getItem("synccontrol"));
-                              localStorage.setItem("synccontrol",(parseInt(localStorage.getItem("synccontrol"))+1).toString());
-                              console.debug("this.myapp.badge",this.initdb.badge);
-                              this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
-                          }
-
-                  this.navCtrl.pop();
-                  },
+  this.updateFecha(this.fecha_prevista,this.autocompletar);
+                },
   (error) => {
     console.debug(JSON.stringify(error))
     });
@@ -170,6 +142,45 @@ terminar(idcontrol){
 } 
 }
 
+updateFecha(fecha,completaFechas){
+  let proxima_fecha;
+  if (moment(fecha).isValid() && this.periodicidad.repeticion != "por uso") {
+    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,fecha,completaFechas)).format('YYYY-MM-DD');
+  } else {
+    proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.hoy)).format('YYYY-MM-DD');
+  }
+  
+  console.log("updating fecha",proxima_fecha);
+  if (moment(proxima_fecha).isAfter(moment(),'day')){
+    this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+      db2.executeSql('UPDATE controles set  fecha = ? WHERE id = ?',[proxima_fecha, this.idcontrol]).then
+      ((Resultado) => {
+           console.log("updated fecha: ", Resultado);
+      },
+      (error) => {
+        console.debug('ERROR ACTUALIZANDO FECHA', error);
+       }); 
+    });        
+    if (this.network.type != 'none') {
+      console.debug("conected");
+      this.sync.sync_data_control();
+      
+  }
+  else
+  {
+    console.debug ("suma:" + localStorage.getItem("synccontrol"));
+      localStorage.setItem("synccontrol",(parseInt(localStorage.getItem("synccontrol"))+1).toString());
+      console.debug("this.myapp.badge",this.initdb.badge);
+      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+  }
+this.navCtrl.pop();
+        }else{
+
+          console.log("sigue programando: ",proxima_fecha);
+          this.fecha_prevista = proxima_fecha;
+          this.terminar();
+        }
+}
 
 takeFoto(){
   this.base64Image = "data:image/jpeg;base64,";

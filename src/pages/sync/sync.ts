@@ -24,9 +24,9 @@ export class SyncPage {
   constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync, public servidor: Servidor, 
     public translate: TranslateService, public db: SQLite, public network: Network) {
     if (this.network.type != 'none') {
-      console.debug("conected");
+      console.log("conected");
     }
-    this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+ parseInt(localStorage.getItem("syncsupervision"));
+    this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+ parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
   }
 
   alerta(text) {
@@ -34,12 +34,12 @@ export class SyncPage {
   }
 
   ionViewDidLoad() {
-    console.debug('Hello Sync Page');
+    console.log('Hello Sync Page');
 
   }
 login(){
-  if (this.network.type != 'none'){
-    if (!sessionStorage.getItem('token')){
+  if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
+
     let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
   this.servidor.login(URLS.LOGIN, param).subscribe(
     response => {
@@ -48,9 +48,23 @@ login(){
         localStorage.setItem('token', response.token);
         }
         });
-      }
+      
 }
 }
+
+isTokenExired (token) {
+  if (token){
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace('-', '+').replace('_', '/');
+  //return JSON.parse(window.atob(base64));
+  let jwt = JSON.parse(window.atob(base64));
+  console.log (moment.unix(jwt.exp).isBefore(moment()));
+ return moment.unix(jwt.exp).isBefore(moment());
+  }else{
+    return true;
+  }
+}
+
   sync_data() {
     if (this.network.type != 'none') {
  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
@@ -58,12 +72,12 @@ login(){
       response => {
         if (response.success == 'true') {
           // Guarda token en sessionStorage
-          sessionStorage.setItem('token', response.token);
+          localStorage.setItem('token', response.token);
+        }else{}
       this.sync_data_control();
       this.sync_data_checklist();
       this.sync_checklimpieza();
       this.sync_data_supervision();
-          }
           });
     }
     else {
@@ -76,16 +90,16 @@ login(){
     //this.db2 = new SQLite();
     
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.debug("base de datos abierta 1");
+      console.log("base de datos abierta 1");
 
 
       db2.executeSql("select idcontrol,resultado,fecha,foto, idusuario from resultadoscontrol", []).then((data) => {
-        console.debug("executed sql" + data.rows.length);
+        console.log("executed sql" + data.rows.length);
         if (data.rows.length > 0) {
           let arrayfila = [];
           for (let fila = 0; fila < data.rows.length; fila++) {
 
-            console.debug(data.rows.item(fila));
+            console.log(data.rows.item(fila));
             //let checklist = new ResultadoCechklist ()
             //arrayfila.push(data.rows.item(fila))
             arrayfila.push(new ResultadoControl(data.rows.item(fila).idcontrol, data.rows.item(fila).resultado, data.rows.item(fila).fecha, data.rows.item(fila).foto, data.rows.item(fila).idusuario));
@@ -101,19 +115,19 @@ login(){
              // this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
             },
             error => 
-            console.debug("control6" + error)
+            console.log("control6" + error)
             ,
             () => 
-            console.debug("ok")
+            console.log("ok")
           );
         }
       }, (error) => {
-        console.debug(error);
+        console.log(error);
         alert("error, no se han podido sincronizar todos los datos [resultadoscontroles] " + error.message);
       });
 
     }, (error) => {
-      console.debug("ERROR al abrir la bd: ", error);
+      console.log("ERROR al abrir la bd: ", error);
     });
 
   }
@@ -157,7 +171,7 @@ login(){
 
     //this.db = new SQLite();
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.debug("base de datos abierta");
+      console.log("base de datos abierta");
 
 
       db2.executeSql("select idlocal,idchecklist,fecha,foto, idusuario from resultadoschecklist", []).then((data) => {
@@ -165,7 +179,7 @@ login(){
 
           for (let fila = 0; fila < data.rows.length; fila++) {
             let resultadoChecklist = new ResultadoCechklist(data.rows.item(fila).idlocal, data.rows.item(fila).idchecklist, data.rows.item(fila).fecha, data.rows.item(fila).foto, data.rows.item(fila).idusuario)
-            console.debug(data.rows.item(fila));
+            console.log(data.rows.item(fila));
             let idlocal = data.rows.item(fila).idlocal;
             //let arrayfila =[data.rows.item(fila)];
             let arrayfila = [resultadoChecklist];
@@ -176,48 +190,48 @@ login(){
                 arrayfila.forEach((checklist)=>{this.updateFechaElemento(checklist.idchecklist,'checklist','idchecklist');})
                 
               });
-            console.debug("returned" + idrespuesta);
+            console.log("returned" + idrespuesta);
           }
           localStorage.setItem("syncchecklist", "0");
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
-          this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+          this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
         }
       }, (error) => {
-        console.debug("ERROR -> " + JSON.stringify(error.err));
+        console.log("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [resultadoschecklist]" + JSON.stringify(error.err));
       });
 
     }, (error) => {
-      console.debug("ERROR al abrir la bd: ", error);
+      console.log("ERROR al abrir la bd: ", error);
     });
   }
 
   sync_checklistcontroles(id, idlocal) {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.debug("base de datos abierta");
+      console.log("base de datos abierta");
 
-      console.debug("send: " + id + " idlocal= " + idlocal);
+      console.log("send: " + id + " idlocal= " + idlocal);
       db2.executeSql("select idcontrolchecklist,  " + id + " as idresultadochecklist ,resultado,descripcion,fotocontrol from resultadoscontroleschecklist WHERE idresultadochecklist = ?", [idlocal]).then((data) => {
-        console.debug(data.rows.length);
+        console.log(data.rows.length);
         if (data.rows.length > 0) {
           let arrayfila = [];
           for (let fila = 0; fila < data.rows.length; fila++) {
-            console.debug(data.rows.item(fila));
+            console.log(data.rows.item(fila));
 
             //arrayfila.push(data.rows.item(fila))
             arrayfila.push(new ResultadosControlesChecklist(data.rows.item(fila).idcontrolchecklist, data.rows.item(fila).idresultadochecklist, data.rows.item(fila).resultado, data.rows.item(fila).descripcion, data.rows.item(fila).fotocontrol))
           }
           this.sync.setResultados(JSON.stringify(arrayfila), "resultadoscontroleschecklist")
-            .subscribe(data => { console.debug("control3") },
-            error => console.debug("control4" + error),
-            () => console.debug("fin"));
+            .subscribe(data => { console.log("control3") },
+            error => console.log("control4" + error),
+            () => console.log("fin"));
         }
       }, (error) => {
-        console.debug("ERROR -> " + JSON.stringify(error.err));
+        console.log("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [resultadoscontrolchecklist]" + JSON.stringify(error.err));
       });
     }, (error) => {
-      console.debug("ERROR al abrir la bd: ", error);
+      console.log("ERROR al abrir la bd: ", error);
     });
 
   }
@@ -225,11 +239,11 @@ login(){
 
   sync_checklimpieza() {
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
-      console.debug("base de datos abierta");
+      console.log("base de datos abierta");
 
-      console.debug("send limpiezas: ");
+      console.log("send limpiezas: ");
       db2.executeSql("select * from resultadoslimpieza ", []).then((data) => {
-        console.debug(data.rows.length);
+        console.log(data.rows.length);
         let param = "&entidad=limpieza_realizada";
         let arrayfila = [];// : limpiezaRealizada[]=[];
         if (data.rows.length > 0) {
@@ -243,33 +257,33 @@ login(){
               response => {
                 if (response.success) {
                   this.updateFechaElementoLimpieza(data.rows.item(fila).idelemento,data.rows.item(fila));
-                  console.debug('limpieza realizada sended', response.id);
+                  console.log('limpieza realizada sended', response.id);
                   db2.executeSql("DELETE from resultadoslimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
-                    console.debug("deleted",data.rows.length);
+                    console.log("deleted",data.rows.length);
                   });
                 }
               },
-              error => console.debug(error),
+              error => console.log(error),
               () => { });
           }
           localStorage.setItem("syncchecklimpieza", "0");
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
 
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
           //   response => {
           //     if (response.success) {
-          //     console.debug('limpieza realizada sended',response.id);
+          //     console.log('limpieza realizada sended',response.id);
           //   }},
-          // error=>console.debug(error),
+          // error=>console.log(error),
           // ()=>{});
         }
       }, (error) => {
-        console.debug("ERROR -> " + JSON.stringify(error.err));
+        console.log("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [limpiezasRealizadas]" + JSON.stringify(error.err));
       });
     }, (error) => {
-      console.debug("ERROR al abrir la bd: ", error);
+      console.log("ERROR al abrir la bd: ", error);
     });
   }
 
@@ -291,13 +305,13 @@ login(){
           let limpia = { fecha: proxima_fecha };
           this.servidor.putObject(URLS.STD_ITEM, param, limpia).subscribe(
             (resultado) => 
-            console.debug(resultado)
+            console.log(resultado)
             ,
             (error) => 
-            console.debug(error)
+            console.log(error)
             ,
             () => 
-            console.debug('fin updating fecha')
+            console.log('fin updating fecha')
           );
         });
       });
@@ -308,7 +322,7 @@ login(){
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
       console.log("sync data spervision");
 
-      console.debug("send limpiezas: ");
+      console.log("send limpiezas: ");
       db2.executeSql("select * from supervisionlimpieza WHERE supervision > 0", []).then((data) => {
         console.log("limpiezas realizadas para sincronizar: ",data.rows.length);
         
@@ -330,27 +344,27 @@ login(){
                   });
                 }
               },
-              error => console.debug(error),
+              error => console.log(error),
               () => { });
           }
                 localStorage.setItem("syncsupervision", "0");
-                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
+                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
 
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
           //   response => {
           //     if (response.success) {
-          //     console.debug('limpieza realizada sended',response.id);
+          //     console.log('limpieza realizada sended',response.id);
           //   }},
-          // error=>console.debug(error),
+          // error=>console.log(error),
           // ()=>{});
         }
       }, (error) => {
-        console.debug("ERROR -> " + JSON.stringify(error.err));
+        console.log("ERROR -> " + JSON.stringify(error.err));
         alert("error, no se han podido sincronizar todos los datos [limpiezasRealizadas]" + JSON.stringify(error.err));
       });
     }, (error) => {
-      console.debug("ERROR al abrir la bd: ", error);
+      console.log("ERROR al abrir la bd: ", error);
     });
   }
 
@@ -378,22 +392,24 @@ login(){
                     }
                   this.updateFechaElemento(mantenimiento.idmantenimiento,entidad,'id');
                   db2.executeSql("DELETE from mantenimientosrealizados WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
-                    console.debug("deleted 1 item");
+                    console.log("deleted 1 item");
                   },
                 (error)=>{console.log('Deleting mantenimientosrelizados ERROR',error)});
                 }
               },
-              error => console.debug(error),
+              error => console.log(error),
               () => { });
             }
+            localStorage.setItem("syncmantenimiento","0");
+            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
         }
       }, (error) => {
-        console.debug(error);
+        console.log(error);
         alert("error, no se han podido sincronizar todos los datos [mantenimientosrealizados] " + error.message);
       });
 
     }, (error) => {
-      console.debug("ERROR al abrir la bd: ", error);
+      console.log("ERROR al abrir la bd: ", error);
     });
   }
 
