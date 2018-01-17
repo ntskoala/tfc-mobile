@@ -145,6 +145,20 @@
     "por uso": "Por uso",
     "hay":"Hay ",
     "eventosPendientes":"eventos pendientes desde ",
-    "autocompletar": "deseas autocompletar todas las fechas pendientes?"
+    "autocompletar": "deseas autocompletar todas las fechas pendientes?",
+    "maquinas":
+    {
+    "maquinas":"Máquinas",
+    "mantenimiento":"Nombre",
+     "fecha":"Fecha",
+     "tipo":"Tipo",
+    "elemento":"Elemento",
+    "descripcion":"Comentarios",
+    "causas":"Causas",
+    "responsable":"Responsable"
+    },
+    "mCorrectivo":"Mantenimiento correctivo",
+    "interno":"Interno",
+    "externo":"Externo"
 
 }

@@ -91,6 +91,7 @@ permanentLogin(user){
         localStorage.setItem("password",this.password);
         localStorage.setItem("idusuario",this.data.logged.toString());
         localStorage.setItem("tipoUser",user.tipouser);
+        localStorage.setItem("superuser",user.superuser);
         localStorage.setItem("login",this.data.logged.toString());
         sessionStorage.setItem("nombre",this.nombre);
         sessionStorage.setItem("password",this.password);

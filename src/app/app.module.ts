@@ -18,6 +18,7 @@ import { Config } from '../pages/config/config';
 import { Empresa } from '../pages/empresa/empresa';
 import { CheckLimpiezaPage } from '../pages/check-limpieza/check-limpieza';
 import { MantenimientoPage } from '../pages/mantenimiento/mantenimiento'
+import { MCorrectivoPage } from '../pages/m-correctivo/m-correctivo';
 import { SupervisionPage } from '../pages/supervision/supervision'
 //import { Tanques } from '../pages/tanques/tanques';
 //import { TraspasosPage } from '../pages/traspasos/traspasos';
@@ -43,6 +44,7 @@ export function createTranslateLoader(http: Http) {
     CheckPage,
     CheckLimpiezaPage,
     MantenimientoPage,
+    MCorrectivoPage,
     SupervisionPage,
     SyncPage,
     Config,
@@ -69,6 +71,7 @@ export function createTranslateLoader(http: Http) {
     CheckPage,
     CheckLimpiezaPage,
     MantenimientoPage,
+    MCorrectivoPage,
     SupervisionPage,
     SyncPage,
     Config,

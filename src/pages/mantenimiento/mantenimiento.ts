@@ -122,7 +122,7 @@ if (this.checked){
    //   proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fechaPrevista,this.autocompletar)).format('YYYY-MM-DD');
 
       localStorage.setItem("syncmantenimientos", (parseInt(localStorage.getItem("syncmantenimientos")) + 1).toString());
-      this.initdb.badge += 1;
+//?      this.initdb.badge += 1;
       this.updateFecha(this.fechaPrevista,this.autocompletar);
       // db2.executeSql('UPDATE ' + this.entidad + ' set  fecha = ? WHERE id = ?',[proxima_fecha, this.id]).then
       // ((Resultado) => {

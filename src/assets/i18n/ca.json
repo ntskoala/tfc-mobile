@@ -137,6 +137,20 @@
     "por uso": "Per ús",
     "hay":"Hi ha ",
     "eventosPendientes":"events pendents desde ",
-    "autocompletar": "desitges autocompletar totes les dates pendents?"
+    "autocompletar": "desitges autocompletar totes les dates pendents?",
+    "maquinas":
+    {
+    "maquinas":"Màquines",
+    "mantenimiento":"Nom",
+     "fecha":"Data",
+     "tipo":"Tipus",
+    "elemento":"Element",
+    "descripcion":"Comentaris",
+    "causas":"Causes",
+    "responsable":"Responsable"
+    },
+    "mCorrectivo":"Manteniment correctiu",
+    "interno":"Intern",
+    "externo":"Extern"
 
 }

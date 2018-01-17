@@ -65,7 +65,11 @@ public hoy: Date = new Date();
         this.idchecklist =  this.params.get('checklist').idchecklist;
         this.nombrechecklist = this.params.get('checklist').nombrechecklist;
         this.fecha_prevista = this.params.get('checklist').fecha;
+        try{
         this.periodicidad = JSON.parse(this.params.get('checklist').periodicidad);
+        }catch(e){
+          this.periodicidad = {repeticion:'por uso'}
+        }
         //this.db = new SQLite();
         this.db.create({name: "data.db", location: "default"}).then(() => {
             //this.refresh();
@@ -91,7 +95,9 @@ public hoy: Date = new Date();
             }
             });
     }
+    if (this.periodicidad.repeticion!='por uso'){
     this.hayRetraso = this.periodos.hayRetraso(this.fecha_prevista,this.periodicidad);
+    }
   }
 isTokenExired (token) {
   if (token){

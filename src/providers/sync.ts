@@ -86,7 +86,13 @@ public getMisCalibraciones(userid): Observable<any>
     let miscontroles = this.http.get(`${this.baseurl}views/getcalibraciones.php?idempresa=${this.idempresa}&_dc=1470480375978`);
     return miscontroles;
 }
-    
+
+public getMisMaquinas(userid): Observable<any>
+{
+    let mismaquinas = this.http.get(`${this.baseurl}views/getmaquinas.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+    return mismaquinas;
+}
+
 public getMisLimpiezasRealizadas(userid): Observable<any>
 {
     console.debug ('baseurl',this.baseurl);

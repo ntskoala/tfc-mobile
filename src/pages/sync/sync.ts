@@ -385,12 +385,14 @@ isTokenExired (token) {
             this.servidor.postObject(URLS.STD_ITEM, mantenimiento, param).subscribe(
               response => {
                 if (response.success) {
+                  if (data.rows.item(fila).idmantenimiento > 0){
                   if(mantenimiento.tipo_evento == "mantenimiento"){
                     entidad = "maquina_mantenimiento";
                     }else{
                     entidad = "maquina_calibraciones";              
-                    }
+                    }           
                   this.updateFechaElemento(mantenimiento.idmantenimiento,entidad,'id');
+                    }
                   db2.executeSql("DELETE from mantenimientosrealizados WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
                     console.log("deleted 1 item");
                   },
@@ -407,7 +409,6 @@ isTokenExired (token) {
         console.log(error);
         alert("error, no se han podido sincronizar todos los datos [mantenimientosrealizados] " + error.message);
       });
-
     }, (error) => {
       console.log("ERROR al abrir la bd: ", error);
     });

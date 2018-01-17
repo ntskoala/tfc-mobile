@@ -253,6 +253,13 @@ export class Supervision {
   ){}
 }
 
+export class maquina {
+  constructor(
+  public idMaquina: number,
+  public nombreMaquina: string
+  ){}
+}
+
 export class mantenimiento {
   constructor(
   public id: number,

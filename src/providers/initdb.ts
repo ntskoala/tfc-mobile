@@ -24,7 +24,7 @@ public badge: number;
 //actualizará tablas Controles y checklist.(añade fecha y periodicidad)
 //Crea nuevas tablas CHECKMANTENIMIENTOS Y RESULTADOSMANTENIMIENTOS
 //************ VER SI VAN JUNTAS MANTENIMIENTOS Y CALIBRACIONES */
-public versionDBLocal: number=7;
+public versionDBLocal: number=8;
 //*****************  VERSION BBDD */
 
 public hayConexion:boolean=false;
@@ -45,9 +45,8 @@ public momentoCambioEstado:number=0;
  inicializa(){
    // this.db = new SQLite();
         this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-   //  this.storage.query('DROP TABLE IF EXISTS logins');
-
-    db2.executeSql('CREATE TABLE IF NOT EXISTS logins (id INTEGER PRIMARY KEY, user TEXT, password TEXT, tipouser TEXT, nombre TEXT)',[]).then((data) => {
+            db2.executeSql('DROP TABLE IF EXISTS logins',[]);
+    db2.executeSql('CREATE TABLE IF NOT EXISTS logins (id INTEGER PRIMARY KEY, user TEXT, password TEXT, tipouser TEXT, nombre TEXT, superuser NUMBER)',[]).then((data) => {
             console.debug("TABLE CREATED  LOGINS-> " + JSON.stringify(data));
             //this.sincronizate();
             //localStorage.getItem("idempresa") === null ? console.debug("no hay idempresa"): this.sincronizate();
@@ -130,11 +129,16 @@ public momentoCambioEstado:number=0;
             console.debug("ERROR -> NO SE CREÓ SUPERVISIONLIMPIEZA: ",error);
   });
 
-
+  db2.executeSql('DROP TABLE IF EXISTS maquinas',[]);
+  db2.executeSql('CREATE TABLE IF NOT EXISTS maquinas (idMaquina INTEGER PRIMARY KEY,  nombreMaquina TEXT)',[]).then((data) => {
+         console.debug("TABLE CREATED MAQUINAS-> " + JSON.stringify(data));
+     }, (error) => {
+         console.debug("ERROR -> NO SE CREÓ MAQUINAS: ",error);
+});
 
 
         });
-localStorage.setItem("inicializado","5")
+localStorage.setItem("inicializado","8")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
@@ -168,10 +172,10 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                             //   this.save(user)
                             
                        
-                       valores += "("+user.id+",'"+user.usuario+"','"+user.password+"','"+user.tipouser+"','"+user.usuario+"'),";           
+                       valores += "("+user.id+",'"+user.usuario+"','"+user.password+"','"+user.tipouser+"','"+user.usuario+"',"+user.usuario+"),";           
                       });
                       valores = valores.substr(0,valores.length-1);
-                     let query = "INSERT INTO logins (id, user, password, tipouser, nombre) VALUES " + valores;
+                     let query = "INSERT INTO logins (id, user, password, tipouser, nombre, superuser) VALUES " + valores;
                       console.log('########',query);                    
                     db2.executeSql(query ,[])
                       .then((data) => {

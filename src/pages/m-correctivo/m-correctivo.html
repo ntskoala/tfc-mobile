@@ -1,0 +1,51 @@
+
+<ion-header>
+  
+  <ion-navbar>
+    <ion-title>{{'mCorrectivo' | translate}}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content padding>
+
+    <ion-item>
+        <ion-label>{{'maquinas.maquinas' | translate}}</ion-label>
+        <ion-select [(ngModel)]="machine" (ionChange)="cambia($event)">
+          <ion-option *ngFor="let maquina of maquinas" value="{{maquina.idMaquina}}">{{maquina.nombreMaquina}}</ion-option>
+        </ion-select>
+      </ion-item>
+
+<ion-item>
+    <ion-textarea placeholder="{{'maquinas.mantenimiento' | translate}}" [(ngModel)]="mantenimientoRealizado.mantenimiento"></ion-textarea>
+  </ion-item>
+  <ion-item>
+      <ion-label>{{'maquinas.fecha' | translate}}</ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" [(ngModel)]="mantenimientoRealizado.fecha"></ion-datetime>
+    </ion-item>
+    <ion-item>
+        <ion-label>{{'maquinas.tipo' | translate}}</ion-label>
+        <ion-select [(ngModel)]="mantenimientoRealizado.tipo">
+          <ion-option value="interno">{{'interno' | translate}}</ion-option>
+          <ion-option value="externo">{{'externo' | translate}}</ion-option>
+        </ion-select>
+      </ion-item>
+<ion-item>
+    <ion-textarea placeholder="{{'maquinas.elemento' | translate}}" [(ngModel)]="mantenimientoRealizado.elemento"></ion-textarea>
+  </ion-item>
+<ion-item>
+  <ion-textarea placeholder="{{'maquinas.descripcion' | translate}}" [(ngModel)]="mantenimientoRealizado.descripcion"></ion-textarea>
+</ion-item>
+<ion-item>
+  <ion-textarea placeholder="{{'maquinas.causas' | translate}}" [(ngModel)]="mantenimientoRealizado.casusas"></ion-textarea>
+</ion-item>
+<ion-item>
+    <ion-textarea placeholder="{{'maquinas.responsable' | translate}}" [(ngModel)]="mantenimientoRealizado.responsable"></ion-textarea>
+  </ion-item>
+
+<button ion-button (click)="takeFoto()" twitter style="width: 47%;">{{"foto" | translate}}</button> 
+
+<button ion-button (click)="terminar()" twitter style="width: 47%;">{{"terminar" | translate}}</button>
+<img [src]="imagen">
+
+</ion-content>

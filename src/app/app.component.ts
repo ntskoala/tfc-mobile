@@ -45,7 +45,6 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
 
         if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
         console.log("#####iniciar#####",parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal);        
-        console.log("#####iniciar#####");
           if (parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal){
           console.log("iniciar",this.initdb.versionDBLocal);
           if (this.network.type != 'none') {

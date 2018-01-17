@@ -48,7 +48,11 @@ public hoy: Date = new Date();
     this.pla = this.navParams.get('control').pla;
     this.idcontrol = this.navParams.get('control').id;
     this.fecha_prevista = this.navParams.get('control').fecha;
+    try{
     this.periodicidad = JSON.parse(this.navParams.get('control').periodicidad);
+    }catch(e){
+      this.periodicidad = {repeticion:'por uso'}
+    }
     //this.base64Image = "false";
     this.desactivado = false;
    // this.storage = new Storage(SqlStorage, {name: 'tfc'});
@@ -71,7 +75,9 @@ public hoy: Date = new Date();
             }
             });
     }
+    if (this.periodicidad.repeticion!='por uso'){
     this.hayRetraso = this.periodos.hayRetraso(this.fecha_prevista,this.periodicidad);
+    }
   }
 isTokenExired (token) {
             var base64Url = token.split('.')[1];
