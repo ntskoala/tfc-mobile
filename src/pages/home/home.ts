@@ -194,7 +194,7 @@ cargaListas(){
             this.getChecklists();
             this.getLimpiezas();
             this.getLimpiezasRealizadas();
-            if (localStorage.getItem("tipoUser")=='Mantenimiento'){
+            if (localStorage.getItem("tipoUser")=='Mantenimiento' || localStorage.getItem("superuser")=='1'){
               this.getMantenimientos();
               this.getCalibraciones();
             }
