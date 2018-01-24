@@ -34,6 +34,7 @@ public userId= localStorage.getItem("login");
 }
 
   login(url: string, param: string, payload = '') {
+    param = param + "&origen=app";
     if (this.isTokenExired(localStorage.getItem('token'))){
     return this.llamada.post(url + param, payload)
       .map((res: Response) => JSON.parse(res.json()));
@@ -61,7 +62,7 @@ public userId= localStorage.getItem("login");
     if (param !== undefined){
       paramopcional = param;
     }
-    paramopcional += "&userId="+this.userId+"&idempresa="+this.idempresa;
+    paramopcional += "&userId="+this.userId+"&idempresa="+this.idempresa + "&origen=app";
     let parametros = '?token=' + localStorage.getItem('token') +paramopcional;
     return this.llamada.post(url + parametros, payload)
       .map((res: Response) => JSON.parse(res.json()));
@@ -70,20 +71,20 @@ public userId= localStorage.getItem("login");
   putObject(url: string, param: string, object: Object,origen?:string) {
     console.log("PUT: ",object,new Date())
     let payload = JSON.stringify(object);        
-    let parametros = param + '&token=' + localStorage.getItem('token')+"&userId="+this.userId+"&idempresa="+this.idempresa;
+    let parametros = param + '&token=' + localStorage.getItem('token')+"&userId="+this.userId+"&idempresa="+this.idempresa + "&origen=app";
     return this.llamada.put(url + parametros, payload)
       .map((res: Response) => JSON.parse(res.json()));
   }
   
   deleteObject(url: string, param: string) {
-    let parametros = param + '&token=' + localStorage.getItem('token')+"&userId="+this.userId+"&idempresa="+this.idempresa;
+    let parametros = param + '&token=' + localStorage.getItem('token')+"&userId="+this.userId+"&idempresa="+this.idempresa + "&origen=app";
     return this.llamada.delete(url + parametros)
       .map((res: Response) => JSON.parse(res.json()));
   }
 
   postLogo(url: string, files: File[], idEmpresa: string) {
     let formData: FormData = new FormData();
-    let parametros = '?token=' + localStorage.getItem('token') + '&idempresa=' + idEmpresa;
+    let parametros = '?token=' + localStorage.getItem('token') + '&idempresa=' + idEmpresa+ "&origen=app";
     formData.append('logo', files[0], files[0].name);
     return this.llamada.post(url + parametros, formData)
       .map((res: Response) => JSON.parse(res.json()));
@@ -91,7 +92,7 @@ public userId= localStorage.getItem("login");
 
   postDoc(url: string, files: File[], entidad:string, idEntidad: string, idEmpresa: string, field?: string) {
     let formData: FormData = new FormData();
-    let parametros = '?token=' + localStorage.getItem('token') + '&idEntidad=' + idEntidad +'&entidad=' + entidad+'&idEmpresa=' + idEmpresa+'&field=' + field;
+    let parametros = '?token=' + localStorage.getItem('token') + '&idEntidad=' + idEntidad +'&entidad=' + entidad+'&idEmpresa=' + idEmpresa+'&field=' + field+ "&origen=app";
     formData.append('doc', files[0], files[0].name);
     return this.llamada.post(url + parametros, formData)
       .map((res: Response) => JSON.parse(res.json()));

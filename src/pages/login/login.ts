@@ -56,6 +56,7 @@ export class LoginPage {
 
 
 login(){
+  console.log('comienza el proceso de login');
   if (this.nombre == "koala"){
     //sessionStorage.setItem("idusuario","koala");
 

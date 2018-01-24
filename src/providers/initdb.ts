@@ -172,7 +172,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                             //   this.save(user)
                             
                        
-                       valores += "("+user.id+",'"+user.usuario+"','"+user.password+"','"+user.tipouser+"','"+user.usuario+"',"+user.usuario+"),";           
+                       valores += "("+user.id+",'"+user.usuario+"','"+user.password+"','"+user.tipouser+"','"+user.usuario+"',"+user.superuser+"),";           
                       });
                       valores = valores.substr(0,valores.length-1);
                      let query = "INSERT INTO logins (id, user, password, tipouser, nombre, superuser) VALUES " + valores;
@@ -243,22 +243,22 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
 
 public getLogin(nombre: string, password:string): any{
     return new Promise((resolve,reject)=>{
-    console.debug('getlogin...')
+    console.log('getlogin...')
     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-        console.debug('abierta',db2.databaseFeatures);
+        console.log('abierta',db2.databaseFeatures);
     return db2.executeSql('select * from logins WHERE user = ? AND password = ?',[nombre,password]).then((data) => {
-        console.debug('registros',data.rows)
+        console.log('registros',data.rows)
         if (data.rows.length >0){
             //alert ("id" + data.rows.item(0).id);
             this.logged = data.rows.item(0).id;
-           console.debug ("logged", this.logged);
+           console.log ("logged", this.logged);
             sessionStorage.setItem("login",data.rows.item(0).id);
             //localStorage.setItem("idempresa",data.rows.item(0).idempresa);
             //return new Promise ((resolve,reject) => {resolve(true)});
             resolve(data.rows.item(0))
             }
         else{
-            console.debug('undefined...')
+            console.log('undefined...')
             this.logged = undefined;
 
             return reject('no hay registros');
