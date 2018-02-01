@@ -137,13 +137,7 @@ if (this.checked){
   });
 },
   (error) => {console.debug(JSON.stringify(error))});
-}
-
-
-
-
-
-           
+}          
 }
 
 updateFecha(fecha,completaFechas){

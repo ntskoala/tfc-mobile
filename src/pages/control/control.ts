@@ -124,7 +124,8 @@ terminar(){
  {
    let fecha;
    this.desactivado = true;
-   (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
+   (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:mm'): fecha= moment(this.hoy).format('YYYY-MM-DD HH:mm');
+   console.log(fecha);
    this.checkrangoerror(idcontrol);
                   //let db= new SQLite();
                   this.db.create({name: 'data.db',location: 'default'})
@@ -149,6 +150,7 @@ terminar(){
 }
 
 updateFecha(fecha,completaFechas){
+  console.log("update fecha",fecha, completaFechas);
   let proxima_fecha;
   if (moment(fecha).isValid() && this.periodicidad.repeticion != "por uso") {
     proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,fecha,completaFechas)).format('YYYY-MM-DD');
@@ -157,7 +159,7 @@ updateFecha(fecha,completaFechas){
   }
   
   console.log("updating fecha",proxima_fecha);
-  if (moment(proxima_fecha).isAfter(moment(),'day')){
+  if (moment(proxima_fecha).isAfter(moment(),'day') || this.periodicidad.repeticion == "por uso"){
     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
       db2.executeSql('UPDATE controles set  fecha = ? WHERE id = ?',[proxima_fecha, this.idcontrol]).then
       ((Resultado) => {
@@ -170,7 +172,6 @@ updateFecha(fecha,completaFechas){
     if (this.network.type != 'none') {
       console.debug("conected");
       this.sync.sync_data_control();
-      
   }
   else
   {
@@ -182,7 +183,7 @@ updateFecha(fecha,completaFechas){
 this.navCtrl.pop();
         }else{
 
-          console.log("sigue programando: ",proxima_fecha);
+          console.log("sigue programando: ",proxima_fecha,this.periodicidad.repeticion);
           this.fecha_prevista = proxima_fecha;
           this.terminar();
         }
@@ -206,6 +207,7 @@ takeFoto(){
   }
 
 sendalert(alerta){
+  console.log(alerta);
   let mensaje: string;
   let subject: string;
   let error: string;
@@ -231,11 +233,29 @@ let btolerancia = tolerancia+ (this.control.tolerancia ==null ? "":this.control.
 let bcritico = critico+ (this.control.critico ==null ? "":this.control.critico);
 //let cabecera= '<br><img src="assets/img/logo.jpg" /><hr>';
 let parametros = bcontrol+'<br>'+ bvalorc+'<br>'+ bminimo+'<br>'+ bmaximo+'<br>' +btolerancia+'<br>'+bcritico+'<br>';
+let empresa = '<br><h4>Empresa: ' + localStorage.getItem('empresa') + '</h4><br>'
 
-let body = mensaje + '<br>' + parametros + pie;
+let body;
 
+if (this.network.type != 'none') {
+  body = mensaje + '<br>' + parametros + pie;
+  console.log("conected");
+  let param = '&idempresa=' + localStorage.getItem("idempresa") + '&body=' +body;
+  this.servidor.getObjects(URLS.SENDALERT, param).subscribe(
+    response => {
+      console.log('respuesta send alert: ', response);
+      if (response.success == 'true') {
+        // Guarda token en sessionStorage
+        //localStorage.setItem('token', response.token);
 
-console.debug("preparando email:" + alerta);
+        }
+        });
+  
+}
+else
+{
+  body = mensaje + '<br>' + parametros + pie +empresa;
+console.log("preparando email:" + alerta);
 this.socialsharing.canShareViaEmail().then(() => {
                         this.socialsharing.shareViaEmail(
                           body, 
@@ -253,6 +273,7 @@ this.socialsharing.canShareViaEmail().then(() => {
   this.translate.get("alertas.nohayemail")
   .subscribe(resultado => { alert(resultado);});
 });
+}
 }
 
 // sendalert2(alerta){

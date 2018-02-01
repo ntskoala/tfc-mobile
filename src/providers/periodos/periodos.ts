@@ -24,6 +24,7 @@ export class PeriodosProvider {
     switch (periodicidad.repeticion){
       case "por uso":
       proximaFecha = hoy;
+      //proximaFecha = moment(hoy).add(1,"days");
       break;
       case "diaria":
       proximaFecha = this.nextWeekDay(periodicidad,fecha_prevista);

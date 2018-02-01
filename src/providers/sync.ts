@@ -125,6 +125,12 @@ public setGerentes(): Observable<any>
         
         return misgerentes;
     }
+    public setEmpresa(): Observable<any>
+    {
+        this.idempresa = localStorage.getItem("idempresa");
+            let misempresas = this.http.get(`${this.baseurl}views/getempresas.php?idempresa=${this.idempresa}&_dc=1470480375978`);
+            return misempresas;
+        }
 
 setResultados(resultados,table):any
 {
@@ -132,11 +138,11 @@ setResultados(resultados,table):any
     this.posturl = this.baseurl+'actions/set'+table+'.php?idempresa='+this.idempresa;
     console.debug(this.posturl);
         let params = resultados;
-        let headers = new Headers();
+        //let headers = new Headers();
         //headers.append('Content-type', 'application/x-www-form-urlencoded');
-        headers.append('Content-type', 'form-data');
+        //headers.append('Content-type', 'form-data');
         // devuelve un Observable
-       return this.http.post(this.posturl, params, {headers: headers})
+       return this.http.post(this.posturl, params)
             .map (res => JSON.parse(res.json()))
             .do (data => {console.debug(data);
                         //alert("data" + data);

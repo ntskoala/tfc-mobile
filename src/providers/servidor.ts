@@ -52,6 +52,7 @@ public userId= localStorage.getItem("login");
 
   getObjects(url: string, param: string) {
     let parametros = '?token=' + localStorage.getItem('token') + param; 
+    console.log(url + parametros)
     return this.llamada.get(url + parametros)
       .map((res: Response) => JSON.parse(res.json()));
   }

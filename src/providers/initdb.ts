@@ -15,12 +15,13 @@ import { Sync } from '../providers/sync';
 export class Initdb {
 public users: any;
 public gerentes: any;
+public empresas: any;
 //private storage;
 public logged: number;
 public badge: number;
 
 //*****************  VERSION BBDD */
-//anterior 6 -> posterior version 7. 
+//anterior 6 -> posterior version 8. 
 //actualizará tablas Controles y checklist.(añade fecha y periodicidad)
 //Crea nuevas tablas CHECKMANTENIMIENTOS Y RESULTADOSMANTENIMIENTOS
 //************ VER SI VAN JUNTAS MANTENIMIENTOS Y CALIBRACIONES */
@@ -32,108 +33,113 @@ public momentoCambioEstado:number=0;
 //public db: SQLite;
 
   constructor(public http: Http, public sync: Sync,public db :SQLite) {
-    console.debug('Hello Initdb Provider');
+    console.log('Hello Initdb Provider');
     //this.db = new SQLite();
         this.db.create({name: "data.db", location: "default"}).then(() => {
             //this.refresh();
-            console.debug("base de datos abierta");
+            console.log("base de datos abierta");
         }, (error) => {
-            console.debug("ERROR al abrir la bd: ", error);
+            console.log("ERROR al abrir la bd: ", error);
         });
   }
 
  inicializa(){
+    console.log("***INICIALIZANDO***");
    // this.db = new SQLite();
         this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
-            db2.executeSql('DROP TABLE IF EXISTS logins',[]);
+            db2.executeSql('DROP TABLE IF EXISTS logins',[]).then((data) => {
+                console.log("TABLE DROPPED  LOGINS-> " + JSON.stringify(data));
+            }, (error) => {
+                console.log("ERROR -> " + JSON.stringify(error.err));});
+
     db2.executeSql('CREATE TABLE IF NOT EXISTS logins (id INTEGER PRIMARY KEY, user TEXT, password TEXT, tipouser TEXT, nombre TEXT, superuser NUMBER)',[]).then((data) => {
-            console.debug("TABLE CREATED  LOGINS-> " + JSON.stringify(data));
+            console.log("TABLE CREATED  LOGINS-> " + JSON.stringify(data));
             //this.sincronizate();
-            //localStorage.getItem("idempresa") === null ? console.debug("no hay idempresa"): this.sincronizate();
+            //localStorage.getItem("idempresa") === null ? console.log("no hay idempresa"): this.sincronizate();
           //  alert ('creada logins');
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error.err));
+            console.log("ERROR -> " + JSON.stringify(error.err));
   });
   db2.executeSql('DROP TABLE IF EXISTS controles',[]);
      db2.executeSql('CREATE TABLE IF NOT EXISTS controles (uid INTEGER PRIMARY KEY AUTOINCREMENT,id INTEGER,idusuario INTEGER, nombre TEXT, pla TEXT, minimo INTEGER, maximo INTEGER, objetivo INTEGER, tolerancia INTEGER, critico INTEGER, fecha DATETIME, periodicidad TEXT, frecuencia TEXT)',[]).then((data) => {
-            console.debug("TABLE CREATED CONTROLES-> " + JSON.stringify(data));
+            console.log("TABLE CREATED CONTROLES-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error.err));
+            console.log("ERROR -> " + JSON.stringify(error.err));
   });
   db2.executeSql('DROP TABLE IF EXISTS checklist',[]);
        db2.executeSql('CREATE TABLE IF NOT EXISTS checklist (id INTEGER PRIMARY KEY AUTOINCREMENT, idchecklist INTEGER,idusuario INTEGER, nombrechecklist TEXT, idcontrol INT, nombrecontrol TEXT, checked TEXT DEFAULT "false", fecha DATETIME, periodicidad TEXT, frecuencia TEXT)',[]).then((data) => {
-            console.debug("TABLE CREATED CHECKLIST-> " + JSON.stringify(data));
+            console.log("TABLE CREATED CHECKLIST-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error.err));
+            console.log("ERROR -> " + JSON.stringify(error.err));
   });
-  //db2.executeSql('DROP TABLE IF EXISTS checklimpieza',[]);
-       db2.executeSql('CREATE TABLE IF NOT EXISTS checklimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezazona INTEGER, idusuario INTEGER, nombrelimpieza TEXT, idelemento INT, nombreelementol TEXT, fecha DATETIME, tipo TEXT, periodicidad TEXT, productos TEXT, protocolo TEXT, responsable TEXT)',[]).then((data) => {
-            console.debug("TABLE CREATED CHECKLIMPIEZA-> " + JSON.stringify(data));
+  db2.executeSql('DROP TABLE IF EXISTS checklimpieza',[]);
+       db2.executeSql('CREATE TABLE IF NOT EXISTS checklimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezazona INTEGER, idusuario INTEGER, nombrelimpieza TEXT, idelemento INT, nombreelementol TEXT, fecha DATETIME, tipo TEXT, periodicidad TEXT, productos TEXT, protocolo TEXT, responsable TEXT, supervisor INTEGER)',[]).then((data) => {
+            console.log("TABLE CREATED CHECKLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> NO SE CREÓ CHECKLIMPIEZA: ",error);
+            console.log("ERROR -> NO SE CREÓ CHECKLIMPIEZA: ",error);
   });
 
   db2.executeSql('DROP TABLE IF EXISTS mantenimientos',[]);
   db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_mantenimiento (id INTEGER PRIMARY KEY, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT, orden INTEGER)',[]).then((data) => {
-    console.debug("TABLE CREATED MANTENIMIENTOS-> " + JSON.stringify(data));
+    console.log("TABLE CREATED MANTENIMIENTOS-> " + JSON.stringify(data));
 }, (error) => {
-    console.debug("ERROR -> NO SE CREÓ MANTENIMIENTOS: ",error);
+    console.log("ERROR -> NO SE CREÓ MANTENIMIENTOS: ",error);
 });
     db2.executeSql('DROP TABLE IF EXISTS calibraciones',[]);
     db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_calibraciones (id INTEGER PRIMARY KEY, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT,  orden INTEGER)',[]).then((data) => {
-    console.debug("TABLE CREATED CALIBRACIONES-> " + JSON.stringify(data));
+    console.log("TABLE CREATED CALIBRACIONES-> " + JSON.stringify(data));
     }, (error) => {
-    console.debug("ERROR -> NO SE CREÓ CALIBRACIONES: ",error);
+    console.log("ERROR -> NO SE CREÓ CALIBRACIONES: ",error);
     });
 
-  //this.db.executeSql('DROP TABLE IF EXISTS resultadoscontrol',[]);
+    db2.executeSql('DROP TABLE IF EXISTS resultadoscontrol',[]);
   //*** ATENCION fecha DATETIME DEFAULT CURRENT_TIMESTAMP ES UTC, una hora menos que en españa. se compensa en los informes de backoffice
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoscontrol (id INTEGER PRIMARY KEY AUTOINCREMENT, idcontrol INTEGER, resultado INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, foto BLOB, idusuario INTEGER)',[]).then((data) => {
-            console.debug("TABLE CREATED resultadoscontrol-> " + JSON.stringify(data));
+            console.log("TABLE CREATED resultadoscontrol-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error));
+            console.log("ERROR -> " + JSON.stringify(error));
   });
-  //this.db.executeSql('DROP TABLE IF EXISTS resultadoschecklist',[]);
+  db2.executeSql('DROP TABLE IF EXISTS resultadoschecklist',[]);
   //*** ATENCION fecha DATETIME DEFAULT CURRENT_TIMESTAMP ES UTC, una hora menos que en españa. se compensa en los informes de backoffice
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoschecklist (idlocal INTEGER PRIMARY KEY AUTOINCREMENT, idchecklist INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, foto BLOB, idusuario INTEGER)',[]).then((data) => {
-            console.debug("TABLE CREATED resultadoschecklist-> " + JSON.stringify(data));
+            console.log("TABLE CREATED resultadoschecklist-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error));
+            console.log("ERROR -> " + JSON.stringify(error));
   });
-  //this.db.executeSql('DROP TABLE IF EXISTS resultadoscontroleschecklist',[]);
+  db2.executeSql('DROP TABLE IF EXISTS resultadoscontroleschecklist',[]);
      db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoscontroleschecklist (id INTEGER PRIMARY KEY AUTOINCREMENT, idcontrolchecklist INTEGER, idchecklist INTEGER, resultado TEXT, descripcion TEXT, fotocontrol BLOB, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, idresultadochecklist INTEGER)',[]).then((data) => {
-            console.debug("TABLE CREATED resultadoscontroleschecklist-> " + JSON.stringify(data));
+            console.log("TABLE CREATED resultadoscontroleschecklist-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error));
+            console.log("ERROR -> " + JSON.stringify(error));
   });
      db2.executeSql('DROP TABLE IF EXISTS resultadosLimpieza',[]);
-     db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoslimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idelemento INTEGER, idempresa INTEGER, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, nombre TEXT, descripcion TEXT, tipo TEXT, idusuario INTEGER, responsable TEXT,  idlimpiezazona INTEGER)',[]).then((data) => {
-            console.debug("TABLE CREATED RESULTADOSLIMPIEZA-> " + JSON.stringify(data));
+     db2.executeSql('CREATE TABLE IF NOT EXISTS resultadoslimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idelemento INTEGER, idempresa INTEGER, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP, nombre TEXT, descripcion TEXT, tipo TEXT, idusuario INTEGER, responsable TEXT,  idlimpiezazona INTEGER, idsupervisor INTEGER)',[]).then((data) => {
+            console.log("TABLE CREATED RESULTADOSLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> " + JSON.stringify(error));
+            console.log("ERROR -> " + JSON.stringify(error));
   });
   
 
     db2.executeSql('DROP TABLE IF EXISTS mantenimientosrealizados',[]);
     db2.executeSql('CREATE TABLE IF NOT EXISTS mantenimientosrealizados (id INTEGER PRIMARY KEY AUTOINCREMENT, idmantenimiento INTEGER, idmaquina INTEGER, maquina TEXT, mantenimiento TEXT, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP,idusuario INTEGER, responsable TEXT, descripcion TEXT, elemento TEXT, tipo TEXT,tipo2 TEXT,causas TEXT,tipo_evento TEXT, idempresa INTEGER, imagen BLOB)',[]).then((data) => {
-        console.debug("TABLE CREATED MANTENIMIENTOSREALIZADOS-> " + JSON.stringify(data));
+        console.log("TABLE CREATED MANTENIMIENTOSREALIZADOS-> " + JSON.stringify(data));
     }, (error) => {
-        console.debug("ERROR -> " + JSON.stringify(error));
+        console.log("ERROR -> " + JSON.stringify(error));
 });
 
 
     db2.executeSql('DROP TABLE IF EXISTS supervisionlimpieza',[]);
      db2.executeSql('CREATE TABLE IF NOT EXISTS supervisionlimpieza (id INTEGER PRIMARY KEY AUTOINCREMENT, idlimpiezarealizada INTEGER,idElemento INTEGER,  nombrelimpieza TEXT,idZona INTEGER,nombreZona TEXT, fecha DATETIME, tipo TEXT,  responsable TEXT, idsupervisor INTEGER, fecha_supervision DATETIME DEFAULT CURRENT_TIMESTAMP, supervision INTEGER, detalles_supervision TEXT)',[]).then((data) => {
-            console.debug("TABLE CREATED SUPERVISIONLIMPIEZA-> " + JSON.stringify(data));
+            console.log("TABLE CREATED SUPERVISIONLIMPIEZA-> " + JSON.stringify(data));
         }, (error) => {
-            console.debug("ERROR -> NO SE CREÓ SUPERVISIONLIMPIEZA: ",error);
+            console.log("ERROR -> NO SE CREÓ SUPERVISIONLIMPIEZA: ",error);
   });
 
   db2.executeSql('DROP TABLE IF EXISTS maquinas',[]);
   db2.executeSql('CREATE TABLE IF NOT EXISTS maquinas (idMaquina INTEGER PRIMARY KEY,  nombreMaquina TEXT)',[]).then((data) => {
-         console.debug("TABLE CREATED MAQUINAS-> " + JSON.stringify(data));
+         console.log("TABLE CREATED MAQUINAS-> " + JSON.stringify(data));
      }, (error) => {
-         console.debug("ERROR -> NO SE CREÓ MAQUINAS: ",error);
+         console.log("ERROR -> NO SE CREÓ MAQUINAS: ",error);
 });
 
 
@@ -153,7 +159,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
 
   sincronizate(version?:string){
      
-      console.debug("llamada sincronizando");
+      console.log("llamada sincronizando");
    //USUARIOS
    //USUARIOS
    // DESCARGA USUARIOS ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
@@ -166,7 +172,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                         
                             db2.executeSql("delete from logins",[]).then((data) => {
-                            console.debug("delete from logins->" + JSON.stringify(data));
+                            console.log("delete from logins->" + JSON.stringify(data));
                             let valores = '';
                             this.users.forEach (user => {
                             //   this.save(user)
@@ -185,7 +191,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
 
 
                             }, (error) => {
-                            console.debug("ERROR -> " + JSON.stringify(error.err));
+                            console.log("ERROR -> " + JSON.stringify(error.err));
                             });
  
 
@@ -197,7 +203,7 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                 console.error(err);
                 reject('error, getting users. initdb#130');
                 },
-            () => {console.debug('getUsuarios completed');
+            () => {console.log('getUsuarios completed');
                 resolve('ok1');
                 if (version) localStorage.setItem("versionusers",version);
                 //return new Promise(resolve => {resolve('ok')});
@@ -216,26 +222,47 @@ this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage
                     this.gerentes = this.gerentes.data;
                     let array = [];
                     this.gerentes.forEach (gerente => {
-                            console.debug(gerente.email);
+                            console.log(gerente.email);
                             array.push(gerente.email);
                             });
                         localStorage.setItem("email",array.toString());
                         }
         },
             err => console.error(err),
-            () => {console.debug('getGerentes completed')
+            () => {console.log('getGerentes completed')
+            }
+        );
+
+        this.sync.setEmpresa().subscribe(
+            data => {
+               this.empresas = JSON.parse(data.json());
+                if (this.empresas.success){
+                    this.empresas = this.empresas.data;
+                    let miempresa = '';
+                    this.empresas.forEach (empresa => {
+                            //console.log(gerente.email);
+                            miempresa = empresa.nombre;
+                            });
+                        localStorage.setItem("empresa",miempresa);
+                        }
+        },
+            err => console.error(err),
+            () => {console.log('getGerentes completed')
             }
         );  
+
         });
+
+
   }
 
 
 //   save(user){
 //       this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
 //       db2.executeSql("INSERT INTO logins (id, user, password, tipouser, nombre) VALUES (?,?,?,?,?)",[user.id,user.usuario,user.password,user.tipouser,user.nombre]).then((data) => {
-//            console.debug("insert login ->" + JSON.stringify(data));
+//            console.log("insert login ->" + JSON.stringify(data));
 //             }, (error) => {
-//                   console.debug("ERROR INSERTANDO LOGIN-> " + JSON.stringify(error));
+//                   console.log("ERROR INSERTANDO LOGIN-> " + JSON.stringify(error));
 //                   alert("error " + JSON.stringify(error.err));
 //               });
 //       });

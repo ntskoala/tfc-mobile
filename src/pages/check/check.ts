@@ -84,6 +84,7 @@ public hoy: Date = new Date();
     console.debug('Hello Check Page');
     //this.sync.login();
   }
+
   ionViewDidEnter() {
     if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
       let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
@@ -152,7 +153,7 @@ terminar(){
   console.debug(this.checklistcontroles);
   let fecha;
   
-  (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
+  (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:mm'): fecha= moment(this.hoy).format('YYYY-MM-DD HH:mm');
   
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
       db2.executeSql('INSERT INTO resultadoschecklist (idchecklist,fecha, foto,idusuario) VALUES (?,?,?,?)',
@@ -200,7 +201,7 @@ updateFecha(fecha,completaFechas){
   }
   
   console.log("updating fecha",proxima_fecha);
-  if (moment(proxima_fecha).isAfter(moment(),'day')){
+  if (moment(proxima_fecha).isAfter(moment(),'day') || this.periodicidad.repeticion == "por uso"){
     this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
   //******UPDATE FECHA LOCAL*/
   //******UPDATE FECHA LOCAL*/

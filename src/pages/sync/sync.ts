@@ -251,7 +251,7 @@ isTokenExired (token) {
           for (let fila = 0; fila < data.rows.length; fila++) {
            // let arrayfila = [];
             //arrayfila.push(new limpiezaRealizada(null, data.rows.item(fila).idelemento, data.rows.item(fila).idempresa, data.rows.item(fila).fecha_prevista, data.rows.item(fila).fecha, data.rows.item(fila).nombre, data.rows.item(fila).descripcion, data.rows.item(fila).tipo, data.rows.item(fila).idusuario, data.rows.item(fila).responsable, data.rows.item(fila).idlimpiezazona))
-            let limpieza = new limpiezaRealizada(null, data.rows.item(fila).idelemento, data.rows.item(fila).idempresa, data.rows.item(fila).fecha_prevista, data.rows.item(fila).fecha, data.rows.item(fila).nombre, data.rows.item(fila).descripcion, data.rows.item(fila).tipo, data.rows.item(fila).idusuario, data.rows.item(fila).responsable, data.rows.item(fila).idlimpiezazona);
+            let limpieza = new limpiezaRealizada(null, data.rows.item(fila).idelemento, data.rows.item(fila).idempresa, data.rows.item(fila).fecha_prevista, data.rows.item(fila).fecha, data.rows.item(fila).nombre, data.rows.item(fila).descripcion, data.rows.item(fila).tipo, data.rows.item(fila).idusuario, data.rows.item(fila).responsable, data.rows.item(fila).idlimpiezazona, data.rows.item(fila).idsupervisor);
             //arrayfila.push(data.rows.item[fila]);
             this.servidor.postObject(URLS.STD_ITEM, limpieza, param).subscribe(
               response => {
@@ -413,6 +413,7 @@ isTokenExired (token) {
       console.log("ERROR al abrir la bd: ", error);
     });
   }
+
 
 //************CALCULOS FECHA */
   nuevaFecha(limpieza: checkLimpieza,descripcion?,fecha_prevista?){

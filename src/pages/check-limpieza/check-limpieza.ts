@@ -113,7 +113,7 @@ getLimpiezas(){
 //id , idlimpiezazona ,idusuario , nombrelimpieza , idelemento , nombreelementol , fecha , tipo , periodicidad , productos , protocolo
                         this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idlimpiezazona,data.rows.item(index).nombrelimpieza,data.rows.item(index).idelemento,
                         data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,
-                        data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate));
+                        data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate,data.rows.item(index).supervisor));
                         //this.checkLimpiezas.push(data.rows.item(index));
                     }
                   console.debug ("checkLimpiezas:", this.checkLimpiezas);
@@ -137,7 +137,7 @@ terminar(){
     console.log("terminar2",elemento.nombreElementoLimpieza,elemento.checked,elemento.periodicidad);
 if (elemento.checked){
   let fecha;
-  (this.autocompletar)? fecha = moment(elemento.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
+  (this.autocompletar)? fecha = moment(elemento.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:mm'): fecha= moment(this.hoy).format('YYYY-MM-DD HH:mm');
   this.guardarLimpiezaRealizada(elemento,fecha)
   console.log("TERMINAR",elemento);
 
@@ -161,9 +161,9 @@ guardarLimpiezaRealizada(elemento: checkLimpieza, fecha:Date){
 
     // (this.autocompletar)? fecha = moment(this.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM'): fecha= moment(this.hoy).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:MM');
 
-      db2.executeSql('INSERT INTO resultadoslimpieza (idelemento, idempresa, fecha_prevista,fecha, nombre, descripcion, tipo, idusuario, responsable,  idlimpiezazona ) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      db2.executeSql('INSERT INTO resultadoslimpieza (idelemento, idempresa, fecha_prevista,fecha, nombre, descripcion, tipo, idusuario, responsable,  idlimpiezazona, idsupervisor ) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
         //[0,0,'2017-05-29','test','rtest','interno',0,'jorge',0]).then(
-        [elemento.idElementoLimpieza,this.idempresa,fecha_prevista,fecha,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,this.idusuario,elemento.responsable,elemento.idLimpieza]).then(
+        [elemento.idElementoLimpieza,this.idempresa,fecha_prevista,fecha,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,this.idusuario,elemento.responsable,elemento.idLimpieza,elemento.supervisor]).then(
   (Resultado) => {
       this.updateFecha(elemento,fecha);
       localStorage.setItem("syncchecklimpieza", (parseInt(localStorage.getItem("syncchecklimpieza")) + 1).toString());
@@ -173,7 +173,6 @@ guardarLimpiezaRealizada(elemento: checkLimpieza, fecha:Date){
   (error) => {console.log("eeror",error)});
 },
   (error) => {console.log("eeror",error)});
-
 }
 
 
@@ -201,16 +200,17 @@ updateFecha(elemento: checkLimpieza,fecha : Date){
   (error) => {
     console.debug('ERROR ACTUALIZANDO FECHA', error);
    });
-    });        
+    });      
+    this.numProcesados--;  
     if (this.network.type != 'none') {
       console.log("conected");
-      this.sync.sync_checklimpieza();
+      if (this.numProcesados==0) this.sync.sync_checklimpieza();
     }
     else {
       console.log("update badge syncchecklimpieza");
       //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
     }
-    this.numProcesados--;
+    
     if (this.numProcesados==0) setTimeout(()=>{this.navCtrl.pop()},500);
     
         }else{

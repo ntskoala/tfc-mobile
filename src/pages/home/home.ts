@@ -58,25 +58,26 @@ public sql: SQLiteObject;
 public Momento = moment();
 public cargando: boolean=false;
 public tipoUser: string=localStorage.getItem("tipoUser");
+public superuser: number=parseInt(localStorage.getItem("superuser"));
   constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,public syncPage: SyncPage,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController, public params: NavParams) {
     this.network.onDisconnect().subscribe(
       estado=>{
-        console.debug('desconectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
+        console.log('desconectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
         this.data.hayConexion = false;
         if(estado.timeStamp - this.data.momentoCambioEstado > 1){
           this.data.momentoCambioEstado = estado.timeStamp;
         }else{
-          console.debug('poca diferencia', estado.timeStamp - this.data.momentoCambioEstado);
+          console.log('poca diferencia', estado.timeStamp - this.data.momentoCambioEstado);
         }
       }
     );
     this.network.onConnect().subscribe(
         estado=>{
-          console.debug('conectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
+          console.log('conectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
           this.data.momentoCambioEstado = estado.timeStamp;
-          console.debug ('lestado conexion',this.data.hayConexion);
+          console.log ('lestado conexion',this.data.hayConexion);
           if (!this.data.hayConexion){
-            console.debug ('se procesará si badge',estado);
+            console.log ('se procesará si badge',estado);
           this.data.hayConexion = true;
           let badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
           if (badge > 0){
@@ -100,7 +101,7 @@ public tipoUser: string=localStorage.getItem("tipoUser");
             } else {
               this.hayUpdates().then(
                 (versionActual) => {
-                  console.debug("versionActual Controles", versionActual);
+                  console.log("versionActual Controles", versionActual);
                   if (versionActual > parseInt(localStorage.getItem("versioncontrols"))) {
                     this.callSincroniza(versionActual);
                   } else {
@@ -123,7 +124,7 @@ ionViewDidLoad(){
 
 }
 ionViewDidEnter(){
-  console.debug("didEnter...");
+  console.log("didEnter...");
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
     this.sql = db2;
   if (!this.cargando) this.cargaListas();
@@ -134,7 +135,7 @@ ionViewDidEnter(){
 }
 
 syncData(){
-        console.debug ('a sincronizar');
+        console.log ('a sincronizar');
             this.syncPage.sync_data();
 }
 
@@ -142,12 +143,12 @@ syncData(){
 
 callSincroniza(versionActual?){
   this.Momento = moment();
-  console.debug("Inicio callSincroniza",this.Momento.format("mm:ss"));
+  console.log("Inicio callSincroniza",this.Momento.format("mm:ss"));
               this.presentLoading();
               if (versionActual) versionActual = versionActual.toString();
               this.sincronizate(versionActual).subscribe(
               (valor)=>{
-                console.debug("1", valor);
+                console.log("1", valor);
                 switch(valor){
                   case "controles":
                     this.status[0] = true;
@@ -171,9 +172,9 @@ callSincroniza(versionActual?){
                   this.status[6] = true;
                   break;
                 }
-                console.debug(this.status, moment(this.Momento).diff(moment(), 'seconds'));
+                console.log(this.status, moment(this.Momento).diff(moment(), 'seconds'));
                 if (this.status[0] && this.status[1] && this.status[2] && this.status[3] && this.status[4] && this.status[5]  && this.status[6]){
-                 console.debug("STATUS 6", moment(this.Momento).diff(moment(), 'seconds'));
+                 console.log("STATUS 6", moment(this.Momento).diff(moment(), 'seconds'));
 
                   if (!(versionActual>0)) localStorage.setItem("versioncontrols","0");
                   setTimeout(()=>{ 
@@ -183,13 +184,13 @@ callSincroniza(versionActual?){
             },500);
                 }
               },
-              (error)=>console.debug(error)
+              (error)=>console.log(error)
             );
 }
 
 cargaListas(){
   this.cargando=true;
-  console.debug("Inicio CargaListas", moment(this.Momento).diff(moment(), 'seconds'));
+  console.log("Inicio CargaListas", moment(this.Momento).diff(moment(), 'seconds'));
             this.getControles();
             this.getChecklists();
             this.getLimpiezas();
@@ -198,7 +199,7 @@ cargaListas(){
               this.getMantenimientos();
               this.getCalibraciones();
             }
-  console.debug("Fin CargaListas", moment(this.Momento).diff(moment(), 'seconds')); 
+  console.log("Fin CargaListas", moment(this.Momento).diff(moment(), 'seconds')); 
   setTimeout(()=>{
     this.cargando = false;
   },100);
@@ -219,7 +220,7 @@ hayUpdates() {
             }
         },
         (error)=>{
-          console.debug(error)
+          console.log(error)
           resolve('Error en hay updates() home# 161' + updates);
       },
         ()=>{
@@ -238,7 +239,7 @@ this.logoempresa = URLS.SERVER + "logos/"+localStorage.getItem("idempresa")+"/lo
 
 }
 sincronizate(version? : string){
-  console.debug("sincronizando...");
+  console.log("sincronizando...");
  //CONTROLES
    //CONTROLES
    // DESCARGA CONTROLES ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
@@ -247,15 +248,15 @@ sincronizate(version? : string){
             data => {
               //test
               this.miscontroles = JSON.parse(data.json());
-              console.debug('resultado' + this.miscontroles.success);
-              //console.debug('success: ' +this.miscontroles.data[0].nombre);
+              console.log('resultado' + this.miscontroles.success);
+              //console.log('success: ' +this.miscontroles.data[0].nombre);
               if (this.miscontroles.success){
               //test
                this.miscontroles = this.miscontroles.data;
                if (this.miscontroles){
                 //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   this.sql.executeSql("delete from controles",[]).then((data) => {
-                      //console.debug(JSON.stringify(data.res));
+                      //console.log(JSON.stringify(data.res));
                       let argumentos=[];
                       let valores='';
                       this.miscontroles.forEach (control => {
@@ -265,18 +266,18 @@ sincronizate(version? : string){
                       });
                       valores = valores.substr(0,valores.length-1);
                        let query = "INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico,fecha,periodicidad,frecuencia) VALUES" + valores;
-                       console.debug('########',query);
+                       console.log('########',query);
 
                       this.sql.executeSql("INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico,fecha,periodicidad,frecuencia) VALUES" + valores ,[])
                       .then((data) => {
-                        console.debug('***********OK INSERT CONTROLES', data)
+                        console.log('***********OK INSERT CONTROLES', data)
                       },
                       (error)=>{ 
-                        console.debug('***********ERROR CONTROLES', error)
+                        console.log('***********ERROR CONTROLES', error)
                       });
 
                       }, (error) => {
-                      console.debug("ERROR -> " + JSON.stringify(error));
+                      console.log("ERROR -> " + JSON.stringify(error));
                       //alert("Error 1");
                     } );
 
@@ -303,17 +304,17 @@ sincronizate(version? : string){
             this.sync.getMisChecklists(this.data.logged).map(res => res.json()).subscribe(
             data => {
                this.mischecks = JSON.parse(data);
-                    console.debug('resultado check: ' + this.mischecks.success);
-                //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+                    console.log('resultado check: ' + this.mischecks.success);
+                //    console.log('success check: ' +this.mischecks.data[0].nombre);
                 if (this.mischecks.success){
-                  console.debug ("if");
+                  console.log ("if");
                   //test
                     this.mischecks = this.mischecks.data;
                     if (this.mischecks){
-                    console.debug("mischecklists: " + this.mischecks);
+                    console.log("mischecklists: " + this.mischecks);
                    //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     this.sql.executeSql("delete from checklist",[]).then((data) => {
-                      console.debug("total chacklists:",this.mischecks.length);
+                      console.log("total chacklists:",this.mischecks.length);
                       let argumentos=[];
                       let valores='';
                       this.mischecks.forEach (checklist => {
@@ -324,18 +325,18 @@ sincronizate(version? : string){
                       });
                       valores = valores.substr(0,valores.length-1);
                       let query = "INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol,fecha,periodicidad,frecuencia) VALUES " + valores;
-                      console.debug('########',query);
+                      console.log('########',query);
                       this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol,fecha,periodicidad,frecuencia) VALUES " + valores ,[])
                       .then((data) => {
-                        console.debug('***********OK INSERT CHECKLIST', data)
+                        console.log('***********OK INSERT CHECKLIST', data)
                       },
-                      (error)=>{ console.debug('***********ERROR CHECKLISTS', error)});
+                      (error)=>{ console.log('***********ERROR CHECKLISTS', error)});
                          
-                  //this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES ("+checklist+")").then((data) => {console.debug('*****************FIN')});
+                  //this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES ("+checklist+")").then((data) => {console.log('*****************FIN')});
 
-                      console.debug(JSON.stringify(data.res));
+                      console.log(JSON.stringify(data.res));
                       }, (error) => {
-                      console.debug("ERROR -> " + JSON.stringify(error));
+                      console.log("ERROR -> " + JSON.stringify(error));
                       //alert("Error 2");
                     } );
                 //});
@@ -361,14 +362,14 @@ sincronizate(version? : string){
             this.sync.getMisLimpiezas(this.data.logged).map(res => res.json()).subscribe(
             data => {
                this.mischeckslimpiezas = JSON.parse(data);
-                    console.debug('resultado checklimpieza: ' + this.mischeckslimpiezas.success);
-                //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+                    console.log('resultado checklimpieza: ' + this.mischeckslimpiezas.success);
+                //    console.log('success check: ' +this.mischecks.data[0].nombre);
                 if (this.mischeckslimpiezas.success){
-                  console.debug ("if");
+                  console.log ("if");
                   //test
                     this.mischeckslimpiezas = this.mischeckslimpiezas.data;
                     if (this.mischeckslimpiezas){
-                    console.debug("mischecklistslimpiezaas: " + this.mischeckslimpiezas);
+                    console.log("mischecklistslimpiezaas: " + this.mischeckslimpiezas);
                  //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     this.sql.executeSql("delete from checklimpieza",[]).then((data) => {
                       let argumentos=[];
@@ -378,21 +379,21 @@ sincronizate(version? : string){
                       //    this.saveChecklimpieza(checklimpieza)
 
                        argumentos.push ('(?,?,?,?,?,?,?)');
-                       valores += "("+checklimpieza.idlimpiezazona+","+checklimpieza.idusuario+",'"+checklimpieza.nombrelimpieza+"',"+checklimpieza.id+",'"+checklimpieza.nombre+"','"+checklimpieza.fecha+"','"+checklimpieza.tipo+"','"+checklimpieza.periodicidad+"','"+checklimpieza.productos+"','"+checklimpieza.protocolo+"','"+checklimpieza.responsable+"'),";           
+                       valores += "("+checklimpieza.idlimpiezazona+","+checklimpieza.idusuario+",'"+checklimpieza.nombrelimpieza+"',"+checklimpieza.id+",'"+checklimpieza.nombre+"','"+checklimpieza.fecha+"','"+checklimpieza.tipo+"','"+checklimpieza.periodicidad+"','"+checklimpieza.productos+"','"+checklimpieza.protocolo+"','"+checklimpieza.responsable+"',"+checklimpieza.supervisor+"),";           
                       });
                       valores = valores.substr(0,valores.length-1);
                       //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-                      let query = "INSERT INTO checklimpieza ( idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES " + valores;
-                      console.debug('########',query);
+                      let query = "INSERT INTO checklimpieza ( idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable,supervisor ) VALUES " + valores;
+                      console.log('########',query);
 
                       this.sql.executeSql(query,[])
                       .then((data) => {
-                        console.debug('***********OK INSERT LIMPIEZASREALIZADAS', data)
+                        console.log('***********OK INSERT LIMPIEZASREALIZADAS', data)
                       },
-                      (error)=>{ console.debug('***********ERROR CHECKLIMPIEZA', error)});
-                      console.debug(JSON.stringify('deleted limpiezas: ',data.res));
+                      (error)=>{ console.log('***********ERROR CHECKLIMPIEZA', error)});
+                      console.log(JSON.stringify('deleted limpiezas: ',data.res));
                       }, (error) => {
-                      console.debug("ERROR home. 211 delete mislimpiezas-> " + JSON.stringify(error));
+                      console.log("ERROR home. 211 delete mislimpiezas-> " + JSON.stringify(error));
                       //alert("Error 2");
                     } );
                 //});
@@ -417,13 +418,13 @@ sincronizate(version? : string){
    this.sync.getMisMantenimientos(this.data.logged).map(res => res.json()).subscribe(
     data => {
        this.mismantenimientos = JSON.parse(data);
-            console.debug('resultado mantenimientos: ' + this.mismantenimientos.success);
-        //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+            console.log('resultado mantenimientos: ' + this.mismantenimientos.success);
+        //    console.log('success check: ' +this.mischecks.data[0].nombre);
         if (this.mismantenimientos.success){
           //test
             this.mismantenimientos = this.mismantenimientos.data;
             if (this.mismantenimientos){
-            console.debug("mismantenimientos: ", this.mismantenimientos);
+            console.log("mismantenimientos: ", this.mismantenimientos);
          //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
             this.sql.executeSql("delete from maquina_mantenimiento",[]).then((data) => {
               let argumentos=[];
@@ -436,16 +437,16 @@ sincronizate(version? : string){
               valores = valores.substr(0,valores.length-1);
               //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
               let query = "INSERT INTO maquina_mantenimiento ( id, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
-              console.debug('########',query);
+              console.log('########',query);
 
               this.sql.executeSql(query,[])
               .then((data) => {
-                console.debug('***********OK INSERT maquina_MANTENIMIENTOS', data)
+                console.log('***********OK INSERT maquina_MANTENIMIENTOS', data)
               },
-              (error)=>{ console.debug('***********ERROR maquina_MANTENIMIENTOS', error)});
-              console.debug(JSON.stringify('deleted maquina_mantenimientos: ',data.res));
+              (error)=>{ console.log('***********ERROR maquina_MANTENIMIENTOS', error)});
+              console.log(JSON.stringify('deleted maquina_mantenimientos: ',data.res));
               }, (error) => {
-              console.debug("ERROR home. 211 delete mismantenimientos-> " + JSON.stringify(error));
+              console.log("ERROR home. 211 delete mismantenimientos-> " + JSON.stringify(error));
               //alert("Error 2");
             } );
         //});
@@ -470,13 +471,13 @@ sincronizate(version? : string){
    this.sync.getMisCalibraciones(this.data.logged).map(res => res.json()).subscribe(
     data => {
        this.miscalibraciones = JSON.parse(data);
-            console.debug('resultado miscalibraciones: ' + this.miscalibraciones.success);
-        //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+            console.log('resultado miscalibraciones: ' + this.miscalibraciones.success);
+        //    console.log('success check: ' +this.mischecks.data[0].nombre);
         if (this.miscalibraciones.success){
           //test
             this.miscalibraciones = this.miscalibraciones.data;
             if (this.miscalibraciones){
-            console.debug("miscalibraciones: ", this.miscalibraciones);
+            console.log("miscalibraciones: ", this.miscalibraciones);
          //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
             this.sql.executeSql("delete from maquina_calibraciones",[]).then((data) => {
               let argumentos=[];
@@ -491,16 +492,16 @@ sincronizate(version? : string){
              valores = valores.substr(0,valores.length-1);
              //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
              let query = "INSERT INTO maquina_calibraciones ( id, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
-             console.debug('########',query);
+             console.log('########',query);
 
               this.sql.executeSql(query,[])
               .then((data) => {
-                console.debug('***********OK INSERT CALIBRACIONES', data)
+                console.log('***********OK INSERT CALIBRACIONES', data)
               },
-              (error)=>{ console.debug('***********ERROR CALIBRACIONES', error)});
-              console.debug(JSON.stringify('deleted CALIBRACIONES: ',data.res));
+              (error)=>{ console.log('***********ERROR CALIBRACIONES', error)});
+              console.log(JSON.stringify('deleted CALIBRACIONES: ',data.res));
               }, (error) => {
-              console.debug("ERROR home. 211 delete CALIBRACIONES-> " + JSON.stringify(error));
+              console.log("ERROR home. 211 delete CALIBRACIONES-> " + JSON.stringify(error));
               //alert("Error 2");
             } );
         //});
@@ -525,13 +526,13 @@ sincronizate(version? : string){
    this.sync.getMisMaquinas(this.data.logged).map(res => res.json()).subscribe(
     data => {
        this.mismaquinas = JSON.parse(data);
-            console.debug('resultado mismaquinass: ' + this.mismaquinas.success);
-        //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+            console.log('resultado mismaquinass: ' + this.mismaquinas.success);
+        //    console.log('success check: ' +this.mischecks.data[0].nombre);
         if (this.mismaquinas.success){
           //test
             this.maquinas = this.mismaquinas.data;
             if (this.maquinas){
-            console.debug("maquinas: ", this.maquinas);
+            console.log("maquinas: ", this.maquinas);
          //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
             this.sql.executeSql("delete from maquinas",[]).then((data) => {
               let argumentos=[];
@@ -546,16 +547,16 @@ sincronizate(version? : string){
              valores = valores.substr(0,valores.length-1);
              //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
              let query = "INSERT INTO maquinas ( idMaquina,nombreMaquina ) VALUES " + valores;
-             console.debug('########',query);
+             console.log('########',query);
 
               this.sql.executeSql(query,[])
               .then((data) => {
-                console.debug('***********OK INSERT MAQUINAS', data)
+                console.log('***********OK INSERT MAQUINAS', data)
               },
-              (error)=>{ console.debug('***********ERROR MAQUINAS', error)});
-              console.debug(JSON.stringify('deleted MAQUINAS: ',data.res));
+              (error)=>{ console.log('***********ERROR MAQUINAS', error)});
+              console.log(JSON.stringify('deleted MAQUINAS: ',data.res));
               }, (error) => {
-              console.debug("ERROR home. 553 delete MAQUINAS-> " + JSON.stringify(error));
+              console.log("ERROR home. 553 delete MAQUINAS-> " + JSON.stringify(error));
               //alert("Error 2");
             } );
         //});
@@ -581,14 +582,14 @@ sincronizate(version? : string){
             this.sync.getMisLimpiezasRealizadas(this.data.logged).map(res => res.json()).subscribe(
             data => {
                this.mislimpiezasrealizadas = JSON.parse(data);
-                    console.debug('resultado limpiezasRealizadas: ' + this.mislimpiezasrealizadas.success);
-                //    console.debug('success check: ' +this.mischecks.data[0].nombre);
+                    console.log('resultado limpiezasRealizadas: ' + this.mislimpiezasrealizadas.success);
+                //    console.log('success check: ' +this.mischecks.data[0].nombre);
                 if (this.mislimpiezasrealizadas.success){
-                  console.debug ("if LIMPIEZAS REALIZADAS.SUCEESS");
+                  console.log ("if LIMPIEZAS REALIZADAS.SUCEESS");
                   //test
                     this.mislimpiezasrealizadas = this.mislimpiezasrealizadas.data;
                     //if (this.mislimpiezasrealizadas){
-                    console.debug("mislimpiezasrealizadas: " + this.mislimpiezasrealizadas);
+                    console.log("mislimpiezasrealizadas: " + this.mislimpiezasrealizadas);
                    //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                     this.sql.executeSql("delete from supervisionlimpieza",[]).then((data) => {
                       let argumentos=[];
@@ -602,17 +603,17 @@ sincronizate(version? : string){
                       });
                       valores = valores.substr(0,valores.length-1);
                       let query = "INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza,idZona,nombreZona, fecha, tipo,  responsable, idsupervisor, supervision) VALUES " + valores;
-                      console.debug('########',query);
+                      console.log('########',query);
 
                       this.sql.executeSql(query,[])
                       .then((data) => {
-                        console.debug('***********OK INSERT LIMPIEZASREALIZADAS', data)
+                        console.log('***********OK INSERT LIMPIEZASREALIZADAS', data)
                       },
-                      (error)=>{ console.debug('***********ERROR SUPERVISIONLIMPIEZA', error)});
+                      (error)=>{ console.log('***********ERROR SUPERVISIONLIMPIEZA', error)});
                     }
-                      console.debug(JSON.stringify('deleted limpiezas: ',data.res));
+                      console.log(JSON.stringify('deleted limpiezas: ',data.res));
                       }, (error) => {
-                      console.debug("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
+                      console.log("ERROR home. 211 delete limpiezas Realizadas-> " + JSON.stringify(error));
                       //alert("Error 2");
                     } );
                 //});
@@ -635,9 +636,9 @@ sincronizate(version? : string){
   saveControl(control){
         //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {                
                   this.sql.executeSql("INSERT INTO controles (id,idusuario, nombre, pla, minimo, maximo, objetivo, tolerancia, critico) VALUES (?,?,?,?,?,?,?,?,?)",[control.id,control.idusuario,control.nombre,control.pla,control.valorminimo,control.valormaximo,control.objetivo,control.tolerancia,control.critico]).then((data) => {
-                  //console.debug("INSERT CONTROL: " + control.idusuario + JSON.stringify(data));
+                  //console.log("INSERT CONTROL: " + control.idusuario + JSON.stringify(data));
               }, (error) => {
-                  console.debug("ERROR SAVING CONTROL-> " + JSON.stringify(error));
+                  console.log("ERROR SAVING CONTROL-> " + JSON.stringify(error));
               });
        // });
 }
@@ -645,9 +646,9 @@ sincronizate(version? : string){
 //   saveChecklist(checklist){
 //         //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {            
 //                   this.sql.executeSql("INSERT INTO checklist (idchecklist,idusuario, nombrechecklist, idcontrol, nombrecontrol) VALUES (?,?,?,?,?)",[checklist.idchecklist,checklist.idusuario,checklist.nombrechecklist,checklist.id,checklist.nombre]).then((data) => {
-//                   console.debug("335->INSERT CHECKLIST", moment(this.Momento).diff(moment(), 'seconds'));
+//                   console.log("335->INSERT CHECKLIST", moment(this.Momento).diff(moment(), 'seconds'));
 //               }, (error) => {
-//                   console.debug("ERROR SAVING CHECKLIST -> " + JSON.stringify(error));
+//                   console.log("ERROR SAVING CHECKLIST -> " + JSON.stringify(error));
 //               });
 //        // });
 // }
@@ -655,31 +656,31 @@ sincronizate(version? : string){
   saveChecklimpieza(checklimpieza){
         //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {            
                   this.sql.executeSql("INSERT INTO checklimpieza ( idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)",[checklimpieza.idlimpiezazona,checklimpieza.idusuario,checklimpieza.nombrelimpieza,checklimpieza.id,checklimpieza.nombre,checklimpieza.fecha,checklimpieza.tipo,checklimpieza.periodicidad,checklimpieza.productos,checklimpieza.protocolo,checklimpieza.responsable]).then((data) => {
-                  //console.debug("INSERT CHECKLIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
+                  //console.log("INSERT CHECKLIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
               }, (error) => {
-                  console.debug("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
+                  console.log("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
               });
 //****EXCEPTION */
                   this.sql.executeSql("DELETE from resultadoslimpieza WHERE id > 0",[]).then((data) => {
-                  console.debug("BORRANDO RESULTADOS LIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
+                  console.log("BORRANDO RESULTADOS LIMNPIEZA" + checklimpieza.nombrelimpieza + JSON.stringify(data));
               }, (error) => {
-                  console.debug("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
+                  console.log("ERROR SAVING CHECKLIMPIEZA -> " + JSON.stringify(error));
               });
 //****EXCEPTION */
       //  });
 }
 saveLimpiezaRealizada(limpiezaRealizada){
        // this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {  
-          console.debug("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor)) VALUES (?,?,?,?,?,?)",limpiezaRealizada.id,limpiezaRealizada.nombre,limpiezaRealizada.fecha,limpiezaRealizada.tipo,limpiezaRealizada.responsable,limpiezaRealizada.supervisor);              
+          console.log("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor)) VALUES (?,?,?,?,?,?)",limpiezaRealizada.id,limpiezaRealizada.nombre,limpiezaRealizada.fecha,limpiezaRealizada.tipo,limpiezaRealizada.responsable,limpiezaRealizada.supervisor);              
                   this.sql.executeSql("INSERT INTO supervisionlimpieza (idlimpiezarealizada,  nombrelimpieza, fecha, tipo,  responsable, idsupervisor, supervision) VALUES (?,?,?,?,?,?,?)",[limpiezaRealizada.id,limpiezaRealizada.nombre,limpiezaRealizada.fecha,limpiezaRealizada.tipo,limpiezaRealizada.responsable,limpiezaRealizada.supervisor,limpiezaRealizada.supervision]).then((data) => {
               }, (error) => {
-                  console.debug("ERROR SAVING limpiezaRealizada-> " + JSON.stringify(error));
+                  console.log("ERROR SAVING limpiezaRealizada-> " + JSON.stringify(error));
               });
     //    });
 }
 
     getLimpiezasRealizadas() {
-console.debug("479->Inicio LimpizasRealizadas", moment(this.Momento).diff(moment(), 'seconds'));
+console.log("479->Inicio LimpizasRealizadas", moment(this.Momento).diff(moment(), 'seconds'));
       this.supervisionLimpiezas=[];
       //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   this.sql.executeSql("SELECT * FROM supervisionlimpieza WHERE idsupervisor = ?",[sessionStorage.getItem("idusuario")]).then((data) => {
@@ -699,16 +700,16 @@ console.debug("479->Inicio LimpizasRealizadas", moment(this.Momento).diff(moment
                       ));
                     }
                   }, (error) => {
-                  console.debug("ERROR -> " + JSON.stringify(error.err));
+                  console.log("ERROR -> " + JSON.stringify(error.err));
                   alert("error home 276" + JSON.stringify(error.err));
                 });  
       //});   
-      console.debug("LIMPIEZAS REALIZADAS",  this.supervisionLimpiezas)
-console.debug("FIN LimpizadasezasReali", moment(this.Momento).diff(moment(), 'seconds'));
+      console.log("LIMPIEZAS REALIZADAS",  this.supervisionLimpiezas)
+console.log("FIN LimpizadasezasReali", moment(this.Momento).diff(moment(), 'seconds'));
     }
 
     getControles() {
-      console.debug("397->Inicio controles", moment(this.Momento).diff(moment(), 'seconds'));
+      console.log("397->Inicio controles", moment(this.Momento).diff(moment(), 'seconds'));
       let fecha = moment(new Date()).format('YYYY-MM-DD');
       this.controlesList=[];
       //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
@@ -730,11 +731,11 @@ console.debug("FIN LimpizadasezasReali", moment(this.Momento).diff(moment(), 'se
                       });
                     }
                   }, (error) => {
-                  console.debug("ERROR -> " + JSON.stringify(error.err));
+                  console.log("ERROR -> " + JSON.stringify(error.err));
                   alert("error home 276" + JSON.stringify(error.err));
                 });  
       //});   
-      console.debug("Fin Controles", moment(this.Momento).diff(moment(), 'seconds'));
+      console.log("Fin Controles", moment(this.Momento).diff(moment(), 'seconds'));
     }
 
 takeControl(control)
@@ -743,20 +744,20 @@ takeControl(control)
  // this.platform.ready().then(() =>{
   this.navCtrl.push(ControlPage, {control}).then(
       response => {
-        console.debug('Response ' + response);
+        console.log('Response ' + response);
       },
       error => {
-        console.debug('Error: ' + error);
+        console.log('Error: ' + error);
       }
     ).catch(exception => {
-      console.debug('Exception ' + exception);
+      console.log('Exception ' + exception);
     });
 }
 
 
 
 getChecklists(){
-  console.debug("439->Inicio Checklist", moment(this.Momento).diff(moment(), 'seconds'));
+  console.log("439->Inicio Checklist", moment(this.Momento).diff(moment(), 'seconds'));
   let fecha = moment(new Date()).format('YYYY-MM-DD');
   this.checklistList =[];
                  // this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
@@ -764,13 +765,13 @@ getChecklists(){
                   this.sql.executeSql("Select * FROM checklist WHERE idusuario = ? and fecha <= ?  GROUP BY idchecklist", [sessionStorage.getItem("idusuario"),fecha]).then((data) => {                  
                                     
                   //this.checklistList = data.rows;
-                  console.debug(data.rows.length);
+                  console.log(data.rows.length);
                   if (data.rows.length > 0 ){
                       for (var index=0;index < data.rows.length;index++){
                         let isBD = moment(new Date(data.rows.item(index).fecha)).isBefore(moment(), 'day');
                         this.checklistList.push(data.rows.item(index));
                         this.checklistList[index]["isbeforedate"] = isBD;
-                        console.debug(data.rows.item(index));
+                        console.log(data.rows.item(index));
                       //   this.checklistList.push({
                       //         "id":  data.rows.item(index).id,
                       //         "idchecklist": data.rows.item(index).idchecklist,
@@ -783,19 +784,19 @@ getChecklists(){
                       // });
                       //alert (data.res.rows[index].nombrechecklist);
                     }
-                     console.debug("464-> FIN Checklist", moment(this.Momento).diff(moment(), 'seconds'));
+                     console.log("464-> FIN Checklist", moment(this.Momento).diff(moment(), 'seconds'));
                   }
-                  console.debug ("checklist:", this.checklistList);
+                  console.log ("checklist:", this.checklistList);
               }, (error) => {
-                  console.debug("ERROR Checklist-> " + JSON.stringify(error.err));
+                  console.log("ERROR Checklist-> " + JSON.stringify(error.err));
                   alert("error home Checklist 325 " + JSON.stringify(error.err));
               }); 
               // });
-              console.debug("472->FIN Checklist", moment(this.Momento).diff(moment(), 'seconds'));
+              console.log("472->FIN Checklist", moment(this.Momento).diff(moment(), 'seconds'));
 }
 
 getLimpiezas(){
-  console.debug("476->Inicio limpiezas",moment(this.Momento).diff(moment(), 'seconds'));
+  console.log("476->Inicio limpiezas",moment(this.Momento).diff(moment(), 'seconds'));
   
                   let fecha = moment(new Date()).format('YYYY-MM-DD');
                   //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
@@ -812,15 +813,15 @@ getLimpiezas(){
                     }
                   //console.log ("checkLimpiezas:", this.checkLimpiezas);
               }, (error) => {
-                  console.debug("ERROR home Limpizas. 342-> ", error);
+                  console.log("ERROR home Limpizas. 342-> ", error);
                   alert("error home Limpizas. 342" + error);
               }); 
              //});
-             console.debug("Fin  Limpizas",new Date());
+             console.log("Fin  Limpizas",new Date());
 }
 
 getMantenimientos(){
-  console.debug("738->Inicio Mantenimientos",moment(this.Momento).diff(moment(), 'seconds'));
+  console.log("738->Inicio Mantenimientos",moment(this.Momento).diff(moment(), 'seconds'));
   this.mantenimientos =[];
 
                   let fecha = moment(new Date()).format('YYYY-MM-DD');
@@ -829,23 +830,23 @@ getMantenimientos(){
                   //this.checklistList = data.rows;
                   this.sql.executeSql("Select * FROM maquina_mantenimiento WHERE fecha <= ?  GROUP BY nombreMaquina ORDER BY nombreMaquina, orden", [fecha]).then(
                     (data) => {
-                  console.debug('NUMmantenimientos:',data.rows.length);
+                  console.log('NUMmantenimientos:',data.rows.length);
                       for (let index=0;index < data.rows.length;index++){
                         isBD = moment(new Date(data.rows.item(index).fecha)).isBefore(moment(), 'day');
                      //   this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idLimpieza,))
                         this.mantenimientos.push(data.rows.item(index));
                         this.mantenimientos[index].isbeforedate = isBD;
                     }
-                  console.debug ("mantenimientos:", this.mantenimientos);
+                  console.log ("mantenimientos:", this.mantenimientos);
               }, (error) => {
-                  console.debug("ERROR home mantenimientos. 752-> ", error);
+                  console.log("ERROR home mantenimientos. 752-> ", error);
                   alert("error home mantenimientos. 752" + error);
               }); 
              //});
-             console.debug("Fin  mantenimientoss",new Date());
+             console.log("Fin  mantenimientoss",new Date());
 }
 getCalibraciones(){
-  console.debug("738->Inicio Calibraciones",moment(this.Momento).diff(moment(), 'seconds'));
+  console.log("738->Inicio Calibraciones",moment(this.Momento).diff(moment(), 'seconds'));
   this.calibraciones =[];
                   let fecha = moment(new Date()).format('YYYY-MM-DD');
                   let isBD;
@@ -853,20 +854,20 @@ getCalibraciones(){
                   //this.checklistList = data.rows;
                   this.sql.executeSql("Select * FROM maquina_calibraciones WHERE fecha <= ?  GROUP BY nombreMaquina ORDER BY nombreMaquina, orden", [fecha]).then(
                     (data) => {
-                  console.debug('NUMCalibraciones:',data.rows.length);
+                  console.log('NUMCalibraciones:',data.rows.length);
                       for (var index=0;index < data.rows.length;index++){
                         isBD = moment(new Date(data.rows.item(index).fecha)).isBefore(moment(), 'day');
                      //   this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idLimpieza,))
                         this.calibraciones.push(data.rows.item(index));
                         this.calibraciones[index].isbeforedate = isBD;
                     }
-                  console.debug ("Calibraciones:", this.calibraciones);
+                  console.log ("Calibraciones:", this.calibraciones);
               }, (error) => {
-                  console.debug("ERROR home Calibraciones. 773-> ", error);
+                  console.log("ERROR home Calibraciones. 773-> ", error);
                   alert("error home Calibraciones. 774" + error);
               }); 
              //});
-             console.debug("Fin  Calibraciones",new Date());
+             console.log("Fin  Calibraciones",new Date());
 }
 
 
@@ -876,18 +877,18 @@ this.navCtrl.push(CheckPage,{checklist});
 }
 
 takeLimpieza(limpieza){
-  console.debug('home',limpieza);
+  console.log('home',limpieza);
 this.navCtrl.push(CheckLimpiezaPage,{limpieza});
 }
 
 takeMCorrectivo(){
-  console.debug('home',);
+  console.log('home',);
 
 this.navCtrl.push(MCorrectivoPage);
 }
 
 takeMantenimiento(mantenimiento,entidad){
-  console.debug('home',mantenimiento);
+  console.log('home',mantenimiento);
 this.navCtrl.push(MantenimientoPage,{mantenimiento,entidad});
 }
 
@@ -895,16 +896,16 @@ supervisar(){
   this.navCtrl.push(SupervisionPage);
 }
   doRefresh(refresher) {
-    console.debug('Begin async operation', refresher);
+    console.log('Begin async operation', refresher);
     //this.sincronizate();
     this.callSincroniza();
     setTimeout(() => {
-      console.debug('Async operation has ended');
+      console.log('Async operation has ended');
       refresher.complete();
     }, 2000);
   }
   presentLoading() {
-    console.debug('##SHOW LOADING HOME');
+    console.log('##SHOW LOADING HOME');
     this.loader = this.loadingCtrl.create({
       content: "Actualizando...",
      // duration: 3000
@@ -913,9 +914,9 @@ supervisar(){
     //loader.dismiss();
   }
     closeLoading(){
-      console.debug('##HIDE LOADING HOME');
+      console.log('##HIDE LOADING HOME');
    setTimeout(() => {
-      console.debug('Async operation has ended');
+      console.log('Async operation has ended');
       this.loader.dismiss()
     }, 1000);
   }
@@ -927,7 +928,7 @@ supervisar(){
     let periodo = JSON.parse(periodicidad);
     return periodo.repeticion;
     }catch(e){
-      console.debug('**error:',e);
+      console.log('**error:',e);
       return 'por uso';
     } 
     }else{

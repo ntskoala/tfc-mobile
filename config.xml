@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget build="18" id="com.ntskoala.tfc" version="0.0.18" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget build="21" id="com.ntskoala.tfc" version="0.0.21" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>TFC</name>
     <description>By NTS Koala.</description>
     <author email="jorged@ntskoala.com" href="http://www.ntskoala.com/">NTS Koala</author>
@@ -89,4 +89,5 @@
     <allow-navigation href="http://192.168.1.36:8101" />
     <allow-navigation href="http://192.168.1.36:8100" />
     <allow-navigation href="http://192.168.1.35:8100" />
+    <allow-navigation href="http://192.168.0.161:8100" />
 </widget>

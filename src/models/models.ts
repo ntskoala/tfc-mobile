@@ -1,11 +1,12 @@
-//let server = 'https://tfc.proacciona.es/'; //prod
-let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+let server = 'https://tfc.proacciona.es/'; //prod
+//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
   SERVER: server,
   BASE : base,
   LOGIN: base + 'actions/login.php',
+  SENDALERT: base + 'alertes.php',
   UPLOAD_DOCS: base + 'uploads.php',
   STD_ITEM: base + 'std_item.php',
   STD_SUBITEM: base + 'std_subitem.php',
