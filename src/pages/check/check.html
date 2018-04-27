@@ -42,7 +42,8 @@
       <img [src]="base64Image" *ngIf="base64Image" />
 </ion-card-content>
   </ion-card>
-
+  <div style="height:100px"></div>
+</ion-content>
   <ion-footer *ngIf="hayRetraso>0" style="padding:15px; background-color:#ccc">
     <span ><b>
     {{'hay' | translate}} {{hayRetraso}} {{'eventosPendientes' | translate}} {{fecha_prevista | date:'dd-MM-yyyy'}}, {{'autocompletar' | translate}} 

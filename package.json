@@ -33,7 +33,21 @@
     "ng2-translate": "^5.0.0",
     "rxjs": "5.1.1",
     "sw-toolbox": "3.4.0",
-    "zone.js": "^0.8.4"
+    "zone.js": "^0.8.4",
+    "ionic-plugin-keyboard": "~2.2.1",
+    "cordova-plugin-whitelist": "~1.3.1",
+    "cordova-plugin-device": "~1.1.4",
+    "cordova-plugin-statusbar": "https://github.com/apache/cordova-plugin-statusbar.git",
+    "cordova-plugin-file": "~4.3.2",
+    "cordova-plugin-file-transfer": "~1.6.2",
+    "cordova-plugin-network-information": "~1.3.2",
+    "cordova-plugin-email": "~1.2.6",
+    "cordova-plugin-x-socialsharing": "~5.1.7",
+    "cordova-plugin-compat": "~1.1.0",
+    "cordova-plugin-camera": "~2.4.0",
+    "cordova-sqlite-storage": "~2.0.3",
+    "cordova-plugin-splashscreen": "~4.0.2",
+    "cordova-ios": "~4.1.1"
   },
   "devDependencies": {
     "@angular/cli": "^1.5.0",
@@ -83,5 +97,25 @@
       "locator": "browser"
     }
   ],
-  "description": "tfc-mobile2: An Ionic project"
+  "description": "tfc-mobile2: An Ionic project",
+  "cordova": {
+    "platforms": [
+      "ios"
+    ],
+    "plugins": {
+      "cordova-plugin-file": {},
+      "cordova-plugin-file-transfer": {},
+      "cordova-plugin-network-information": {},
+      "cordova-plugin-email": {},
+      "cordova-plugin-x-socialsharing": {},
+      "cordova-plugin-compat": {},
+      "cordova-plugin-camera": {},
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-splashscreen": {},
+      "ionic-plugin-keyboard": {},
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-device": {},
+      "cordova-plugin-statusbar": {}
+    }
+  }
 }

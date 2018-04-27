@@ -3,9 +3,14 @@ img.center{
     display:block;
     margin:0 auto;
 }
-logo{
-    max-height: 85px;
-    max-width: 250px;    
+// logo{
+//     max-height: 85px;
+//     max-width: 250px;    
+// }
+.logo{
+    max-height: 25px;
+    max-width: 120px;
+    padding-left: 5px;    
 }
 
 .onDate{
@@ -18,4 +23,10 @@ logo{
       color: blue !important;
   }
   
+.homeCard{
+    // background-image: url(http://tfc.ntskoala.com/logos/2/logo.jpg);
+    background-repeat: no-repeat;
+    background-position-x: 50%;
+    background-size: 180px;
+}
 }

@@ -14,6 +14,7 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 export class Config {
 public lang:string;
 public email:string;
+public teclado:string;
 
   constructor(public navCtrl: NavController, public translate: TranslateService) {
     this.lang = localStorage.getItem("lang");
@@ -30,7 +31,9 @@ selectlang(){
   this.translate.use(this.lang);
   this.translate.setDefaultLang(this.lang);
 }
-
+selectTeclado(){
+  localStorage.setItem("teclado",this.teclado);
+}
 setmail(){
 //alert (this.email);
 //localStorage.setItem("email",this.email);

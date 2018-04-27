@@ -120,9 +120,8 @@ public superuser: number=parseInt(localStorage.getItem("superuser"));
 
 ionViewDidLoad(){
   this.cambio=0;
-  
-
 }
+
 ionViewDidEnter(){
   console.log("didEnter...");
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
@@ -235,6 +234,7 @@ hayUpdates() {
 
 refreshlogo(){
   this.empresa = parseInt(localStorage.getItem("idempresa"));
+// this.logoempresa = "url("+URLS.SERVER + "logos/"+localStorage.getItem("idempresa")+"/logo.jpg)";
 this.logoempresa = URLS.SERVER + "logos/"+localStorage.getItem("idempresa")+"/logo.jpg";
 
 }

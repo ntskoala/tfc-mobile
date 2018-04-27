@@ -39,6 +39,7 @@ public periodicidad: any;
 public hayRetraso: number;
 public autocompletar:boolean=false;
 public hoy: Date = new Date();
+public teclado: string;
 //public myapp: MyApp;
   constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, 
     public initdb: Initdb, public sync: SyncPage, public servidor: Servidor, public db :SQLite, public camera: Camera,
@@ -62,6 +63,9 @@ public hoy: Date = new Date();
   ionViewDidLoad() {
     console.debug('Hello Control Page');
     this.sync.login();
+    if(localStorage.getItem("teclado") == "text"){
+      this.teclado = "text";
+    }
   }
 
   ionViewDidEnter() {

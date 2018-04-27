@@ -38,6 +38,24 @@
   </ion-item>
 </ion-list>
 <hr>
+<ion-list radio-group [(ngModel)]="teclado" (ionChange)="selectTeclado()">
+
+  <ion-list-header>
+   {{"config.teclado" | translate }}
+  </ion-list-header>
+
+  <ion-item>
+    <ion-label>{{"config.num" | translate }}</ion-label>
+    <ion-radio value="numeric"></ion-radio>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>{{"config.texto" | translate }}</ion-label>
+    <ion-radio value="text"></ion-radio>
+  </ion-item>
+</ion-list>
+<p style="font-size:smaller">{{"config.helpText" | translate }}</p>
+<hr>
 <!--{{"config.email" | translate }}-->
   <!--<ion-item>
     <ion-label color="primary" floating>e-mail</ion-label>
@@ -46,7 +64,7 @@
 <!--<button ion-button (click)="setmail()" value="email">{{"config.ok" | translate}}</button>-->
 <ion-footer>
   <ion-toolbar>
-    <ion-title>TFC - Proacciona    v:0.0.21</ion-title>
+    <ion-title>TFC - Proacciona    v:0.0.23</ion-title>
   </ion-toolbar>
 </ion-footer>
 </ion-content>

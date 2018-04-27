@@ -27,7 +27,10 @@
     <ion-card-content>
        <ion-item> <!--pattern="[0-9\-]*"-->
         <ion-label floating>{{"valor" | translate}}</ion-label>
-        <ion-input type="number" step="0.01"  [(ngModel)]="valor"></ion-input>
+
+        <ion-input *ngIf="teclado != 'text'" type="number" step="0.01"  [(ngModel)]="valor"></ion-input>
+        <ion-input *ngIf="teclado == 'text'" type="text" step="0.01"  [(ngModel)]="valor"></ion-input>
+        
       </ion-item>
       <hr>   
 <button ion-button (click)="takeFoto()" twitter style="width: 47%;">{{"foto" | translate}}</button> 

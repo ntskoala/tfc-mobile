@@ -30,7 +30,7 @@ public loader: any;
   constructor(platform: Platform, public initdb: Initdb,private servidor: Servidor, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar,public network:Network,public loadingCtrl: LoadingController) {
 
 //constructor(platform: Platform, public initdb: Initdb, public translate: TranslateService, public modalCtrl: ModalController, public statusBar:StatusBar) {
- console.debug("before platform ready, check init");
+ console.log("before platform ready, check init");
     platform.ready().then(() => {
      // if (this.network.type == 'none') {
 

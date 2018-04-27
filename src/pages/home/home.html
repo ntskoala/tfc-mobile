@@ -6,8 +6,10 @@
 </button>
 
     <ion-title class="titulo">
-      <div style="float:left">{{"home" | translate }}</div>
+      <!-- <div style="float:left">{{"home" | translate }}</div> -->
+      <ion-icon name="home" style="float:left;margin-right:5px; margin-left:-10px"></ion-icon>
       <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
+      <img style="float:left" [src]="logoempresa" *ngIf="empresa" class="center logo"/>
     </ion-title>
         
   </ion-navbar>
@@ -22,21 +24,20 @@
       refreshingText="Refreshing...">
     </ion-refresher-content>
   </ion-refresher>
-<ion-row>
+<!-- <ion-row>
 <ion-col>
-<!--<img src="assets/img/logoempresa.jpg" class="center"/>-->
 <img [src]="logoempresa" *ngIf="empresa" class="center logo"/>
 </ion-col>
-</ion-row>
+</ion-row> -->
 
-  <p>
-  </p>
+  <!-- <p>
+    class="homeCard" [ngStyle]="{'background-image':logoempresa}"
+  </p> -->
 
-   <ion-card>
-     <ion-card-title>Total Food Control
-     </ion-card-title>
+   <ion-card >
+     <!-- <ion-card-title>Total Food Control
+     </ion-card-title> -->
     <ion-card-content>
-<!--<ion-list *ngFor="let supervision of supervisionLimpiezas">-->
 <ion-item (click)="supervisar(supervision)" *ngIf="supervisionLimpiezas.length>0">
     <ion-badge item-content>{{supervisionLimpiezas.length}}</ion-badge>
       <ion-avatar item-left>

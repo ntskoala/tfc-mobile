@@ -43,7 +43,11 @@
     "config":{
         "idioma" : "idioma",
         "email": "Direcció de email on s'enviaràn les alertes",
-        "ok": "accepta"
+        "ok": "accepta",
+        "teclado":"Teclat",
+        "texto":"Text normal",
+        "num":"Numèric",
+        "helpText":"(selecciona 'text normal' si tens problemes per introduir valors amb coma decimal amb el teclat numèric)"        
     },
     "produccion":{
     "produccion":"Producció",
