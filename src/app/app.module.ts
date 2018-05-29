@@ -20,6 +20,7 @@ import { CheckLimpiezaPage } from '../pages/check-limpieza/check-limpieza';
 import { MantenimientoPage } from '../pages/mantenimiento/mantenimiento'
 import { MCorrectivoPage } from '../pages/m-correctivo/m-correctivo';
 import { SupervisionPage } from '../pages/supervision/supervision'
+import { IncidenciasPage } from '../pages/incidencias/incidencias'
 //import { Tanques } from '../pages/tanques/tanques';
 //import { TraspasosPage } from '../pages/traspasos/traspasos';
 import { Initdb } from '../providers/initdb';
@@ -46,6 +47,7 @@ export function createTranslateLoader(http: Http) {
     MantenimientoPage,
     MCorrectivoPage,
     SupervisionPage,
+    IncidenciasPage,
     SyncPage,
     Config,
     Empresa
@@ -73,6 +75,7 @@ export function createTranslateLoader(http: Http) {
     MantenimientoPage,
     MCorrectivoPage,
     SupervisionPage,
+    IncidenciasPage,
     SyncPage,
     Config,
     Empresa

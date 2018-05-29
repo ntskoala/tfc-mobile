@@ -21,11 +21,10 @@ public logged: number;
 public badge: number;
 
 //*****************  VERSION BBDD */
-//anterior 6 -> posterior version 8. 
-//actualizará tablas Controles y checklist.(añade fecha y periodicidad)
-//Crea nuevas tablas CHECKMANTENIMIENTOS Y RESULTADOSMANTENIMIENTOS
-//************ VER SI VAN JUNTAS MANTENIMIENTOS Y CALIBRACIONES */
-public versionDBLocal: number=8;
+//anterior 8 -> posterior version 9. 
+//Crea nueva tabla INCIDENCIAS 
+//************  */
+public versionDBLocal: number=10;
 //*****************  VERSION BBDD */
 
 public hayConexion:boolean=false;
@@ -141,17 +140,22 @@ public momentoCambioEstado:number=0;
      }, (error) => {
          console.log("ERROR -> NO SE CREÓ MAQUINAS: ",error);
 });
-
+db2.executeSql('DROP TABLE IF EXISTS incidencias',[]);
+db2.executeSql('CREATE TABLE IF NOT EXISTS incidencias (id INTEGER PRIMARY KEY AUTOINCREMENT, fecha DATETIME, incidencia TEXT, solucion TEXT, responsable INTEGER, idempresa INTEGER, origen TEXT, idOrigen INTEGER, origenasociado TEXT, idOrigenasociado INTEGER, foto BLOB, descripcion TEXT, estado integer, idElemento INTEGER)',[]).then((data) => {
+       console.log("TABLE CREATED INCIDENCIAS-> " + JSON.stringify(data));
+   }, (error) => {
+       console.log("ERROR -> NO SE CREÓ INCIDENCIAS: ",error);
+});
 
         });
-localStorage.setItem("inicializado","8")
+localStorage.setItem("inicializado","10")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
 if (localStorage.getItem("syncmantenimiento") === null) {localStorage.setItem("syncmantenimiento","0")}
-this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
  }
 
 

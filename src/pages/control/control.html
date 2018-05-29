@@ -15,7 +15,6 @@
     <div style="float:right"> <img src="assets/img/logo.png" height="25px" /> </div>
     </ion-title>
   </ion-navbar>
-
 </ion-header>
 
 
@@ -33,9 +32,11 @@
         
       </ion-item>
       <hr>   
-<button ion-button (click)="takeFoto()" twitter style="width: 47%;">{{"foto" | translate}}</button> 
-<button ion-button (click)="terminar(idcontrol)" [disabled]="desactivado" twitter style="width: 47%;">{{"terminar" | translate}}</button> 
-      <img [src]="base64Image" *ngIf="base64Image" />
+<button ion-button (click)="takeFoto()" twitter style="width: 30%;">{{"foto" | translate}}</button> 
+<button ion-button (click)="terminar(idcontrol)" [disabled]="desactivado" twitter style="width: 30%;">{{"terminar" | translate}}</button> 
+<button [disabled]="hayIncidenciaAd>0" ion-button color="danger" (click)="nuevaIncidencia()" twitter style="width: 30%;">{{"incidencia" | translate}}</button> 
+ 
+<img [src]="base64Image" *ngIf="base64Image" />
 </ion-card-content>
   </ion-card>
   <ion-footer *ngIf="hayRetraso>0" style="padding:15px; background-color:#ccc">

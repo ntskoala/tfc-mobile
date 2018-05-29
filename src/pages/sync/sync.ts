@@ -8,7 +8,7 @@ import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
 import * as moment from 'moment';
 import { MyApp } from '../../app/app.component';
-import { URLS, ResultadoControl, ResultadoCechklist, ResultadosControlesChecklist, checkLimpieza, limpiezaRealizada, Supervision, mantenimientoRealizado } from '../../models/models';
+import { URLS, ResultadoControl, ResultadoControlLocal, ResultadoCechklist, ResultadosControlesChecklist, checkLimpieza, limpiezaRealizada, Supervision, mantenimientoRealizado, Incidencia } from '../../models/models';
 
 @Component({
   selector: 'page-sync',
@@ -26,7 +26,7 @@ export class SyncPage {
     if (this.network.type != 'none') {
       console.log("conected");
     }
-    this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+ parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+    this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+ parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
   }
 
   alerta(text) {
@@ -78,6 +78,8 @@ isTokenExired (token) {
       this.sync_data_checklist();
       this.sync_checklimpieza();
       this.sync_data_supervision();
+      this.sync_mantenimientos();
+      this.sync_incidencias(-1,0,'Incidencias');
           });
     }
     else {
@@ -93,7 +95,7 @@ isTokenExired (token) {
       console.log("base de datos abierta 1");
 
 
-      db2.executeSql("select idcontrol,resultado,fecha,foto, idusuario from resultadoscontrol", []).then((data) => {
+      db2.executeSql("select id,idcontrol,resultado,fecha,foto, idusuario from resultadoscontrol", []).then((data) => {
         console.log("executed sql" + data.rows.length);
         if (data.rows.length > 0) {
           let arrayfila = [];
@@ -102,17 +104,20 @@ isTokenExired (token) {
             console.log(data.rows.item(fila));
             //let checklist = new ResultadoCechklist ()
             //arrayfila.push(data.rows.item(fila))
-            arrayfila.push(new ResultadoControl(data.rows.item(fila).idcontrol, data.rows.item(fila).resultado, data.rows.item(fila).fecha, data.rows.item(fila).foto, data.rows.item(fila).idusuario));
+            arrayfila.push(new ResultadoControlLocal(data.rows.item(fila).idcontrol, data.rows.item(fila).resultado, data.rows.item(fila).fecha, data.rows.item(fila).foto, data.rows.item(fila).idusuario, data.rows.item(fila).id));
           }
-
-          this.sync.setResultados(JSON.stringify(arrayfila), "resultadoscontrol")
+          arrayfila.forEach((fila)=>{
+           //*******INICIO FOREACH */   
+           console.log('FILA CONTROL', fila);
+           let newArray = [new ResultadoControl(fila.idcontrol, fila.resultado, fila.fecha, fila.foto, fila.idusuario)];     
+          this.sync.setResultados(JSON.stringify(newArray), "resultadoscontrol")
             .subscribe(data => {
               console.log("control5",data);
-              arrayfila.forEach((control)=>{this.updateFechaElemento(control.idcontrol,'controles','id');})
-              
+              this.sync_incidencias(fila.idLocal, data.id, 'Controles');
+              this.updateFechaElemento(fila.idcontrol,'controles','id');
               localStorage.setItem("synccontrol", "0");
-             // this.initdb.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"));
-             // this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"));
+              this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
+              this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
             },
             error => 
             console.log("control6" + error)
@@ -120,6 +125,8 @@ isTokenExired (token) {
             () => 
             console.log("ok")
           );
+          //*******FIN FOREACH */
+        });
         }
       }, (error) => {
         console.log(error);
@@ -186,6 +193,7 @@ isTokenExired (token) {
             arrayfila.push()
             let idrespuesta = this.sync.setResultados(JSON.stringify(arrayfila), "resultadoschecklist")
               .subscribe(data => {
+                this.sync_incidencias(idlocal, data.id, 'Checklists');
                 this.sync_checklistcontroles(data.id, idlocal);
                 arrayfila.forEach((checklist)=>{this.updateFechaElemento(checklist.idchecklist,'checklist','idchecklist');})
                 
@@ -193,8 +201,8 @@ isTokenExired (token) {
             console.log("returned" + idrespuesta);
           }
           localStorage.setItem("syncchecklist", "0");
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
-          this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
+          this.badge = parseInt(localStorage.getItem("synccontrol")) + parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
         }
       }, (error) => {
         console.log("ERROR -> " + JSON.stringify(error.err));
@@ -257,6 +265,8 @@ isTokenExired (token) {
               response => {
                 if (response.success) {
                   this.updateFechaElementoLimpieza(data.rows.item(fila).idelemento,data.rows.item(fila));
+                  //this.sync_incidencias(fila.idLocal, data.id, 'Controles');
+                  this.sync_incidencias(data.rows.item(fila).id, response.id, 'Limpiezas');
                   console.log('limpieza realizada sended', response.id);
                   db2.executeSql("DELETE from resultadoslimpieza WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
                     console.log("deleted",data.rows.length);
@@ -267,7 +277,7 @@ isTokenExired (token) {
               () => { });
           }
           localStorage.setItem("syncchecklimpieza", "0");
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
 
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
@@ -348,7 +358,7 @@ isTokenExired (token) {
               () => { });
           }
                 localStorage.setItem("syncsupervision", "0");
-                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+                this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
 
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
@@ -390,7 +400,8 @@ isTokenExired (token) {
                     entidad = "maquina_mantenimiento";
                     }else{
                     entidad = "maquina_calibraciones";              
-                    }           
+                    }   
+                  this.sync_incidencias(data.rows.item(fila).id, response.id, 'Maquinaria');        
                   this.updateFechaElemento(mantenimiento.idmantenimiento,entidad,'id');
                     }
                   db2.executeSql("DELETE from mantenimientosrealizados WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
@@ -403,7 +414,7 @@ isTokenExired (token) {
               () => { });
             }
             localStorage.setItem("syncmantenimiento","0");
-            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
         }
       }, (error) => {
         console.log(error);
@@ -414,7 +425,91 @@ isTokenExired (token) {
     });
   }
 
+  sync_incidencias(idElemento,idOrigen, origen){
+    console.log('seleccionar incidencias a enviar:',idElemento, idOrigen, origen);
+    this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
+      db2.executeSql("select * from incidencias WHERE idElemento = ? AND origen = ?", [idElemento, origen]).then((data) => {
+        if (data.rows.length > 0) {
+          console.log('enviar incidencias:',data.rows.length);
+          let param = "&entidad=incidencias";
+          let entidad;
+          let arrayfila = [];
+          for (let fila = 0; fila < data.rows.length; fila++) {
+            let incidencia = new Incidencia(null, data.rows.item(fila).fecha, data.rows.item(fila).incidencia, data.rows.item(fila).solucion, 
+            data.rows.item(fila).responsable,data.rows.item(fila).idempresa, data.rows.item(fila).origen,idOrigen,
+            data.rows.item(fila).origenasociado,data.rows.item(fila).idOrigenasociado,
+            data.rows.item(fila).foto,data.rows.item(fila).descripcion,data.rows.item(fila).estado);
+          
+            this.servidor.postObject(URLS.STD_ITEM, incidencia, param).subscribe(
+              response => {
+                if (response.success) {
+                  console.log('incidencia guardada:',response.id);
+                  incidencia.id= response.id;
+                  this.sendMailIncidencia(incidencia);
+                  db2.executeSql("DELETE from incidencias WHERE id = ?", [ data.rows.item(fila).id]).then((data) => {
+                    console.log("deleted 1 item incidencia");
+                  },
+                (error)=>{console.log('Deleting incidencias ERROR',error)});
+                }
+              },
+              error => console.log(error),
+              () => { });
+            }
+            localStorage.setItem("syncincidencia","0");
+            this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
+        }
+      }, (error) => {
+        console.log(error);
+        alert("error, no se han podido sincronizar todos los datos [incidencias] " + error.message);
+      });
+    }, (error) => {
+      console.log("ERROR al abrir la bd: ", error);
+    });
+  }
 
+  sendMailIncidencia(nuevaIncidencia){
+    console.log("sendmail start: ");
+    this.loadUsuarios().then(
+      (respuesta)=>{
+    let responsables = respuesta["data"];
+    console.log("sendmail got users: ",responsables);
+    let body = "Nueva incidencia creada desde " + nuevaIncidencia.origen + "<BR>Por: " +  responsables[responsables.findIndex((responsable)=>responsable["value"] == nuevaIncidencia.responsable)]["label"]
+    body +=   "<BR>Con fecha y hora: " + moment(nuevaIncidencia.fecha).format('DD-MM-YYYY hh-mm') +  "<BR>"
+    body +=   "<BR>Nombre: " + nuevaIncidencia.incidencia +  "<BR>"
+    body +=   "Descripción: " + nuevaIncidencia.descripcion;
+    body +=   "<BR>Solución inmediata propuesta: " + nuevaIncidencia.solucion;
+    body +=   "<BR>Ir a la incidencia: " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/incidencias/0/" + nuevaIncidencia.id + ""
+    if (nuevaIncidencia.origen != 'incidencias')
+    body +=    "<BR>Ir al elemento " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/"+ nuevaIncidencia.origenasociado +"/"+ nuevaIncidencia.idOrigenasociado +"/" + nuevaIncidencia.idOrigen + ""
+    let parametros2 = "&body="+body+'&idempresa=' + sessionStorage.getItem("idempresa");
+        this.servidor.getObjects(URLS.ALERTES, parametros2).subscribe(
+          response => {
+            if (response.success && response.data) {
+              console.log('email alerta enviado');
+            }
+        });
+      });
+  }
+  
+  loadUsuarios(){
+    return new Promise((resolve)=>{
+      console.log("get users: ");
+    let responsables :any[];
+    let params = localStorage.getItem("idempresa");
+    let parametros2 = "&entidad=usuarios"+'&idempresa=' + params;
+        this.servidor.getObjects(URLS.STD_ITEM, parametros2).subscribe(
+          response => {
+            responsables = [];
+            if (response.success && response.data) {
+            //  console.log(response.data)
+              for (let element of response.data) {  
+                responsables.push({'label':element.usuario,'value':element.id});
+             }
+             resolve ({"data":responsables})
+            }
+        });
+      });
+  }
 //************CALCULOS FECHA */
   nuevaFecha(limpieza: checkLimpieza,descripcion?,fecha_prevista?){
       let periodicidad = JSON.parse(limpieza.periodicidad)

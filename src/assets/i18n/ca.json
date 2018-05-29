@@ -4,6 +4,7 @@
      "menu": {    
         "home": "Inici",
         "supervision":"Supervisió",
+        "incidencia":"Incidència",
         "controles": "Controls",
         "checklist": "Checklist",
         "sync": "Sincronització",

@@ -216,7 +216,7 @@ export class SupervisionPage {
     let fecha = moment(new Date()).format('YYYY-MM-DD HH:mm');
     this.db.create({ name: "data.db", location: "default" }).then((db2: SQLiteObject) => {
       localStorage.setItem("syncsupervision",'0');
-      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
       
       this.supervisionLimpiezas.forEach((limpiezaRealizada) => {
         if (limpiezaRealizada.supervision != 0) {

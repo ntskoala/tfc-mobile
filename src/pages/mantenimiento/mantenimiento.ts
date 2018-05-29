@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Events } from 'ionic-angular';
 import { AlertController,ActionSheetController } from 'ionic-angular';
 
 //import { CheckLimpiezaPage } from './check-limpieza';
@@ -11,12 +11,13 @@ import {TranslateService} from 'ng2-translate';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Camera } from '@ionic-native/camera';
 import {SyncPage} from '../sync/sync';
+import {IncidenciasPage} from '../incidencias/incidencias';
 import { Initdb } from '../../providers/initdb';
 import {Servidor} from '../../providers/servidor';
 import {PeriodosProvider} from '../../providers/periodos/periodos';
 
 import { Network } from '@ionic-native/network';
-import { URLS,mantenimientoRealizado } from '../../models/models'
+import { URLS,mantenimientoRealizado, Incidencia } from '../../models/models'
 
 import * as moment from 'moment'; 
 /**
@@ -53,11 +54,12 @@ export class MantenimientoPage {
   public entidad:string;
   public descripcion:string="";
   public causas:string ="";
+  public hayIncidencia: number = 0;
 
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
     public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, 
     private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, 
-    public servidor: Servidor, public periodos: PeriodosProvider) {
+    public servidor: Servidor, public periodos: PeriodosProvider, public events: Events) {
       console.debug("param",this.params.get('mantenimiento'));
       
      this.id =  this.params.get('mantenimiento').id;
@@ -118,6 +120,14 @@ if (this.checked){
       db2.executeSql('INSERT INTO mantenimientosrealizados (idmantenimiento, idmaquina, maquina, mantenimiento, fecha_prevista,fecha,idusuario, responsable, descripcion, elemento, tipo,tipo2,causas,tipo_evento, idempresa, imagen ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         [this.id,this.idMaquina,this.nombreMaquina,this.nombre,fecha_prevista,fecha,idusuario,this.responsable,this.descripcion,elemento,this.tipo,tipo2,this.causas,tipo_evento,idempresa,this.imagen]).then(
   (Resultado) => {
+    if (this.hayIncidencia > 0){
+      db2.executeSql('UPDATE incidencias set idElemento = ? WHERE id = ?',[Resultado.insertId,this.hayIncidencia]).then(
+        (Resultado) => { console.log("update_Incidencia_ok:",Resultado);}
+        ,
+        (error) => {
+        console.log('ERROR UPDATE INCIDENCIA',JSON.stringify(error))
+        });
+    }
    // let proxima_fecha;
    //   proxima_fecha = moment(this.periodos.nuevaFecha(this.periodicidad,this.fechaPrevista,this.autocompletar)).format('YYYY-MM-DD');
 
@@ -192,6 +202,16 @@ takeFoto(){
     });
   }
 
-
+nuevaIncidencia(){
+  let incidencia = 'Incidencia con ' + this.nombre + ' de ' + this.nombreMaquina;
+  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Maquinaria',null ,'mantenimientos_realizados',this.idMaquina,this.imagen,null,-1)
+  this.navCtrl.push(IncidenciasPage,params);
+  this.events.subscribe('nuevaIncidencia', (param) => {
+    // userEventData is an array of parameters, so grab our first and only arg
+    console.log('Id Incidencia Local', param);
+    this.hayIncidencia = param.idLocal;
+  });
+}
 
 }

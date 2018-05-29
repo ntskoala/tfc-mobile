@@ -4,6 +4,7 @@
      "menu": {    
         "home": "Home",
         "supervision":"Supervisión",
+        "incidencia":"Incidencia",
         "controles": "Controles",
         "checklist": "Checklist",
         "sync": "Sincronización",

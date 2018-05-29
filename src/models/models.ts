@@ -1,5 +1,5 @@
-let server = 'https://tfc.proacciona.es/'; //prod
-//let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+//let server = 'https://tfc.proacciona.es/'; //prod
+let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let base = server + 'api/';
 
 export const URLS = {
@@ -12,6 +12,7 @@ export const URLS = {
   STD_SUBITEM: base + 'std_subitem.php',
   STD_FECHA: base + 'std_fecha.php',
   VERSION_USERS: base + 'actions/version_users.php',
+  ALERTES: base + 'alertes.php',
   //**********TRAZABILIDAD */
   TRAZA_ORDENES:  base + 'traza_ordenes.php',
   UPDATE_REMANENTE: base+ 'update_remanente.php',
@@ -129,7 +130,17 @@ export class ResultadoControl {
     public resultado: number, 
     public fecha: string,  
     public foto: string,
+    public idusuario: number
+  ) {}
+}
+export class ResultadoControlLocal {
+  constructor(
+    public idcontrol: number,
+    public resultado: number, 
+    public fecha: string,  
+    public foto: string,
     public idusuario: number,
+    public idLocal?: number
   ) {}
 }
 export class ResultadoCechklist {
@@ -300,5 +311,23 @@ export class mantenimientoRealizado {
   public idempresa: number,
   public imagen:string
   
+  ){}
+}
+
+export class Incidencia {
+  constructor(
+  public id: number,
+  public fecha:Date,
+  public incidencia: string,
+  public solucion: string,
+  public responsable: number,
+  public idempresa: number,
+  public origen: string,
+  public idOrigen: number,
+  public origenasociado:string,
+  public idOrigenasociado:number,
+  public foto:string,
+  public descripcion: string,
+  public estado:number  
   ){}
 }

@@ -35,9 +35,11 @@
     <ion-textarea placeholder="comentarios" [(ngModel)]="descripcion"></ion-textarea>
   </ion-item>
   
-  <button ion-button (click)="takeFoto()" twitter style="width: 47%;">{{"foto" | translate}}</button> 
+  <button ion-button (click)="takeFoto()" twitter style="width: 30%;">{{"foto" | translate}}</button> 
   
-  <button ion-button (click)="terminar()" twitter style="width: 47%;">{{"terminar" | translate}}</button>
+  <button ion-button (click)="terminar()" twitter style="width: 30%;">{{"terminar" | translate}}</button>
+<button [disabled]="hayIncidencia>0" ion-button color="danger" (click)="nuevaIncidencia()" twitter style="width: 30%;">{{"incidencia" | translate}}</button> 
+  
   <img [src]="imagen">
   <ion-footer *ngIf="hayRetraso>0" style="padding:15px; background-color:#ccc">
     <span ><b>

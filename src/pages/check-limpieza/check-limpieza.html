@@ -13,8 +13,8 @@
 </ion-header>
 
 <ion-content padding>
-<ion-item *ngFor="let elementoLimpieza of checkLimpiezas">
-
+<ion-item *ngFor="let elementoLimpieza of checkLimpiezas; let i = index">
+  <ion-checkbox color="danger" [(ngModel)]="hayIncidencia[i]" id="{{'incidencia' + i}}" (click)="nuevaIncidencia($event,elementoLimpieza,i)"></ion-checkbox>
     <ion-label [ngClass]="{'onDate':!elementoLimpieza.isbeforedate,'beforeOnDate':elementoLimpieza.isbeforedate,'porUso':elementoLimpieza.descripcion == 'por uso'}">{{elementoLimpieza.nombreElementoLimpieza}}
      <span *ngIf="elementoLimpieza.isbeforedate && elementoLimpieza.descripcion != 'por uso'"> - {{elementoLimpieza.fecha_prevista | date:'dd-MM-yyyy'}} </span> 
      <span *ngIf="elementoLimpieza.descripcion =='por uso'"> - {{'por uso' | translate}} </span>     
@@ -30,7 +30,9 @@
   <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='na'" name="help-circle" item-right></ion-icon>-->
 
 </ion-item>
-<button ion-button (click)="terminar()" twitter style="width: 48%;">{{"terminar" | translate}}</button> 
+<button ion-button (click)="terminar()" twitter style="width: 48%;">{{"terminar" | translate}}</button>
+<button ion-button color="danger" (click)="nuevaIncidencia()" twitter style="width: 48%;">{{"incidencia" | translate}}</button> 
+
 <div style="height:100px"></div>
 </ion-content>
 <ion-footer *ngIf="hayRetraso>0" style="padding:15px; background-color:#ccc">

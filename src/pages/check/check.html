@@ -33,8 +33,10 @@
   <ion-icon (click)="opciones(control)" *ngIf="control.checked==''" name="add-circle" item-right></ion-icon>
   </ion-item>
 
-<button ion-button (click)="takeFoto()" twitter style="width: 48%;">{{"foto" | translate}}</button> 
-<button ion-button (click)="terminar()" twitter style="width: 48%;">{{"terminar" | translate}}</button> 
+<button ion-button (click)="takeFoto()" twitter style="width: 30%;">{{"foto" | translate}}</button> 
+<button ion-button (click)="terminar()" twitter style="width: 30%;">{{"terminar" | translate}}</button> 
+<button ion-button [disabled]="hayIncidencia>0" color="danger" (click)="nuevaIncidencia()" twitter style="width: 30%;">{{"incidencia" | translate}}</button> 
+
    <ion-card>
      <ion-card-title>
      </ion-card-title>
@@ -43,7 +45,7 @@
 </ion-card-content>
   </ion-card>
   <div style="height:100px"></div>
-</ion-content>
+
   <ion-footer *ngIf="hayRetraso>0" style="padding:15px; background-color:#ccc">
     <span ><b>
     {{'hay' | translate}} {{hayRetraso}} {{'eventosPendientes' | translate}} {{fecha_prevista | date:'dd-MM-yyyy'}}, {{'autocompletar' | translate}} 

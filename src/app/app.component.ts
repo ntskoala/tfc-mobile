@@ -9,6 +9,7 @@ import { LoginPage } from '../pages/login/login';
 import { SupervisionPage } from '../pages/supervision/supervision';
 import { Config } from '../pages/config/config';
 import { SyncPage } from '../pages/sync/sync';
+import { IncidenciasPage } from '../pages/incidencias/incidencias';
 import { Empresa } from '../pages/empresa/empresa';
 import { Servidor } from '../providers/servidor';
 import { URLS } from '../models/models'
@@ -54,7 +55,7 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
             alert ('No hay conexión, para sincronizar los datos');
           }
       } else{
-          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+          this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
             this.hayUpdates().then(
             (versionActual)=>{
               if (versionActual == -1){
@@ -105,6 +106,7 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
         // { title: 'menu.home' , component: HomePage },
       { title: 'menu.home' , component: HomePage },
       {title: 'menu.supervision', component: SupervisionPage },
+      {title: 'menu.incidencia', component: IncidenciasPage },
       { title: 'menu.sync' , component: SyncPage },
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },

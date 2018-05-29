@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 //import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { NavController, NavParams, AlertController,ActionSheetController } from 'ionic-angular';
+import { NavController, NavParams, AlertController,ActionSheetController, Events } from 'ionic-angular';
 
 //import { CheckLimpiezaPage } from './check-limpieza';
 
@@ -16,7 +16,8 @@ import {Servidor} from '../../providers/servidor';
 import { PeriodosProvider } from '../../providers/periodos/periodos';
 
 import { Network } from '@ionic-native/network';
-import { URLS, checkLimpieza,limpiezaRealizada } from '../../models/models'
+import { URLS, checkLimpieza,limpiezaRealizada, Incidencia } from '../../models/models'
+import { IncidenciasPage } from '../incidencias/incidencias';
 
 import * as moment from 'moment'; 
 import { ElementRef } from '@angular/core/src/linker/element_ref';
@@ -36,6 +37,8 @@ export class CheckLimpiezaPage {
 
 public nombreLimpieza: string;
 public checkLimpiezas:checkLimpieza[]=[];
+public incidencias:Incidencia[]=[];
+public hayIncidencia:any[];
 public idlimpiezazona:number;
 public limpiezaRealizada: limpiezaRealizada;
 public hoy: Date = new Date();
@@ -49,7 +52,7 @@ public idusuario = sessionStorage.getItem("idusuario");
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
     public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, 
     private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, 
-    public servidor: Servidor, public periodos: PeriodosProvider) {
+    public servidor: Servidor, public periodos: PeriodosProvider, public events: Events) {
        console.debug("param",this.params.get('limpieza'));
        
       this.idlimpiezazona =  this.params.get('limpieza').idlimpiezazona;
@@ -97,6 +100,7 @@ isTokenExired (token) {
 
 getLimpiezas(){
   this.checkLimpiezas =[];
+  //this.hayIncidencia=[];
    let fecha = moment(new Date()).format('YYYY-MM-DD');
                   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
@@ -115,8 +119,11 @@ getLimpiezas(){
                         data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,
                         data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate,data.rows.item(index).supervisor));
                         //this.checkLimpiezas.push(data.rows.item(index));
+                        
                     }
-                  console.debug ("checkLimpiezas:", this.checkLimpiezas);
+                    if (!this.hayIncidencia) this.hayIncidencia = new Array(this.checkLimpiezas.length)
+                    console.log ("hayIncidencias:", this.hayIncidencia);
+                  console.log ("checkLimpiezas:", this.checkLimpiezas);
               }, (error) => {
                   console.debug("ERROR home. 342-> " + JSON.stringify(error.err));
                   alert("error home. 342" + JSON.stringify(error.err));
@@ -133,22 +140,23 @@ return repeticion.repeticion;
 terminar(){
   console.debug("terminar",this.checkLimpiezas);
   this.numProcesados = this.checkLimpiezas.filter(element=>element.checked==true).length;
+  let x = 0;
   this.checkLimpiezas.forEach((elemento)=>{
     console.log("terminar2",elemento.nombreElementoLimpieza,elemento.checked,elemento.periodicidad);
 if (elemento.checked){
   let fecha;
   (this.autocompletar)? fecha = moment(elemento.fecha_prevista).add('h',this.hoy.getUTCHours()).add('m',this.hoy.getUTCMinutes()).format('YYYY-MM-DD HH:mm'): fecha= moment(this.hoy).format('YYYY-MM-DD HH:mm');
-  this.guardarLimpiezaRealizada(elemento,fecha)
+  this.guardarLimpiezaRealizada(elemento,fecha,x)
   console.log("TERMINAR",elemento);
 
 }
-
+x++;
 });
 
 
 }
 
-guardarLimpiezaRealizada(elemento: checkLimpieza, fecha:Date){
+guardarLimpiezaRealizada(elemento: checkLimpieza, fecha:Date, x?){
 
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
     let fecha_prevista =  moment(elemento.fecha_prevista).format('YYYY-MM-DD');
@@ -165,6 +173,15 @@ guardarLimpiezaRealizada(elemento: checkLimpieza, fecha:Date){
         //[0,0,'2017-05-29','test','rtest','interno',0,'jorge',0]).then(
         [elemento.idElementoLimpieza,this.idempresa,fecha_prevista,fecha,elemento.nombreLimpieza + " " + elemento.nombreElementoLimpieza,elemento.descripcion,elemento.tipo,this.idusuario,elemento.responsable,elemento.idLimpieza,elemento.supervisor]).then(
   (Resultado) => {
+    console.log("INSERTED ResultadoLimpieza:",Resultado, x, this.hayIncidencia[x] )
+    if (this.hayIncidencia[x] > 0){
+      db2.executeSql('UPDATE incidencias set idElemento = ? WHERE id = ?',[Resultado.insertId,this.hayIncidencia[x]]).then(
+        (Resultado) => { console.log("update_Incidencia_ok:",Resultado);}
+        ,
+        (error) => {
+        console.log('ERROR UPDATE INCIDENCIA',JSON.stringify(error))
+        });
+    }
       this.updateFecha(elemento,fecha);
       localStorage.setItem("syncchecklimpieza", (parseInt(localStorage.getItem("syncchecklimpieza")) + 1).toString());
       this.initdb.badge += 1;
@@ -355,4 +372,21 @@ if (primerdia >6) primerdia= primerdia-7;
 }
 return proximafecha;
 }
+
+nuevaIncidencia(evento,elementoLimpieza,i){
+  console.log(evento);
+  let incidencia = 'Incidencia en ' + elementoLimpieza.nombreElementoLimpieza + ' en Zona '  + this.nombreLimpieza;
+  let descripcion = ''
+  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Limpiezas',null ,'limpieza_realizada',this.idlimpiezazona,null,descripcion,-1)
+
+  this.navCtrl.push(IncidenciasPage,params);
+  this.events.subscribe('nuevaIncidencia',(param)=>{
+    this.hayIncidencia[i] = param.idLocal;
+    console.log(this.hayIncidencia);
+    this.events.unsubscribe('nuevaIncidencia');
+  })
+}
+
+
 }

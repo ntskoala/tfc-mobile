@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController,ActionSheetController } from 'ionic-angular';
+import { NavController, NavParams, AlertController,ActionSheetController, Events } from 'ionic-angular';
 import {TranslateService} from 'ng2-translate';
 //import {Sync} from '../../providers/sync';
 
@@ -11,10 +11,11 @@ import {SyncPage} from '../sync/sync';
 import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
 import { PeriodosProvider } from '../../providers/periodos/periodos';
-import { URLS } from '../../models/models';
+import { URLS, Incidencia } from '../../models/models';
 
 import { Network } from '@ionic-native/network';
 import { MyApp } from '../../app/app.component';
+import { IncidenciasPage } from '../incidencias/incidencias';
 
 
 export class Checks {
@@ -54,13 +55,14 @@ public periodicidad: any;
 public hayRetraso: number;
 public autocompletar:boolean=false;
 public hoy: Date = new Date();
+public hayIncidencia: number = 0;
 //public myapp: MyApp;
 //public db: SQLite;
 //public fotositems: string[] =[];
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
     public actionSheetCtrl: ActionSheetController, public initdb: Initdb, public sync: SyncPage, 
     private translate: TranslateService,public db :SQLite, public camera: Camera,public servidor: Servidor,
-    public network:Network, public periodos: PeriodosProvider) {
+    public network:Network, public periodos: PeriodosProvider, public events: Events) {
     
         this.idchecklist =  this.params.get('checklist').idchecklist;
         this.nombrechecklist = this.params.get('checklist').nombrechecklist;
@@ -159,6 +161,14 @@ terminar(){
       db2.executeSql('INSERT INTO resultadoschecklist (idchecklist,fecha, foto,idusuario) VALUES (?,?,?,?)',
       [this.idchecklist, fecha, this.base64Image,sessionStorage.getItem("idusuario")]).then(
   (Resultado) => { 
+    if (this.hayIncidencia > 0){
+      db2.executeSql('UPDATE incidencias set idElemento = ? WHERE id = ?',[Resultado.insertId,this.hayIncidencia]).then(
+        (Resultado) => { console.log("update_Incidencia_ok:",Resultado);}
+        ,
+        (error) => {
+        console.log('ERROR UPDATE INCIDENCIA',JSON.stringify(error))
+        });
+    }
           // console.debug("resultado: " + Resultado.res.insertId);
            console.debug("resultado2: " + Resultado.insertId);
           let idresultadochecklist = Resultado.insertId;
@@ -219,7 +229,7 @@ updateFecha(fecha,completaFechas){
     }
     else {
       localStorage.setItem("syncchecklist", (parseInt(localStorage.getItem("syncchecklist")) + 1).toString());
-      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
     }
     this.navCtrl.pop();
         }else{
@@ -313,4 +323,15 @@ changeValor(control){
   }
 }
 
+nuevaIncidencia(){
+  let incidencia = 'Incidencia en ' + this.nombrechecklist
+  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Checklists',this.idchecklist ,'Checklists',this.idchecklist,this.base64Image,null,-1)
+  this.navCtrl.push(IncidenciasPage,params);
+  this.events.subscribe('nuevaIncidencia', (param) => {
+    // userEventData is an array of parameters, so grab our first and only arg
+    console.log('Id Incidencia Local', param);
+    this.hayIncidencia = param.idLocal;
+  });
+}
 }

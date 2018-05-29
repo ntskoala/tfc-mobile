@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, Events } from 'ionic-angular';
 import {TranslateService} from 'ng2-translate';
 import {SyncPage} from '../sync/sync';
 import { Initdb } from '../../providers/initdb';
 import { Servidor } from '../../providers/servidor';
-import { URLS } from '../../models/models';
+import { URLS, Incidencia } from '../../models/models';
 import * as moment from 'moment';
 
 //import {TranslatePipe} from 'ng2-translate';
@@ -15,9 +15,9 @@ import { SocialSharing } from '@ionic-native/social-sharing';
 import { Network } from '@ionic-native/network';
 import { MyApp } from '../../app/app.component';
 import { PeriodosProvider } from '../../providers/periodos/periodos';
+import { IncidenciasPage } from '../incidencias/incidencias';
 /*
   Generated class for the Control page.
-
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
@@ -40,10 +40,12 @@ public hayRetraso: number;
 public autocompletar:boolean=false;
 public hoy: Date = new Date();
 public teclado: string;
+public hayIncidencia: number = 0;
+public hayIncidenciaAd: number =0;
 //public myapp: MyApp;
   constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, 
     public initdb: Initdb, public sync: SyncPage, public servidor: Servidor, public db :SQLite, public camera: Camera,
-    public network:Network, public socialsharing: SocialSharing, public periodos: PeriodosProvider) {
+    public network:Network, public socialsharing: SocialSharing, public periodos: PeriodosProvider, public events: Events) {
     this.control = this.navParams.get('control');
     this.nombre = this.navParams.get('control').nombre;
     this.pla = this.navParams.get('control').pla;
@@ -117,10 +119,49 @@ isTokenExired (token) {
        fuerarango = "critico";
       }  
     }
-    if (fuerarango != "false") this.sendalert(fuerarango);
+    if (fuerarango != "false") {
+      this.sendalert(fuerarango);
+      this.creaIncidencia(fuerarango);
+    }
  }
 
-
+creaIncidencia(incidencia){
+ 
+  let control,valorc, minimo,maximo, tolerancia,critico : string;
+let bcontrol = control +": "+this.control.nombre;
+let bvalorc = valorc + this.valor;
+let bminimo = minimo+ (this.control.minimo ==null ? "":this.control.minimo);
+let bmaximo = maximo+ (this.control.maximo ==null ? "":this.control.maximo);
+let btolerancia = tolerancia+ (this.control.tolerancia ==null ? "":this.control.tolerancia);
+let bcritico = critico+ (this.control.critico ==null ? "":this.control.critico);
+//let cabecera= '<br><img src="assets/img/logo.jpg" /><hr>';
+let descripcion = bcontrol+'<br>'+ bvalorc+'<br>'+ bminimo+'<br>'+ bmaximo+'<br>' +btolerancia+'<br>'+bcritico+'<br>';
+  let idcontrol = this.idcontrol;
+  let fecha = moment(this.hoy).format('YYYY-MM-DD HH:mm');
+  let mensaje;
+  this.translate.get("alertas."+incidencia).subscribe(resultado => { mensaje = resultado});
+  this.db.create({name: 'data.db',location: 'default'})
+  .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO incidencias (fecha, incidencia, solucion, responsable, idempresa, origen, idOrigen, origenasociado, idOrigenasociado, foto, descripcion, estado, idElemento) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+  [fecha, mensaje,'',parseInt(sessionStorage.getItem("idusuario")),parseInt(localStorage.getItem("idempresa")),'Controles',idcontrol,'Controles',0,this.base64Image,descripcion,-1,]).then(
+(Resultado) => { console.log("insert_incidencia_ok:",Resultado);
+this.hayIncidencia= Resultado.insertId;
+// if (this.network.type != 'none') {
+//   console.debug("conected");
+//   this.sync.sync_incidencias();
+// }
+// else
+// {
+// console.debug ("suma:" + localStorage.getItem("syncincidencia"));
+//   localStorage.setItem("syncincidencia",(parseInt(localStorage.getItem("syncincidencia"))+1).toString());
+//   console.debug("this.myapp.badge",this.initdb.badge);
+//   this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
+// }
+},
+(error) => {
+console.log('ERROR INSERTANDO INCIDENCIA',JSON.stringify(error))
+});
+});
+}
 
 terminar(){
   let idcontrol = this.idcontrol;
@@ -135,9 +176,26 @@ terminar(){
                   this.db.create({name: 'data.db',location: 'default'})
                   .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO resultadoscontrol (idcontrol, resultado, fecha, foto, idusuario) VALUES (?,?,?,?,?)',
                   [idcontrol,this.valor, fecha, this.base64Image,sessionStorage.getItem("idusuario")]).then(
-  (Resultado) => { console.debug("insert_ok:",Resultado);
+  (Resultado) => { console.log("insert_ok:",Resultado);
+                    if (this.hayIncidencia > 0){
+                      db2.executeSql('UPDATE incidencias set idElemento = ? WHERE id = ?',[Resultado.insertId,this.hayIncidencia]).then(
+                        (Resultado) => { console.log("update_Incidencia_ok:",Resultado);}
+                        ,
+                        (error) => {
+                        console.log('ERROR UPDATE INCIDENCIA',JSON.stringify(error))
+                        });
+                    }
+                    if (this.hayIncidenciaAd > 0){
+                      db2.executeSql('UPDATE incidencias set idElemento = ? WHERE id = ?',[Resultado.insertId,this.hayIncidenciaAd]).then(
+                        (Resultado) => { console.log("update_Incidencia_ok:",Resultado);}
+                        ,
+                        (error) => {
+                        console.log('ERROR UPDATE INCIDENCIA',JSON.stringify(error))
+                        });
+                    }                    
   //******UPDATE FECHA LOCAL*/
   //******UPDATE FECHA LOCAL*/
+  
   this.updateFecha(this.fecha_prevista,this.autocompletar);
                 },
   (error) => {
@@ -182,7 +240,7 @@ updateFecha(fecha,completaFechas){
     console.debug ("suma:" + localStorage.getItem("synccontrol"));
       localStorage.setItem("synccontrol",(parseInt(localStorage.getItem("synccontrol"))+1).toString());
       console.debug("this.myapp.badge",this.initdb.badge);
-      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"));
+      this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
   }
 this.navCtrl.pop();
         }else{
@@ -254,7 +312,6 @@ if (this.network.type != 'none') {
 
         }
         });
-  
 }
 else
 {
@@ -316,5 +373,15 @@ this.socialsharing.canShareViaEmail().then(() => {
 
 // }
 
-
+nuevaIncidencia(){
+  let incidencia = 'Incidencia en ' + this.nombre
+  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Controles',this.control.id ,'Controles',0,this.base64Image,null,-1)
+  this.navCtrl.push(IncidenciasPage,params);
+  this.events.subscribe('nuevaIncidencia', (param) => {
+    // userEventData is an array of parameters, so grab our first and only arg
+    console.log('Id Incidencia Local', param);
+    this.hayIncidenciaAd = param.idLocal;
+  });
+}
 }
