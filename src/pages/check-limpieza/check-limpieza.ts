@@ -39,6 +39,8 @@ public nombreLimpieza: string;
 public checkLimpiezas:checkLimpieza[]=[];
 public incidencias:Incidencia[]=[];
 public hayIncidencia:any[];
+public indexIncidenciaActivada:number;
+public checks:boolean[];
 public idlimpiezazona:number;
 public limpiezaRealizada: limpiezaRealizada;
 public hoy: Date = new Date();
@@ -49,6 +51,7 @@ public autocompletar:boolean=false;
 public numProcesados:number;
 public idempresa = localStorage.getItem("idempresa");
 public idusuario = sessionStorage.getItem("idusuario");
+// public bloqueaCheck:number;
   constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
     public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, 
     private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, 
@@ -68,9 +71,20 @@ ionViewDidLoad() {
 
   }
 ionViewDidEnter(){
+  if (!this.checks) {
+    console.log('crea Checks',this.checks);
+    this.checks=[];
+  }else{
+    if (this.indexIncidenciaActivada>-1){
+      this.hayIncidencia[this.indexIncidenciaActivada]=false;
+      this.checks[this.indexIncidenciaActivada]=false;
+    }
+  }
+    console.log('ionViewDidEnter CheckLimpiezaPage',this.checks);
 
-    console.debug('ionViewDidEnter CheckLimpiezaPage');
+
     this.getLimpiezas();
+
 
     if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
       let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
@@ -110,14 +124,20 @@ getLimpiezas(){
                       for (var index=0;index < data.rows.length;index++){
                         let isbeforedate = moment(data.rows.item(index).fecha).isBefore(this.hoy,'day');
                         let repeticion = this.checkPeriodo(data.rows.item(index).periodicidad);
+                        let check =false;
                         if (!this.hayRetraso && repeticion != "por uso"){
                       this.hayRetraso = this.periodos.hayRetraso(data.rows.item(index).fecha,JSON.parse(data.rows.item(index).periodicidad));
                         }
-
+                        if(this.checks){
+                        if (this.checks[index]) {
+                          // this.bloqueaCheck;
+                          check = true;
+                        };
+                        }
 //id , idlimpiezazona ,idusuario , nombrelimpieza , idelemento , nombreelementol , fecha , tipo , periodicidad , productos , protocolo
                         this.checkLimpiezas.push(new checkLimpieza(data.rows.item(index).id,data.rows.item(index).idlimpiezazona,data.rows.item(index).nombrelimpieza,data.rows.item(index).idelemento,
                         data.rows.item(index).nombreelementol,data.rows.item(index).fecha,data.rows.item(index).tipo,data.rows.item(index).periodicidad,data.rows.item(index).productos,
-                        data.rows.item(index).protocolo,false,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate,data.rows.item(index).supervisor));
+                        data.rows.item(index).protocolo,check,data.rows.item(index).idusuario,data.rows.item(index).responsable,repeticion,isbeforedate,data.rows.item(index).supervisor));
                         //this.checkLimpiezas.push(data.rows.item(index));
                         
                     }
@@ -220,15 +240,21 @@ updateFecha(elemento: checkLimpieza,fecha : Date){
     });      
     this.numProcesados--;  
     if (this.network.type != 'none') {
-      console.log("conected");
-      if (this.numProcesados==0) this.sync.sync_checklimpieza();
+      console.log("conected**");
+      if (this.numProcesados==0) {
+        this.events.publish('sync',{'estado':'start'});
+        console.log('***START SENDED');
+        this.sync.sync_checklimpieza();
+      }
     }
     else {
       console.log("update badge syncchecklimpieza");
       //this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"));
     }
     
-    if (this.numProcesados==0) setTimeout(()=>{this.navCtrl.pop()},500);
+    if (this.numProcesados==0) setTimeout(()=>{
+        this.navCtrl.pop()
+        },500);
     
         }else{
 
@@ -375,18 +401,39 @@ return proximafecha;
 
 nuevaIncidencia(evento,elementoLimpieza,i){
   console.log(evento);
+  console.log(this.hayIncidencia[i],typeof(this.hayIncidencia[i]));
+  if (!this.hayIncidencia[i]){
+    this.hayIncidencia[i]=false;
+  }else{
+  this.checks[i] = true;
+  this.indexIncidenciaActivada = i;
   let incidencia = 'Incidencia en ' + elementoLimpieza.nombreElementoLimpieza + ' en Zona '  + this.nombreLimpieza;
   let descripcion = ''
   let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
   parseInt(localStorage.getItem("idempresa")),'Limpiezas',null ,'limpieza_realizada',this.idlimpiezazona,null,descripcion,-1)
-
   this.navCtrl.push(IncidenciasPage,params);
   this.events.subscribe('nuevaIncidencia',(param)=>{
     this.hayIncidencia[i] = param.idLocal;
-    console.log(this.hayIncidencia);
+    this.indexIncidenciaActivada=-1;
+    console.log(i,this.hayIncidencia);
+    
     this.events.unsubscribe('nuevaIncidencia');
   })
 }
+
+}
+
+clickCheck(i){
+  if (event){
+  console.log(event);
+  this.checks[i]= !this.checks[i];
+  console.log(this.checks);
+  }else{
+    console.log('bloqueado el cambio por carga inicial');
+  }
+}
+
+
 
 
 }

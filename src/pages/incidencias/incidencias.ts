@@ -35,6 +35,7 @@ export class IncidenciasPage {
   public origen;
   public idOrigen;
   public incidencia: Incidencia;
+  public textoBoton: string = 'guardar';
 public hoy: Date = new Date();
   
   constructor(public navCtrl: NavController, public navParams: NavParams, public camera: Camera,
@@ -54,6 +55,7 @@ public hoy: Date = new Date();
       this.navParams.data.descripcion,this.navParams.data.estado)
     console.log(this.incidencia)
     }else{
+      this.textoBoton = 'enviar';
       this.incidencia = new Incidencia(null,null,'',null,parseInt(sessionStorage.getItem("iduser")),
       parseInt(localStorage.getItem("idempresa")),'Incidencias',0 ,'Incidencias',0,this.base64Image,null,-1)
     }

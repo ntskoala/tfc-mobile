@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { NavController, MenuController, NavParams } from 'ionic-angular';
+import { NavController, MenuController, NavParams, Events } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
 import { Network } from '@ionic-native/network';
 
@@ -59,7 +59,11 @@ public Momento = moment();
 public cargando: boolean=false;
 public tipoUser: string=localStorage.getItem("tipoUser");
 public superuser: number=parseInt(localStorage.getItem("superuser"));
-  constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, private sync: Sync,public syncPage: SyncPage,private servidor: Servidor, public db :SQLite,public network:Network,public loadingCtrl: LoadingController, public params: NavParams) {
+  constructor(public navCtrl: NavController, menu: MenuController, private data:Initdb, 
+    private sync: Sync,public syncPage: SyncPage,private servidor: Servidor, 
+    public db :SQLite,public network:Network,public loadingCtrl: LoadingController, 
+    public params: NavParams, public events: Events) {
+
     this.network.onDisconnect().subscribe(
       estado=>{
         console.log('desconectado diferencia:',estado.timeStamp - this.data.momentoCambioEstado);
@@ -120,6 +124,14 @@ public superuser: number=parseInt(localStorage.getItem("superuser"));
 
 ionViewDidLoad(){
   this.cambio=0;
+  this.events.subscribe('sync',(param)=>{
+    console.log('#####',param.estado);
+    if (param.estado == 'start'){
+      this.presentLoading();
+    }else{
+      this.closeLoading();
+    }
+  })
 }
 
 ionViewDidEnter(){
@@ -918,8 +930,9 @@ supervisar(){
    setTimeout(() => {
       console.log('Async operation has ended');
       this.loader.dismiss()
-    }, 1000);
+    }, 2500);
   }
+
 
   checkPeriodo(periodicidad: string): string{
     if (periodicidad){
@@ -935,5 +948,7 @@ supervisar(){
       return 'por uso';
     }
   }
+
+
 
 }

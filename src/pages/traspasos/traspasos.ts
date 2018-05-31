@@ -363,19 +363,20 @@ setNewOrdenProduccion(ordenFuente?: ProduccionOrden){
         console.debug("Destino",this.almacenDestinoSelected);
         if (this.almacenDestinoSelected.level > 1){
             if(this.almacenOrigenSelected){
-            if (this.almacenOrigenSelected.level<=1){
-                this.nuevaOrden.fecha_caducidad = moment().add(7,'days').toDate();
-            }else{
+            // if (this.almacenOrigenSelected.level<=1){
+            //     this.nuevaOrden.fecha_caducidad = moment().add(7,'days').toDate();
+            // }else{
                 console.debug('Almacen destino > 1 y almacen origen level >1 = '+this.almacenOrigenSelected.level+' y ...');
                 let caducidad;
                 if (this.ordenDestino){
                  caducidad = (moment(this.ordenOrigen.fecha_caducidad)<moment(this.ordenDestino.fecha_caducidad))?this.ordenOrigen.fecha_caducidad:this.ordenDestino.fecha_caducidad;
                 }else{
-                     caducidad = this.ordenOrigen.fecha_caducidad;
+                    //  caducidad = this.ordenOrigen.fecha_caducidad;
+                     caducidad = moment().add(7,'days').toDate();
                 }        
                     console.debug(caducidad);
                     this.nuevaOrden.fecha_caducidad = caducidad;
-            }
+            // }
             }else if (this.loteSelected){
                 if (this.ordenDestino)
                 {
@@ -465,12 +466,16 @@ prepareNewOrdenProduccionDetalle(idOrden: number){
     this.nuevoDetalleOrden_Origen.numlote_proveedor = this.loteSelected.numlote_proveedor;
     this.nuevoDetalleOrden_Origen.proveedor = this.proveedores[this.proveedores.findIndex((prov)=>prov.id==this.idProveedorActual)].nombre;
     this.nuevoDetalleOrden_Origen.producto = this.productos[this.productos.findIndex((prod)=>prod.id==this.idProductoActual)].nombre;
+    this.nuevoDetalleOrden_Origen.cantidad_remanente_origen = this.loteSelected.cantidad_remanente- this.cantidadTraspaso;    
+    this.nuevoDetalleOrden_Origen.cantidad_real_origen = this.loteSelected.cantidad_remanente;   
     }
     if (!this.proveedor){
      this.nuevoDetalleOrden_Origen.idloteinterno = this.ordenOrigen.id;
     this.nuevoDetalleOrden_Origen.idmateriaprima = 0;
     this.nuevoDetalleOrden_Origen.proveedor = 'interno';
     this.nuevoDetalleOrden_Origen.producto = 'lote int ' + this.ordenOrigen.numlote;
+    this.nuevoDetalleOrden_Origen.cantidad_remanente_origen = this.almacenOrigenSelected.estado - this.cantidadTraspaso;        
+    this.nuevoDetalleOrden_Origen.cantidad_real_origen = this.almacenOrigenSelected.estado;   
     }
     console.debug('origen');
     this.setNewOrdenProduccionDetalle(idOrden,this.nuevoDetalleOrden_Origen,'origen');
@@ -485,6 +490,8 @@ prepareNewOrdenProduccionDetalle(idOrden: number){
     this.nuevoDetalleOrden_Destino.idloteinterno = this.almacenDestinoSelected.idproduccionordenactual;
     this.nuevoDetalleOrden_Destino.idmateriaprima = 0;
     this.nuevoDetalleOrden_Destino.cantidad = this.almacenDestinoSelected.estado;
+    this.nuevoDetalleOrden_Destino.cantidad_remanente_origen = 0;        
+    this.nuevoDetalleOrden_Destino.cantidad_real_origen = this.almacenDestinoSelected.estado;
     this.setNewOrdenProduccionDetalle(idOrden,this.nuevoDetalleOrden_Destino,'destino');
     }}
  this.prepareAlmacenes(idOrden);
@@ -562,8 +569,8 @@ setAlmacen(almacen: Almacen){
 
 setRemanente(detalleProduccion: ProduccionDetalle){
   console.debug("setRemanente",detalleProduccion)
-  if (detalleProduccion.idmateriaprima >0){
-        let parametros = '&idempresa=' + this.idempresa+"&idmateriaprima="+detalleProduccion.idmateriaprima+"&cantidad="+detalleProduccion.cantidad; 
+//   if (detalleProduccion.idmateriaprima >0){
+        let parametros = '&idempresa=' + this.idempresa+"&idOrden="+detalleProduccion.idloteinterno+"&idmateriaprima="+detalleProduccion.idmateriaprima+"&cantidad="+detalleProduccion.cantidad; 
         this.servidor.getObjects(URLS.UPDATE_REMANENTE, parametros).subscribe(
           response => {
             this.entrada_productos = [];
@@ -577,9 +584,9 @@ setRemanente(detalleProduccion: ProduccionDetalle){
         },
         ()=>{}
         ); 
-  }else{
+//   }else{
 
-  }
+//   }
 }
 
 setNewClienteDistribucion(distribucion: Distribucion ){

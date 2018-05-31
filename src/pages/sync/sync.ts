@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController,Events } from 'ionic-angular';
 import { TranslateService } from 'ng2-translate';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Network } from '@ionic-native/network';
@@ -22,7 +22,7 @@ export class SyncPage {
   public badge: number;
   //public myapp:MyApp;
   constructor(public navCtrl: NavController, public initdb: Initdb, public sync: Sync, public servidor: Servidor, 
-    public translate: TranslateService, public db: SQLite, public network: Network) {
+    public translate: TranslateService, public db: SQLite, public network: Network, public events:Events) {
     if (this.network.type != 'none') {
       console.log("conected");
     }
@@ -127,6 +127,7 @@ isTokenExired (token) {
           );
           //*******FIN FOREACH */
         });
+        this.events.publish('sync','stop');
         }
       }, (error) => {
         console.log(error);
@@ -278,7 +279,8 @@ isTokenExired (token) {
           }
           localStorage.setItem("syncchecklimpieza", "0");
           this.initdb.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
-
+          this.events.publish('sync',{'estado':'stop'});
+          console.log('***STOP SENDED');
           // let param = "&entidad=limpieza_realizada";
           // this.servidor.postObject(URLS.STD_ITEM, JSON.stringify(arrayfila),param).subscribe(
           //   response => {
