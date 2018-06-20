@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 //import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { NavController, NavParams, AlertController,ActionSheetController, Events } from 'ionic-angular';
+import { NavController, NavParams, ToastController,ActionSheetController, Events } from 'ionic-angular';
 
 //import { CheckLimpiezaPage } from './check-limpieza';
 
@@ -52,7 +52,7 @@ public numProcesados:number;
 public idempresa = localStorage.getItem("idempresa");
 public idusuario = sessionStorage.getItem("idusuario");
 // public bloqueaCheck:number;
-  constructor(public navCtrl: NavController, private params: NavParams, private alertCtrl: AlertController, 
+  constructor(public navCtrl: NavController, private params: NavParams, private toastCtrl: ToastController, 
     public actionSheetCtrl: ActionSheetController, public network:Network,public db: SQLite, 
     private translate: TranslateService,public camera: Camera, private sync: SyncPage, private initdb: Initdb, 
     public servidor: Servidor, public periodos: PeriodosProvider, public events: Events) {
@@ -402,9 +402,10 @@ return proximafecha;
 nuevaIncidencia(evento,elementoLimpieza,i){
   console.log(evento);
   console.log(this.hayIncidencia[i],typeof(this.hayIncidencia[i]));
-  if (!this.hayIncidencia[i]){
+  if (this.hayIncidencia[i]){
     this.hayIncidencia[i]=false;
   }else{
+    console.log(i,this.hayIncidencia);
   this.checks[i] = true;
   this.indexIncidenciaActivada = i;
   let incidencia = 'Incidencia en ' + elementoLimpieza.nombreElementoLimpieza + ' en Zona '  + this.nombreLimpieza;
@@ -433,7 +434,21 @@ clickCheck(i){
   }
 }
 
+showHelp(elem){
+  let texto ='';
+  this.translate.get("incidenciaTooltip").subscribe((text)=>{texto=text})
+  let toast = this.toastCtrl.create({
+    message: texto,
+    duration: 3000,
+    position: 'top'
+  });
 
+  toast.onDidDismiss(() => {
+    console.log('Dismissed toast');
+  });
+
+  toast.present();
+}
 
 
 }

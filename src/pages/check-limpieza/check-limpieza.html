@@ -15,13 +15,19 @@
 <ion-content padding>
     <ion-grid>
         <ion-row>
-          <ion-col col-3><ion-icon color="danger" name="alert"></ion-icon></ion-col>
+          <ion-col col-3><ion-icon color="danger" name="alert" (click)="showHelp('incidencia')"></ion-icon></ion-col>
+          <!-- <ion-col col-3><button color="danger" ion-fab mini>Small</button></ion-col> -->
+          
           <ion-col col-6>{{'nombre' | translate}}</ion-col>
-          <ion-col col-3>{{'activado'|translate}}</ion-col>
+          <ion-col col-3>{{'realizado'|translate}}</ion-col>
         </ion-row>
     </ion-grid>
+    <!-- <ion-list> -->
 <ion-item *ngFor="let elementoLimpieza of checkLimpiezas; let i = index">
-  <ion-checkbox color="danger" [(ngModel)]="hayIncidencia[i]" id="{{'incidencia' + i}}" (click)="nuevaIncidencia($event,elementoLimpieza,i)"></ion-checkbox>
+  
+  <!-- <ion-checkbox color="danger" [(ngModel)]="hayIncidencia[i]" id="{{'incidencia' + i}}" (click)="nuevaIncidencia($event,elementoLimpieza,i)"></ion-checkbox> -->
+  <ion-icon [ngClass]="{'red':hayIncidencia[i],'grey':!hayIncidencia[i]}" color="alert" name="alert" (click)="nuevaIncidencia($event,elementoLimpieza,i)" item-left></ion-icon>
+
     <ion-label [ngClass]="{'onDate':!elementoLimpieza.isbeforedate,'beforeOnDate':elementoLimpieza.isbeforedate,'porUso':elementoLimpieza.descripcion == 'por uso'}">{{elementoLimpieza.nombreElementoLimpieza}}
      <span *ngIf="elementoLimpieza.isbeforedate && elementoLimpieza.descripcion != 'por uso'"> - {{elementoLimpieza.fecha_prevista | date:'dd-MM-yyyy'}} </span> 
      <span *ngIf="elementoLimpieza.descripcion =='por uso'"> - {{'por uso' | translate}} </span>     
@@ -35,9 +41,14 @@
     <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='true'" name="checkmark-circle" item-right></ion-icon>
   <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='false'" name="close-circle" item-right></ion-icon>
   <ion-icon (click)="opciones(elementoLimpieza)" *ngIf="elementoLimpieza.checked=='na'" name="help-circle" item-right></ion-icon>-->
-
+  <!-- <ion-item-options side="right">
+    <button ion-button (click)="nuevaIncidencia($event,elementoLimpieza,i)">
+      <ion-icon name="alert"></ion-icon>
+      {{'Incidencia' | translate}}
+    </button>
+  </ion-item-options> -->
 </ion-item>
-
+<!-- </ion-list> -->
 <button ion-button (click)="terminar()" twitter style="width: 48%;">{{"terminar" | translate}}</button>
 <!-- <button ion-button color="danger" (click)="nuevaIncidencia()" twitter style="width: 48%;">{{"incidencia" | translate}}</button>  -->
 

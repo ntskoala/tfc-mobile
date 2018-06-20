@@ -111,8 +111,9 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },
       ];
-      if (localStorage.getItem("idempresa") == "26"){//Entorno produccion
-      //  if (localStorage.getItem("idempresa") == "77"){//Entorno Desarrollo
+      //if (localStorage.getItem("idempresa") == "26"){//Entorno produccion
+      if (localStorage.getItem("idempresa") == "33"){//Entorno produccion koala TESTS
+       // if (localStorage.getItem("idempresa") == "77"){//Entorno Desarrollo
         this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
       }
       

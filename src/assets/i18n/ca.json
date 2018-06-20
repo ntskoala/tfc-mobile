@@ -50,6 +50,14 @@
         "num":"Numèric",
         "helpText":"(selecciona 'text normal' si tens problemes per introduir valors amb coma decimal amb el teclat numèric)"        
     },
+    "empresa":{
+        "titulo": "Empresa",
+        "texto": "Introdueix el códi d'empresa per començar a usar la app",
+        "codigo": "Códi",
+        "cancel": "Cancelar",
+        "ok":"Accepta",
+        "errorcodigo": "Error al códi!"
+    },
     "produccion":{
     "produccion":"Producció",
     "areaproduccion": "Area de Producció",
@@ -143,6 +151,8 @@
     "hay":"Hi ha ",
     "eventosPendientes":"events pendents desde ",
     "autocompletar": "desitges autocompletar totes les dates pendents?",
+    "realizado":"Realizado",
+    "nombre":"Nombre",
     "maquinas":
     {
     "maquinas":"Màquines",
@@ -156,6 +166,7 @@
     },
     "mCorrectivo":"Manteniment correctiu",
     "interno":"Intern",
-    "externo":"Extern"
-
+    "externo":"Extern",
+    "incidencia":"Incidència",
+    "incidenciaTooltip":"Activa una incidència per l'element"
 }

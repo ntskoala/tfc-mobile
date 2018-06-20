@@ -5,6 +5,8 @@ import {Servidor} from '../../providers/servidor';
 import { HomePage } from '../home/home'
 import { Config } from '../config/config'
 import { TanquesPage } from '../tanques/tanques'
+import { Network } from '@ionic-native/network';
+
 import { TranslateService } from 'ng2-translate';
 import * as moment from 'moment/moment';
 /**
@@ -74,7 +76,8 @@ public idempresa= localStorage.getItem("idempresa");
 public userId= sessionStorage.getItem("login");
 
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public servidor: Servidor, private translate: TranslateService, public popoverCtrl: PopoverController) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public servidor: Servidor, 
+    private translate: TranslateService, public popoverCtrl: PopoverController, public network:Network) {
             this.translate.use(localStorage.getItem("lang"));
           this.translate.setDefaultLang(localStorage.getItem("lang"));
 }
@@ -83,27 +86,45 @@ public userId= sessionStorage.getItem("login");
     console.debug('ionViewDidLoad Traspasos');
   }
 
-  ngOnInit() {
-       this.translate.get('traspasos.Tanque').subscribe((valor) => this.translateTanque=valor);
-        this.translate.get('traspasos.Cliente').subscribe((valor) => this.translateCliente=valor);
-
-  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
-    this.servidor.login(URLS.LOGIN, param).subscribe(
-      response => {
-        if (response.success == 'true') {
-          // Guarda token en sessionStorage
-          sessionStorage.setItem('token', response.token);
-          if(!this.userId) this.userId = '1';
-      this.getAlmacenes();
-      this.getProveedores();
-      //this.getClientes();
-      this.getFamilias();
-            }
-            });
-  //  this.loadItems(this.idempresa.toString(), this.estado);
+  isTokenExired (token) {
+    if (token){
+              var base64Url = token.split('.')[1];
+              var base64 = base64Url.replace('-', '+').replace('_', '/');
+              //return JSON.parse(window.atob(base64));
+              let jwt = JSON.parse(window.atob(base64));
+              console.log (moment.unix(jwt.exp).isBefore(moment()));
+             return moment.unix(jwt.exp).isBefore(moment());
+    }else{
+      return true;
+    }
   }
 
+  ngOnInit() {
+    console.log('START LOADING TRASPASOS...')
+    this.translate.get('traspasos.Tanque').subscribe((valor) => this.translateTanque=valor);
+    this.translate.get('traspasos.Cliente').subscribe((valor) => this.translateCliente=valor);
+    if (this.isTokenExired(localStorage.getItem('token')) && this.network.type != 'none'){
+        let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
+        this.servidor.login(URLS.LOGIN, param).subscribe(
+          response => {
+            if (response.success == 'true') {
+              // Guarda token en sessionStorage
+              localStorage.setItem('token', response.token);
+              this.preLoad();
+              }
+              });
+      }else{
+          this.preLoad();
+      }
+  }
 
+preLoad(){
+    if(!this.userId) this.userId = '1';
+    this.getAlmacenes();
+    this.getProveedores();
+    //this.getClientes();
+    this.getFamilias();
+}
 getOrden(idorden:number,fuente:string) {
     let parametros = '&idempresa=' + this.idempresa+"&entidad=produccion_orden&WHERE=id=&valor="+idorden+"";
         this.servidor.getObjects(URLS.STD_ITEM, parametros).subscribe(
