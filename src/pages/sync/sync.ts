@@ -66,6 +66,8 @@ isTokenExired (token) {
 }
 
   sync_data() {
+    console.log(this.network.type);
+    console.log(this.initdb.badge,typeof(this.initdb.badge));
     if (this.network.type != 'none') {
  let param = '?user=' + sessionStorage.getItem("nombre") + '&password=' +sessionStorage.getItem("password");
     this.servidor.login(URLS.LOGIN, param).subscribe(
@@ -480,10 +482,11 @@ isTokenExired (token) {
     body +=   "<BR>Nombre: " + nuevaIncidencia.incidencia +  "<BR>"
     body +=   "Descripción: " + nuevaIncidencia.descripcion;
     body +=   "<BR>Solución inmediata propuesta: " + nuevaIncidencia.solucion;
-    body +=   "<BR>Ir a la incidencia: " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/incidencias/0/" + nuevaIncidencia.id + ""
+    body +=   "<BR>Ir a la incidencia: " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/incidencias/0/" + nuevaIncidencia.id + "";
+    console.log(nuevaIncidencia.origen,nuevaIncidencia.origen != 'incidencias');
     if (nuevaIncidencia.origen != 'incidencias')
     body +=    "<BR>Ir al elemento " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/"+ nuevaIncidencia.origenasociado +"/"+ nuevaIncidencia.idOrigenasociado +"/" + nuevaIncidencia.idOrigen + ""
-    let parametros2 = "&body="+body+'&idempresa=' + sessionStorage.getItem("idempresa");
+    let parametros2 = '&idempresa=' + localStorage.getItem("idempresa") + "&body="+body;
         this.servidor.getObjects(URLS.ALERTES, parametros2).subscribe(
           response => {
             if (response.success && response.data) {

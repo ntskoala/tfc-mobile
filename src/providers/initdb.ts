@@ -148,13 +148,15 @@ db2.executeSql('CREATE TABLE IF NOT EXISTS incidencias (id INTEGER PRIMARY KEY A
 });
 
         });
-localStorage.setItem("inicializado","10")
+localStorage.setItem("inicializado","11")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
 if (localStorage.getItem("syncmantenimiento") === null) {localStorage.setItem("syncmantenimiento","0")}
+if (localStorage.getItem("syncincidencia") === null) {localStorage.setItem("syncincidencia","0")}
+
 this.badge = parseInt(localStorage.getItem("synccontrol"))+parseInt(localStorage.getItem("syncchecklist"))+parseInt(localStorage.getItem("syncsupervision"))+parseInt(localStorage.getItem("syncchecklimpieza"))+parseInt(localStorage.getItem("syncmantenimiento"))+parseInt(localStorage.getItem("syncincidencia"));
  }
 

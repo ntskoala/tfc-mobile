@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget build="24" id="com.ntskoala.tfc" version="0.0.24" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget build="27" id="com.ntskoala.tfc" version="0.0.27" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>TFC</name>
     <description>By NTS Koala.</description>
     <author email="jorged@ntskoala.com" href="http://www.ntskoala.com/">NTS Koala</author>

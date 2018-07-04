@@ -45,7 +45,7 @@
 </ion-card-content>
   </ion-card>
   <div style="height:100px"></div>
-
+</ion-content>
   <ion-footer *ngIf="hayRetraso>0" style="padding:15px; background-color:#ccc">
     <span ><b>
     {{'hay' | translate}} {{hayRetraso}} {{'eventosPendientes' | translate}} {{fecha_prevista | date:'dd-MM-yyyy'}}, {{'autocompletar' | translate}} 
@@ -55,4 +55,4 @@
     <ion-toggle [(ngModel)]="autocompletar"></ion-toggle>
     </ion-item>
   </ion-footer>
-</ion-content>
+

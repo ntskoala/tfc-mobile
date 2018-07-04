@@ -410,7 +410,7 @@ nuevaIncidencia(evento,elementoLimpieza,i){
   this.indexIncidenciaActivada = i;
   let incidencia = 'Incidencia en ' + elementoLimpieza.nombreElementoLimpieza + ' en Zona '  + this.nombreLimpieza;
   let descripcion = ''
-  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
+  let params= new Incidencia(null,null,incidencia,'',parseInt(sessionStorage.getItem("iduser")),
   parseInt(localStorage.getItem("idempresa")),'Limpiezas',null ,'limpieza_realizada',this.idlimpiezazona,null,descripcion,-1)
   this.navCtrl.push(IncidenciasPage,params);
   this.events.subscribe('nuevaIncidencia',(param)=>{

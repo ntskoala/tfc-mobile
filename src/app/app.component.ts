@@ -43,6 +43,8 @@ if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccon
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}
 if (localStorage.getItem("syncchecklimpieza") === null) {localStorage.setItem("syncchecklimpieza","0")}
 if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syncsupervision","0")}
+if (localStorage.getItem("syncmantenimiento") === null) {localStorage.setItem("syncmantenimiento","0")}
+if (localStorage.getItem("syncincidencia") === null) {localStorage.setItem("syncincidencia","0")}
 
         if (isNaN(parseInt(localStorage.getItem("inicializado")))) localStorage.setItem("inicializado","1");
         console.log("#####iniciar#####",parseInt(localStorage.getItem("inicializado")) < this.initdb.versionDBLocal);        
@@ -111,8 +113,8 @@ if (localStorage.getItem("syncsupervision") === null) {localStorage.setItem("syn
       { title: 'menu.login' , component: LoginPage },
       { title: 'menu.config' , component: Config },
       ];
-      //if (localStorage.getItem("idempresa") == "26"){//Entorno produccion
-      if (localStorage.getItem("idempresa") == "33"){//Entorno produccion koala TESTS
+      if (localStorage.getItem("idempresa") == "26"){//Entorno produccion
+      //if (localStorage.getItem("idempresa") == "33"){//Entorno produccion koala TESTS
        // if (localStorage.getItem("idempresa") == "77"){//Entorno Desarrollo
         this.pages.push({title:'menu.traspaso',component:"TraspasosPage"})
       }

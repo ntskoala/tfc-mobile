@@ -325,8 +325,8 @@ changeValor(control){
 
 nuevaIncidencia(){
   let incidencia = 'Incidencia en ' + this.nombrechecklist
-  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
-  parseInt(localStorage.getItem("idempresa")),'Checklists',this.idchecklist ,'Checklists',this.idchecklist,this.base64Image,null,-1)
+  let params= new Incidencia(null,null,incidencia,'',parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Checklists',this.idchecklist ,'Checklists',this.idchecklist,this.base64Image,'',-1)
   this.navCtrl.push(IncidenciasPage,params);
   this.events.subscribe('nuevaIncidencia', (param) => {
     // userEventData is an array of parameters, so grab our first and only arg

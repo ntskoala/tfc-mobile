@@ -204,8 +204,8 @@ takeFoto(){
 
 nuevaIncidencia(){
   let incidencia = 'Incidencia con ' + this.nombre + ' de ' + this.nombreMaquina;
-  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
-  parseInt(localStorage.getItem("idempresa")),'Maquinaria',null ,'mantenimientos_realizados',this.idMaquina,this.imagen,null,-1)
+  let params= new Incidencia(null,null,incidencia,'',parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Maquinaria',null ,'mantenimientos_realizados',this.idMaquina,this.imagen,'',-1)
   this.navCtrl.push(IncidenciasPage,params);
   this.events.subscribe('nuevaIncidencia', (param) => {
     // userEventData is an array of parameters, so grab our first and only arg

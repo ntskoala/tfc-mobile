@@ -127,8 +127,15 @@ isTokenExired (token) {
 
 creaIncidencia(incidencia){
  
-  let control,valorc, minimo,maximo, tolerancia,critico : string;
-let bcontrol = control +": "+this.control.nombre;
+let control,valorc, minimo,maximo, tolerancia,critico : string;
+this.translate.get("control").subscribe(resultado => { control = resultado});
+this.translate.get("valorc").subscribe(resultado => { valorc = resultado});
+this.translate.get("minimo").subscribe(resultado => { minimo = resultado});
+this.translate.get("maximo").subscribe(resultado => { maximo = resultado});
+this.translate.get("tolerancia").subscribe(resultado => { tolerancia = resultado});
+this.translate.get("critico").subscribe(resultado => { critico = resultado});
+
+let bcontrol =  "control: "+this.control.nombre;
 let bvalorc = valorc + this.valor;
 let bminimo = minimo+ (this.control.minimo ==null ? "":this.control.minimo);
 let bmaximo = maximo+ (this.control.maximo ==null ? "":this.control.maximo);
@@ -375,8 +382,8 @@ this.socialsharing.canShareViaEmail().then(() => {
 
 nuevaIncidencia(){
   let incidencia = 'Incidencia en ' + this.nombre
-  let params= new Incidencia(null,null,incidencia,null,parseInt(sessionStorage.getItem("iduser")),
-  parseInt(localStorage.getItem("idempresa")),'Controles',this.control.id ,'Controles',0,this.base64Image,null,-1)
+  let params= new Incidencia(null,null,incidencia,'',parseInt(sessionStorage.getItem("iduser")),
+  parseInt(localStorage.getItem("idempresa")),'Controles',this.control.id ,'Controles',0,this.base64Image,'',-1)
   this.navCtrl.push(IncidenciasPage,params);
   this.events.subscribe('nuevaIncidencia', (param) => {
     // userEventData is an array of parameters, so grab our first and only arg

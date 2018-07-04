@@ -56,8 +56,8 @@ public hoy: Date = new Date();
     console.log(this.incidencia)
     }else{
       this.textoBoton = 'enviar';
-      this.incidencia = new Incidencia(null,null,'',null,parseInt(sessionStorage.getItem("iduser")),
-      parseInt(localStorage.getItem("idempresa")),'Incidencias',0 ,'Incidencias',0,this.base64Image,null,-1)
+      this.incidencia = new Incidencia(null,null,'','',parseInt(sessionStorage.getItem("iduser")),
+      parseInt(localStorage.getItem("idempresa")),'Incidencias',0 ,'Incidencias',0,this.base64Image,'',-1)
     }
     this.db.create({name: 'data.db',location: 'default'})
     .then((db2: SQLiteObject) => {
