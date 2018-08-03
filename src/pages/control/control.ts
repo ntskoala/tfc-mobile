@@ -120,7 +120,7 @@ isTokenExired (token) {
       }  
     }
     if (fuerarango != "false") {
-      this.sendalert(fuerarango);
+      //this.sendalert(fuerarango);
       this.creaIncidencia(fuerarango);
     }
  }
@@ -142,6 +142,7 @@ let bmaximo = maximo+ (this.control.maximo ==null ? "":this.control.maximo);
 let btolerancia = tolerancia+ (this.control.tolerancia ==null ? "":this.control.tolerancia);
 let bcritico = critico+ (this.control.critico ==null ? "":this.control.critico);
 //let cabecera= '<br><img src="assets/img/logo.jpg" /><hr>';
+let inci = 'Incidencia en ' + this.control.nombre + ' valor: ' + this.valor;
 let descripcion = bcontrol+'<br>'+ bvalorc+'<br>'+ bminimo+'<br>'+ bmaximo+'<br>' +btolerancia+'<br>'+bcritico+'<br>';
   let idcontrol = this.idcontrol;
   let fecha = moment(this.hoy).format('YYYY-MM-DD HH:mm');
@@ -149,7 +150,7 @@ let descripcion = bcontrol+'<br>'+ bvalorc+'<br>'+ bminimo+'<br>'+ bmaximo+'<br>
   this.translate.get("alertas."+incidencia).subscribe(resultado => { mensaje = resultado});
   this.db.create({name: 'data.db',location: 'default'})
   .then((db2: SQLiteObject) => { db2.executeSql('INSERT INTO incidencias (fecha, incidencia, solucion, responsable, idempresa, origen, idOrigen, origenasociado, idOrigenasociado, foto, descripcion, estado, idElemento) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-  [fecha, mensaje,'',parseInt(sessionStorage.getItem("idusuario")),parseInt(localStorage.getItem("idempresa")),'Controles',idcontrol,'Controles',0,this.base64Image,descripcion,-1,]).then(
+  [fecha, inci,'',parseInt(sessionStorage.getItem("idusuario")),parseInt(localStorage.getItem("idempresa")),'Controles',idcontrol,'Controles',0,this.base64Image,mensaje,-1,]).then(
 (Resultado) => { console.log("insert_incidencia_ok:",Resultado);
 this.hayIncidencia= Resultado.insertId;
 // if (this.network.type != 'none') {

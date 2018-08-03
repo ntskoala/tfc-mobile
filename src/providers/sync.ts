@@ -135,7 +135,7 @@ public setGerentes(): Observable<any>
 setResultados(resultados,table):any
 {
    console.debug('resultados ' + table + ": " +resultados);
-    this.posturl = this.baseurl+'actions/set'+table+'.php?idempresa='+this.idempresa;
+    this.posturl = this.baseurl+'actions/set'+table+'.php?idempresa='+this.idempresa+"&userId="+localStorage.getItem("idusuario")+"&plataforma=app";
     console.debug(this.posturl);
         let params = resultados;
         //let headers = new Headers();

@@ -155,6 +155,7 @@ openPage(page) {
         localStorage.removeItem("password");
         localStorage.removeItem("idusuario");
         localStorage.removeItem("login");
+        localStorage.removeItem("token");
         sessionStorage.removeItem("nombre");
         sessionStorage.removeItem("password");
         sessionStorage.removeItem("idusuario");
