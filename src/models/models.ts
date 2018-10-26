@@ -1,5 +1,6 @@
-let server = 'https://tfc.proacciona.es/'; //prod
+// let server = 'https://tfc.proacciona.es/'; //prod
 // let server = 'http://tfc.ntskoala.com/';//DESARROLLO
+let server = 'https://tfc1-181808.appspot.com/';
 let base = server + 'api/';
 
 export const URLS = {
