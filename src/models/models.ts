@@ -1,4 +1,4 @@
-// let server = 'https://tfc.proacciona.es/'; //prod
+ //let server = 'https://tfc.proacciona.es/'; //prod
 // let server = 'http://tfc.ntskoala.com/';//DESARROLLO
 let server = 'https://tfc1-181808.appspot.com/';
 let base = server + 'api/';
@@ -274,7 +274,13 @@ export class maquina {
   public nombreMaquina: string
   ){}
 }
-
+export class pieza {
+  constructor(
+  public id:number,
+  public idmaquina: number,
+  public nombre: string
+  ){}
+}
 export class mantenimiento {
   constructor(
   public id: number,
@@ -312,7 +318,9 @@ export class mantenimientoRealizado {
   public causas: string,
   public tipo_evento: string,
   public idempresa: number,
-  public imagen:string
+  public imagen:string,
+  public pieza?:number,
+  public cantidadPiezas?:number
   
   ){}
 }

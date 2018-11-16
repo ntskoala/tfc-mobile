@@ -394,7 +394,7 @@ isTokenExired (token) {
             let mantenimiento = new mantenimientoRealizado(null, data.rows.item(fila).idmantenimiento, data.rows.item(fila).idmaquina, data.rows.item(fila).maquina, 
             data.rows.item(fila).mantenimiento,data.rows.item(fila).fecha_prevista,data.rows.item(fila).fecha,data.rows.item(fila).idusuario,data.rows.item(fila).responsable,
             data.rows.item(fila).descripcion,data.rows.item(fila).elemento,data.rows.item(fila).tipo,data.rows.item(fila).tipo2,
-            data.rows.item(fila).causas,data.rows.item(fila).tipo_evento,data.rows.item(fila).idempresa,data.rows.item(fila).imagen);
+            data.rows.item(fila).causas,data.rows.item(fila).tipo_evento,data.rows.item(fila).idempresa,data.rows.item(fila).imagen,data.rows.item(fila).pieza,data.rows.item(fila).cantidadPiezas);
           
             this.servidor.postObject(URLS.STD_ITEM, mantenimiento, param).subscribe(
               response => {
@@ -477,15 +477,23 @@ isTokenExired (token) {
       (respuesta)=>{
     let responsables = respuesta["data"];
     console.log("sendmail got users: ",responsables);
-    let body = "Nueva incidencia creada desde " + nuevaIncidencia.origen + "<BR>Por: " +  responsables[responsables.findIndex((responsable)=>responsable["value"] == nuevaIncidencia.responsable)]["label"]
-    body +=   "<BR>Con fecha y hora: " + moment(nuevaIncidencia.fecha).format('DD-MM-YYYY hh-mm') +  "<BR>"
-    body +=   "<BR>Nombre: " + nuevaIncidencia.incidencia +  "<BR>"
-    body +=   "Descripción: " + nuevaIncidencia.descripcion;
-    body +=   "<BR>Solución inmediata propuesta: " + nuevaIncidencia.solucion;
-    body +=   "<BR>Ir a la incidencia: " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/incidencias/0/" + nuevaIncidencia.id + "";
+    // let body = "Nueva incidencia creada desde " + nuevaIncidencia.origen + "<BR>Por: " +  responsables[responsables.findIndex((responsable)=>responsable["value"] == nuevaIncidencia.responsable)]["label"]
+    // body +=   "<BR>Con fecha y hora: " + moment(nuevaIncidencia.fecha).format('DD-MM-YYYY hh-mm') +  "<BR>"
+    // body +=   "<BR>Nombre: " + nuevaIncidencia.incidencia +  "<BR>"
+    // body +=   "Descripción: " + nuevaIncidencia.descripcion;
+    // body +=   "<BR>Solución inmediata propuesta: " + nuevaIncidencia.solucion;
+    // body +=   "<BR>Ir a la incidencia: " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/incidencias/0/" + nuevaIncidencia.id + "";
+    // console.log(nuevaIncidencia.origen,nuevaIncidencia.origen != 'incidencias');
+
+    let body =    nuevaIncidencia.incidencia +  "<BR>"
+    body +=    nuevaIncidencia.descripcion +  "<BR>";
+    if (nuevaIncidencia.solucion.length >0) body +=   "Solución inmediata propuesta: " + nuevaIncidencia.solucion+ "<BR>";
+    //body = "Nueva incidencia creada desde " + nuevaIncidencia.origen + "<BR>Por: " +  responsables[responsables.findIndex((responsable)=>responsable["value"] == nuevaIncidencia.responsable)]["label"]
+    body +=   moment(nuevaIncidencia.fecha).format('DD-MM-YYYY hh-mm a') +  "<HR>"
+    body +=   "<span style='float:lelft'><a href='" + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/incidencias/0/" + nuevaIncidencia.id + "'><img src='https://tfc.proacciona.es/assets/images/verIncidencia.png'></a></span>";
     console.log(nuevaIncidencia.origen,nuevaIncidencia.origen != 'incidencias');
     if (nuevaIncidencia.origen != 'incidencias')
-    body +=    "<BR>Ir al elemento " + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/"+ nuevaIncidencia.origenasociado +"/"+ nuevaIncidencia.idOrigenasociado +"/" + nuevaIncidencia.idOrigen + ""
+    body +=    "<span style='float:right'><a href='" + URLS.SERVER + "empresas/"+ localStorage.getItem("idempresa") +"/"+ nuevaIncidencia.origenasociado +"/"+ nuevaIncidencia.idOrigenasociado +"/" + nuevaIncidencia.idOrigen + "'><img src='https://tfc.proacciona.es/assets/images/verElemento.png'></a></span>";
     let parametros2 = '&idempresa=' + localStorage.getItem("idempresa") + "&body="+body;
         this.servidor.getObjects(URLS.ALERTES, parametros2).subscribe(
           response => {

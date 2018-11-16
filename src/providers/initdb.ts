@@ -21,10 +21,10 @@ public logged: number;
 public badge: number;
 
 //*****************  VERSION BBDD */
-//anterior 8 -> posterior version 9. 
+//anterior 11 -> posterior version 12. 
 //Crea nueva tabla INCIDENCIAS 
 //************  */
-public versionDBLocal: number=10;
+public versionDBLocal: number=13;
 //*****************  VERSION BBDD */
 
 public hayConexion:boolean=false;
@@ -45,6 +45,7 @@ public momentoCambioEstado:number=0;
  inicializa(){
     console.log("***INICIALIZANDO***");
    // this.db = new SQLite();
+
         this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
             db2.executeSql('DROP TABLE IF EXISTS logins',[]).then((data) => {
                 console.log("TABLE DROPPED  LOGINS-> " + JSON.stringify(data));
@@ -120,7 +121,7 @@ public momentoCambioEstado:number=0;
   
 
     db2.executeSql('DROP TABLE IF EXISTS mantenimientosrealizados',[]);
-    db2.executeSql('CREATE TABLE IF NOT EXISTS mantenimientosrealizados (id INTEGER PRIMARY KEY AUTOINCREMENT, idmantenimiento INTEGER, idmaquina INTEGER, maquina TEXT, mantenimiento TEXT, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP,idusuario INTEGER, responsable TEXT, descripcion TEXT, elemento TEXT, tipo TEXT,tipo2 TEXT,causas TEXT,tipo_evento TEXT, idempresa INTEGER, imagen BLOB)',[]).then((data) => {
+    db2.executeSql('CREATE TABLE IF NOT EXISTS mantenimientosrealizados (id INTEGER PRIMARY KEY AUTOINCREMENT, idmantenimiento INTEGER, idmaquina INTEGER, maquina TEXT, mantenimiento TEXT, fecha_prevista DATETIME, fecha DATETIME DEFAULT CURRENT_TIMESTAMP,idusuario INTEGER, responsable TEXT, descripcion TEXT, elemento TEXT, tipo TEXT,tipo2 TEXT,causas TEXT,tipo_evento TEXT, idempresa INTEGER, imagen BLOB, pieza,cantidadPiezas)',[]).then((data) => {
         console.log("TABLE CREATED MANTENIMIENTOSREALIZADOS-> " + JSON.stringify(data));
     }, (error) => {
         console.log("ERROR -> " + JSON.stringify(error));
@@ -146,9 +147,15 @@ db2.executeSql('CREATE TABLE IF NOT EXISTS incidencias (id INTEGER PRIMARY KEY A
    }, (error) => {
        console.log("ERROR -> NO SE CREÓ INCIDENCIAS: ",error);
 });
+db2.executeSql('DROP TABLE IF EXISTS piezas',[]);
+db2.executeSql('CREATE TABLE IF NOT EXISTS piezas (id INTEGER PRIMARY KEY,  idmaquina INTEGER, nombre TEXT)',[]).then((data) => {
+       console.log("TABLE CREATED INCIDENCIAS-> " + JSON.stringify(data));
+   }, (error) => {
+       console.log("ERROR -> NO SE CREÓ INCIDENCIAS: ",error);
+});
 
         });
-localStorage.setItem("inicializado","11")
+localStorage.setItem("inicializado","13")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}

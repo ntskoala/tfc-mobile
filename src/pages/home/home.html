@@ -38,6 +38,12 @@
      <!-- <ion-card-title>Total Food Control
      </ion-card-title> -->
     <ion-card-content>
+
+    <div *ngIf="controlesList.length+checklistList.length+checkLimpiezas.length+mantenimientos.length+calibraciones.length+supervisionLimpiezas.length<=0">
+      {{"sinTareas" | translate}}
+    </div>
+
+
 <ion-item (click)="supervisar(supervision)" *ngIf="supervisionLimpiezas.length>0">
     <ion-badge item-content>{{supervisionLimpiezas.length}}</ion-badge>
       <ion-avatar item-left>

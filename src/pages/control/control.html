@@ -24,13 +24,90 @@
        <strong>{{nombre}} {{pla}}</strong>
      </ion-card-title>
     <ion-card-content>
-       <ion-item> <!--pattern="[0-9\-]*"-->
+       <!-- <ion-item>
         <ion-label floating>{{"valor" | translate}}</ion-label>
 
         <ion-input *ngIf="teclado != 'text'" type="number" step="0.01"  [(ngModel)]="valor"></ion-input>
         <ion-input *ngIf="teclado == 'text'" type="text" step="0.01"  [(ngModel)]="valor"></ion-input>
         
-      </ion-item>
+      </ion-item> -->
+
+
+    <!-- INPUT PERSONALIZADO -->
+
+    <div (click)="teclado=true">
+      <div  class="myInputText" (click)="valorTextActive=true" *ngIf="valorText.length==0">
+        <span [ngClass]="{'inputActive':!valorTextActive}" class="cursor">|</span>
+        <span [ngClass]="{'inputActive':valorTextActive}">{{"valor" | translate}}</span>
+      </div>
+    <div class="myInput">{{valorText}}</div>
+    </div>
+    
+<hr>
+<ion-grid *ngIf="teclado">
+<ion-row>
+<ion-col class="boton">
+ <div class="bot" (click)="setValue(1)">1</div>
+</ion-col>
+<ion-col class="boton">
+  <div class="bot" (click)="setValue(2)">2</div>
+</ion-col>
+<ion-col class="boton">
+  <div class="bot" (click)="setValue(3)">3</div>
+</ion-col>
+<ion-col class="boton">
+  <div class="bot" (click)="setValue('del')"><ion-icon class="icon" name="backspace"></ion-icon></div>
+</ion-col>
+</ion-row>
+
+<ion-row>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(4)">4</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(5)">5</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(6)">6</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot"></div>
+  </ion-col>
+</ion-row>
+
+<ion-row>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(7)">7</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(8)">8</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(9)">9</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot"></div>
+  </ion-col>
+</ion-row>
+
+<ion-row>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue('-')">-</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue(0)">0</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="setValue('.')">.</div>
+  </ion-col>
+  <ion-col class="boton">
+    <div class="bot" (click)="teclado=false"><ion-icon  class="icon green" name="checkmark-circle"></ion-icon></div>
+  </ion-col>
+</ion-row>
+</ion-grid>
+
+
+    <!-- FIN INPUT PERSONALIZADO -->
       <hr>   
 <button ion-button (click)="takeFoto()" twitter style="width: 30%;">{{"foto" | translate}}</button> 
 <button ion-button (click)="terminar(idcontrol)" [disabled]="desactivado" twitter style="width: 30%;">{{"terminar" | translate}}</button> 

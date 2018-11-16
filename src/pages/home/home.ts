@@ -19,7 +19,7 @@ import { Servidor } from '../../providers/servidor';
 import { Initdb } from '../../providers/initdb'
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-import { URLS, controlesList, checklistList, checkLimpieza, mantenimiento, limpiezaRealizada,supervisionLimpieza, mantenimientoRealizado, maquina } from '../../models/models'
+import { URLS, controlesList, checklistList, checkLimpieza, mantenimiento, limpiezaRealizada,supervisionLimpieza, mantenimientoRealizado, maquina,pieza } from '../../models/models'
 import * as moment from 'moment';
 import { setTimeout } from 'timers';
 
@@ -40,6 +40,7 @@ mischeckslimpiezas: any;
 mismantenimientos: any;
 miscalibraciones: any;
 mismaquinas:any;
+mispiezas:any;
 mislimpiezasrealizadas: any;
 public cambio: number;
 accesomenu: any;
@@ -52,8 +53,9 @@ public supervisionLimpiezas: supervisionLimpieza[] = [];
 public mantenimientos: mantenimiento[]=[];
 public calibraciones: mantenimiento[]=[];
 public maquinas: maquina[]=[];
+public piezas: pieza[]=[];
 public loader:any;
-public status:boolean[]=[false,false,false,false,false,false];
+public status:boolean[]=[false,false,false,false,false,false,false];
 public sql: SQLiteObject;
 public Momento = moment();
 public cargando: boolean=false;
@@ -91,7 +93,7 @@ public superuser: number=parseInt(localStorage.getItem("superuser"));
         }
       );
 
-      this.cargando = true;
+    this.cargando = true;
     let login = this.data.logged;
         if ((login === undefined || login == null)) {
           this.navCtrl.setRoot(LoginPage);
@@ -182,15 +184,18 @@ callSincroniza(versionActual?){
                   case "limpiezasRealizadas":
                   this.status[6] = true;
                   break;
+                  case "piezas":
+                  this.status[7] = true;
+                  break;
                 }
                 console.log(this.status, moment(this.Momento).diff(moment(), 'seconds'));
-                if (this.status[0] && this.status[1] && this.status[2] && this.status[3] && this.status[4] && this.status[5]  && this.status[6]){
+                if (this.status[0] && this.status[1] && this.status[2] && this.status[3] && this.status[4] && this.status[5]  && this.status[6] && this.status[7]){
                  console.log("STATUS 6", moment(this.Momento).diff(moment(), 'seconds'));
 
                   if (!(versionActual>0)) localStorage.setItem("versioncontrols","0");
                   setTimeout(()=>{ 
                     this.cargaListas();
-                    this.status=[false,false,false,false,false,false];
+                    this.status=[false,false,false,false,false,false,false];
             this.closeLoading();
             },500);
                 }
@@ -585,7 +590,59 @@ sincronizate(version? : string){
 );  
 //MAQUINAS
 //MAQUINAS
+ //PIEZAS
+   //PIEZAS
+   // DESCARGA PIEZAS ENTONCES BORRA LOS LOCALES, LUEGO INSERTA LOS DESCARGADOS EN LOCAL.
+            
+   this.sync.getMisPiezas(this.data.logged).map(res => res.json()).subscribe(
+    data => {
+       this.mispiezas = JSON.parse(data);
+            console.log('resultado mispiezas: ' + this.mispiezas.success);
+        //    console.log('success check: ' +this.mischecks.data[0].nombre);
+        if (this.mispiezas.success){
+          //test
+            this.piezas = this.mispiezas.data;
+            if (this.piezas){
+            console.log("piezas: ", this.piezas);
+         //  this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
+            this.sql.executeSql("delete from piezas",[]).then((data) => {
+              let argumentos=[];
+              let valores='';
+              this.piezas.forEach (pieza => 
+            {
+              //    this.saveChecklimpieza(checklimpieza)
+              argumentos.push ('(?,?,?)');
+              valores += "("+pieza.id+","+pieza.idmaquina+",'"+pieza.nombre+"'),";           
+             });
+             valores = valores.substr(0,valores.length-1);
+             //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+             let query = "INSERT INTO piezas ( id,idmaquina,nombre ) VALUES " + valores;
+             console.log('########',query);
 
+              this.sql.executeSql(query,[])
+              .then((data) => {
+                console.log('***********OK INSERT PIEZAS', data)
+              },
+              (error)=>{ console.log('***********ERROR PIEZAS', error)});
+              console.log(JSON.stringify('deleted PIEZAS: ',data.res));
+              }, (error) => {
+              console.log("ERROR home. 626 delete PIEZAS-> " + JSON.stringify(error));
+              //alert("Error 2");
+            } );
+        //});
+            }
+          response.next('piezas');
+              //this.mischecks.forEach (checklist => this.saveChecklist(checklist));
+          }
+      },
+    err => console.error(err),
+    () => {
+      if (version) localStorage.setItem("versioncontrols",version);
+     // this.getChecklists();
+    }
+);  
+//PIEZAS
+//PIEZAS
 
  //LIMPIEZAS REALIZADAS
    //LIMPIEZAS REALIZADAS

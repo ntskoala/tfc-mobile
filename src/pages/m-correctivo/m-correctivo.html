@@ -16,6 +16,16 @@
         </ion-select>
       </ion-item>
 
+      <ion-item>
+        <ion-label>{{'maquinas.pieza' | translate}}</ion-label>
+        <ion-select [(ngModel)]="mantenimientoRealizado.pieza" (ionChange)="cambiaPieza($event)">
+          <ion-option *ngFor="let pieza of piezas" value="{{pieza.id}}">{{pieza.nombre}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+          <ion-label>{{'maquinas.cantidadPiezas' | translate}}</ion-label>
+      <ion-input  type="number"   [(ngModel)]="mantenimientoRealizado.cantidadPiezas"></ion-input>
+    </ion-item>
 <ion-item>
     <ion-textarea placeholder="{{'maquinas.mantenimiento' | translate}}" [(ngModel)]="mantenimientoRealizado.mantenimiento"></ion-textarea>
   </ion-item>
@@ -30,15 +40,15 @@
           <ion-option value="externo">{{'externo' | translate}}</ion-option>
         </ion-select>
       </ion-item>
-<ion-item>
+<!-- <ion-item>
     <ion-textarea placeholder="{{'maquinas.elemento' | translate}}" [(ngModel)]="mantenimientoRealizado.elemento"></ion-textarea>
-  </ion-item>
-<ion-item>
+  </ion-item>-->
+<ion-item> 
   <ion-textarea placeholder="{{'maquinas.descripcion' | translate}}" [(ngModel)]="mantenimientoRealizado.descripcion"></ion-textarea>
 </ion-item>
-<ion-item>
+<!-- <ion-item>
   <ion-textarea placeholder="{{'maquinas.causas' | translate}}" [(ngModel)]="mantenimientoRealizado.casusas"></ion-textarea>
-</ion-item>
+</ion-item> -->
 <ion-item>
     <ion-textarea placeholder="{{'maquinas.responsable' | translate}}" [(ngModel)]="mantenimientoRealizado.responsable"></ion-textarea>
   </ion-item>

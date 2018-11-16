@@ -32,6 +32,7 @@ public nombre: string;
 public pla: string;
 public idcontrol: number;
 public valor: number;
+public valorObjetivo: number;
 public control: any;
 public desactivado: boolean;
 public fecha_prevista: Date;
@@ -39,9 +40,12 @@ public periodicidad: any;
 public hayRetraso: number;
 public autocompletar:boolean=false;
 public hoy: Date = new Date();
-public teclado: string;
+//public teclado: string;
 public hayIncidencia: number = 0;
 public hayIncidenciaAd: number =0;
+public valorText:string="";
+public teclado:boolean=true;
+public inputActive:boolean=false;
 //public myapp: MyApp;
   constructor(public navCtrl: NavController, private navParams: NavParams, private translate: TranslateService, 
     public initdb: Initdb, public sync: SyncPage, public servidor: Servidor, public db :SQLite, public camera: Camera,
@@ -51,6 +55,7 @@ public hayIncidenciaAd: number =0;
     this.pla = this.navParams.get('control').pla;
     this.idcontrol = this.navParams.get('control').id;
     this.fecha_prevista = this.navParams.get('control').fecha;
+    this.valorObjetivo = this.navParams.get('control').objetivo;
     try{
     this.periodicidad = JSON.parse(this.navParams.get('control').periodicidad);
     }catch(e){
@@ -60,14 +65,15 @@ public hayIncidenciaAd: number =0;
     this.desactivado = false;
    // this.storage = new Storage(SqlStorage, {name: 'tfc'});
   //  translate.use('es');
+  if (this.valorObjetivo) this.valor = this.valorObjetivo
   }
 
   ionViewDidLoad() {
     console.debug('Hello Control Page');
     this.sync.login();
-    if(localStorage.getItem("teclado") == "text"){
-      this.teclado = "text";
-    }
+    // if(localStorage.getItem("teclado") == "text"){
+    //   this.teclado = "text";
+    // }
   }
 
   ionViewDidEnter() {
@@ -142,8 +148,8 @@ let bmaximo = maximo+ (this.control.maximo ==null ? "":this.control.maximo);
 let btolerancia = tolerancia+ (this.control.tolerancia ==null ? "":this.control.tolerancia);
 let bcritico = critico+ (this.control.critico ==null ? "":this.control.critico);
 //let cabecera= '<br><img src="assets/img/logo.jpg" /><hr>';
-let inci = 'Incidencia en ' + this.control.nombre + ' valor: ' + this.valor;
-let descripcion = bcontrol+'<br>'+ bvalorc+'<br>'+ bminimo+'<br>'+ bmaximo+'<br>' +btolerancia+'<br>'+bcritico+'<br>';
+let inci =  this.control.nombre + ' con valor: ' + this.valor ;
+let descripcion = bcontrol+'&#10;&#13;'+ bvalorc+'&#10;&#13;'+ bminimo+'&#10;&#13;'+ bmaximo+'&#10;&#13;' +btolerancia+'&#10;&#13;'+bcritico+'&#10;&#13;';
   let idcontrol = this.idcontrol;
   let fecha = moment(this.hoy).format('YYYY-MM-DD HH:mm');
   let mensaje;
@@ -172,6 +178,7 @@ console.log('ERROR INSERTANDO INCIDENCIA',JSON.stringify(error))
 }
 
 terminar(){
+  this.valor = parseFloat(this.valorText);
   let idcontrol = this.idcontrol;
  if (!isNaN(this.valor))
  {
@@ -391,5 +398,23 @@ nuevaIncidencia(){
     console.log('Id Incidencia Local', param);
     this.hayIncidenciaAd = param.idLocal;
   });
+}
+
+setValue(valorText:number | string){
+  if (typeof(valorText)=='string'){
+    switch(valorText){
+      case "del":
+      this.valorText =  this.valorText.substr(0,this.valorText.length-1);
+      break;
+      case ".":
+      this.valorText+=valorText;
+      break;
+      case "-":
+      this.valorText.substr(0,1) == '-'? this.valorText = this.valorText.substr(1,this.valorText.length-1):this.valorText = "-" + this.valorText;
+      break;
+    }
+  }else{
+    this.valorText+=valorText.toString();
+  }
 }
 }

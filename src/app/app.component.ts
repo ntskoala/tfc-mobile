@@ -136,7 +136,7 @@ hayUpdates() {
             }
         },
         (error)=>{
-          console.debug(error)
+          console.log(error)
           resolve(updates);
       },
         ()=>{

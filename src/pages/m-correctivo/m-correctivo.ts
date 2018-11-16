@@ -33,6 +33,7 @@ import * as moment from 'moment';
 })
 export class MCorrectivoPage {
   public maquinas: maquina[];
+  public piezas:object[];
   public machine: number;
   public nombreMaquina:string;
   public mantenimientoRealizado: mantenimientoRealizado;
@@ -98,13 +99,14 @@ if (this.machine >0){
   this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
   let fecha = moment(this.mantenimientoRealizado.fecha).format('YYYY-MM-DD');
 
-      db2.executeSql('INSERT INTO mantenimientosrealizados (idmantenimiento, idmaquina, maquina, mantenimiento, fecha_prevista,fecha,idusuario, responsable, descripcion, elemento, tipo,tipo2,causas,tipo_evento, idempresa, imagen ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      db2.executeSql('INSERT INTO mantenimientosrealizados (idmantenimiento, idmaquina, maquina, mantenimiento, fecha_prevista,fecha,idusuario, responsable, descripcion, elemento, tipo,tipo2,causas,tipo_evento, idempresa, imagen, pieza,cantidadPiezas ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         [0,this.machine,this.nombreMaquina,
           this.mantenimientoRealizado.mantenimiento,fecha,fecha,this.mantenimientoRealizado.idusuario,
           this.mantenimientoRealizado.responsable,this.mantenimientoRealizado.descripcion,
           this.mantenimientoRealizado.elemento,this.mantenimientoRealizado.tipo,
           this.mantenimientoRealizado.tipo2,this.mantenimientoRealizado.causas,
-          this.mantenimientoRealizado.tipo_evento,this.mantenimientoRealizado.idempresa,this.imagen]).then(
+          this.mantenimientoRealizado.tipo_evento,this.mantenimientoRealizado.idempresa,this.imagen,
+        this.mantenimientoRealizado.pieza,this.mantenimientoRealizado.cantidadPiezas]).then(
   (Resultado) => {
 
       localStorage.setItem("syncmantenimientos", (parseInt(localStorage.getItem("syncmantenimientos")) + 1).toString());
@@ -152,5 +154,32 @@ takeFoto(){
 cambia(id:number){
   let index = this.maquinas.findIndex((maquina)=>maquina.idMaquina == id)
   this.nombreMaquina = this.maquinas[index].nombreMaquina;
+  console.log('CAMBIO MAQUINA:',id,index,this.maquinas[index].idMaquina);
+  this.getPiezas(this.maquinas[index].idMaquina);
+}
+cambiaPieza(idPieza:number){
+console.log(idPieza);
+}
+
+getPiezas(idMaquina){
+  console.log(idMaquina)
+  this.piezas =[];
+  this.db.create({name: "data.db", location: "default"}).then((sql: SQLiteObject) => {
+  sql.executeSql("Select * FROM piezas WHERE idmaquina = ? ORDER BY id", [idMaquina]).then(
+    (data) => {
+  console.log('NUM Piezas:',data.rows.length);
+      for (var index=0;index < data.rows.length;index++){
+        this.piezas.push({'id':data.rows.item(index).id, 'nombre':data.rows.item(index).nombre});
+    }
+    this.piezas.unshift({'id':0, 'nombre':'ninguna'});
+  console.log ("piezas:", this.piezas);
+}, (error) => {
+  console.log("ERROR pieszas.-> ", error);
+  //alert("error home Maquinas. 824" + error);
+}); 
+//});
+console.log("Fin  Piezas");
+});
+
 }
 }
