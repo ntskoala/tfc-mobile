@@ -897,7 +897,7 @@ getMantenimientos(){
                   let isBD;
                   //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
-                  this.sql.executeSql("Select * FROM maquina_mantenimiento WHERE fecha <= ?  GROUP BY nombreMaquina ORDER BY nombreMaquina, orden", [fecha]).then(
+                  this.sql.executeSql("Select * FROM maquina_mantenimiento WHERE fecha <= ?  ORDER BY nombreMaquina, orden", [fecha]).then(
                     (data) => {
                   console.log('NUMmantenimientos:',data.rows.length);
                       for (let index=0;index < data.rows.length;index++){
@@ -921,7 +921,7 @@ getCalibraciones(){
                   let isBD;
                   //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
-                  this.sql.executeSql("Select * FROM maquina_calibraciones WHERE fecha <= ?  GROUP BY nombreMaquina ORDER BY nombreMaquina, orden", [fecha]).then(
+                  this.sql.executeSql("Select * FROM maquina_calibraciones WHERE fecha <= ?  ORDER BY nombreMaquina, orden", [fecha]).then(
                     (data) => {
                   console.log('NUMCalibraciones:',data.rows.length);
                       for (var index=0;index < data.rows.length;index++){

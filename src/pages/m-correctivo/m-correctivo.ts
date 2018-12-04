@@ -165,7 +165,7 @@ getPiezas(idMaquina){
   console.log(idMaquina)
   this.piezas =[];
   this.db.create({name: "data.db", location: "default"}).then((sql: SQLiteObject) => {
-  sql.executeSql("Select * FROM piezas WHERE idmaquina = ? ORDER BY id", [idMaquina]).then(
+  sql.executeSql("Select * FROM piezas WHERE idmaquina= 0 OR idmaquina = ? ORDER BY id", [idMaquina]).then(
     (data) => {
   console.log('NUM Piezas:',data.rows.length);
       for (var index=0;index < data.rows.length;index++){
