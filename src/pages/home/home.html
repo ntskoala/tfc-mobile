@@ -88,7 +88,7 @@
 </ion-item>
 </ion-list>
 
-<ion-item (click)="takeMCorrectivo()" *ngIf="tipoUser=='Mantenimiento' ||superuser">
+<ion-item (click)="takeMCorrectivo()"  *ngIf="superuser==1">
   <ion-avatar item-left>
   <img src="assets/img/correctivo.png">
 </ion-avatar>

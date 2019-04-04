@@ -24,7 +24,7 @@ public badge: number;
 //anterior 11 -> posterior version 12. 
 //Crea nueva tabla INCIDENCIAS 
 //************  */
-public versionDBLocal: number=13;
+public versionDBLocal: number=14;
 //*****************  VERSION BBDD */
 
 public hayConexion:boolean=false;
@@ -79,14 +79,14 @@ public momentoCambioEstado:number=0;
             console.log("ERROR -> NO SE CREÓ CHECKLIMPIEZA: ",error);
   });
 
-  db2.executeSql('DROP TABLE IF EXISTS mantenimientos',[]);
-  db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_mantenimiento (id INTEGER PRIMARY KEY, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT, orden INTEGER)',[]).then((data) => {
+  db2.executeSql('DROP TABLE IF EXISTS maquina_mantenimiento',[]);
+  db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_mantenimiento (id INTEGER PRIMARY KEY AUTOINCREMENT, idmantenimiento INTEGER, idusuario INTEGER, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT, orden INTEGER)',[]).then((data) => {
     console.log("TABLE CREATED MANTENIMIENTOS-> " + JSON.stringify(data));
 }, (error) => {
     console.log("ERROR -> NO SE CREÓ MANTENIMIENTOS: ",error);
 });
-    db2.executeSql('DROP TABLE IF EXISTS calibraciones',[]);
-    db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_calibraciones (id INTEGER PRIMARY KEY, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT,  orden INTEGER)',[]).then((data) => {
+    db2.executeSql('DROP TABLE IF EXISTS maquina_calibraciones',[]);
+    db2.executeSql('CREATE TABLE IF NOT EXISTS maquina_calibraciones (id INTEGER PRIMARY KEY AUTOINCREMENT, idmantenimiento INTEGER, idusuario INTEGER, idMaquina INTEGER,  nombreMaquina TEXT,nombre TEXT, fecha DATETIME, tipo TEXT,  periodicidad TEXT,responsable TEXT,  orden INTEGER)',[]).then((data) => {
     console.log("TABLE CREATED CALIBRACIONES-> " + JSON.stringify(data));
     }, (error) => {
     console.log("ERROR -> NO SE CREÓ CALIBRACIONES: ",error);
@@ -155,7 +155,7 @@ db2.executeSql('CREATE TABLE IF NOT EXISTS piezas (id INTEGER PRIMARY KEY,  idma
 });
 
         });
-localStorage.setItem("inicializado","13")
+localStorage.setItem("inicializado","14")
 if (localStorage.getItem("versionusers") === null) {localStorage.setItem("versionusers","0")}
 if (localStorage.getItem("synccontrol") === null) {localStorage.setItem("synccontrol","0")}
 if (localStorage.getItem("syncchecklist") === null) {localStorage.setItem("syncchecklist","0")}

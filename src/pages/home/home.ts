@@ -211,10 +211,9 @@ cargaListas(){
             this.getChecklists();
             this.getLimpiezas();
             this.getLimpiezasRealizadas();
-            if (localStorage.getItem("tipoUser")=='Mantenimiento' || localStorage.getItem("superuser")=='1'){
               this.getMantenimientos();
               this.getCalibraciones();
-            }
+            
   console.log("Fin CargaListas", moment(this.Momento).diff(moment(), 'seconds')); 
   setTimeout(()=>{
     this.cargando = false;
@@ -448,12 +447,12 @@ sincronizate(version? : string){
               let valores='';
               this.mismantenimientos.forEach (mantenimiento => 
             {
-               argumentos.push ('(?,?,?,?,?,?,?)');
-               valores += "("+mantenimiento.id+","+mantenimiento.idMaquina+",'"+mantenimiento.nombreMaquina+"','"+mantenimiento.nombre+"','"+mantenimiento.fecha+"','"+mantenimiento.tipo+"','"+mantenimiento.periodicidad+"','"+mantenimiento.responsable+"',"+mantenimiento.orden+"),";           
+               argumentos.push ('(?,?,?,?,?,?,?,?)');
+               valores += "("+mantenimiento.id+","+mantenimiento.idusuario+","+mantenimiento.idMaquina+",'"+mantenimiento.nombreMaquina+"','"+mantenimiento.nombre+"','"+mantenimiento.fecha+"','"+mantenimiento.tipo+"','"+mantenimiento.periodicidad+"','"+mantenimiento.responsable+"',"+mantenimiento.orden+"),";           
               });
               valores = valores.substr(0,valores.length-1);
               //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-              let query = "INSERT INTO maquina_mantenimiento ( id, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
+              let query = "INSERT INTO maquina_mantenimiento ( idmantenimiento, idusuario, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
               console.log('########',query);
 
               this.sql.executeSql(query,[])
@@ -503,12 +502,12 @@ sincronizate(version? : string){
             {
               //    this.saveChecklimpieza(checklimpieza)
 
-              argumentos.push ('(?,?,?,?,?,?,?)');
-              valores += "("+mantenimiento.id+","+mantenimiento.idMaquina+",'"+mantenimiento.nombreMaquina+"','"+mantenimiento.nombre+"','"+mantenimiento.fecha+"','"+mantenimiento.tipo+"','"+mantenimiento.periodicidad+"','"+mantenimiento.responsable+"',"+mantenimiento.orden+"),";           
+              argumentos.push ('(?,?,?,?,?,?,?,?)');
+              valores += "("+mantenimiento.id+","+mantenimiento.idusuario+","+mantenimiento.idMaquina+",'"+mantenimiento.nombreMaquina+"','"+mantenimiento.nombre+"','"+mantenimiento.fecha+"','"+mantenimiento.tipo+"','"+mantenimiento.periodicidad+"','"+mantenimiento.responsable+"',"+mantenimiento.orden+"),";           
              });
              valores = valores.substr(0,valores.length-1);
              //idlimpiezazona,idusuario, nombrelimpieza, idelemento, nombreelementol, fecha, tipo, periodicidad ,productos,protocolo,responsable ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-             let query = "INSERT INTO maquina_calibraciones ( id, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
+             let query = "INSERT INTO maquina_calibraciones (idmantenimiento, idusuario, idMaquina,  nombreMaquina,nombre, fecha, tipo,  periodicidad,responsable,  orden ) VALUES " + valores;
              console.log('########',query);
 
               this.sql.executeSql(query,[])
@@ -897,7 +896,7 @@ getMantenimientos(){
                   let isBD;
                   //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
-                  this.sql.executeSql("Select * FROM maquina_mantenimiento WHERE fecha <= ?  ORDER BY nombreMaquina, orden", [fecha]).then(
+                  this.sql.executeSql("Select * FROM maquina_mantenimiento WHERE idusuario = ? and fecha <= ?  ORDER BY nombreMaquina, orden", [sessionStorage.getItem("idusuario"),fecha]).then(
                     (data) => {
                   console.log('NUMmantenimientos:',data.rows.length);
                       for (let index=0;index < data.rows.length;index++){
@@ -921,7 +920,7 @@ getCalibraciones(){
                   let isBD;
                   //this.db.create({name: "data.db", location: "default"}).then((db2: SQLiteObject) => {
                   //this.checklistList = data.rows;
-                  this.sql.executeSql("Select * FROM maquina_calibraciones WHERE fecha <= ?  ORDER BY nombreMaquina, orden", [fecha]).then(
+                  this.sql.executeSql("Select * FROM maquina_calibraciones WHERE idusuario = ? and fecha <= ?  ORDER BY nombreMaquina, orden", [sessionStorage.getItem("idusuario"),fecha]).then(
                     (data) => {
                   console.log('NUMCalibraciones:',data.rows.length);
                       for (var index=0;index < data.rows.length;index++){

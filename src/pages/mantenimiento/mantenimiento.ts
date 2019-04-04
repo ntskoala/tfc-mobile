@@ -62,7 +62,7 @@ export class MantenimientoPage {
     public servidor: Servidor, public periodos: PeriodosProvider, public events: Events) {
       console.debug("param",this.params.get('mantenimiento'));
       
-     this.id =  this.params.get('mantenimiento').id;
+     this.id =  this.params.get('mantenimiento').idmantenimiento;
      this.idMaquina=  this.params.get('mantenimiento').idMaquina;
      this.nombreMaquina = this.params.get('mantenimiento').nombreMaquina;
      this.nombre = this.params.get('mantenimiento').nombre;
